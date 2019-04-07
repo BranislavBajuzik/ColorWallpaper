@@ -1,0 +1,2 @@
+# ColorWallpaper
+Minimalist wallpaper generator
