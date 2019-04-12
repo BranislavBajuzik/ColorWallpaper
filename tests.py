@@ -2,49 +2,66 @@ from ColorWallpaper import *
 from unittest import TestCase
 
 
-class TestResolutionColor(TestCase):
+class TestOptionsColor(TestCase):
     def test_default(self):
         options = get_options([])
 
-        self.assertEqual(options.color, ((255, 105, 180), 'hotpink'))
+        self.assertEqual(((255, 2, 141), 'hotpink'), options.color)
 
     def test_ok(self):
         args = (
-            (['-c', 'black'], ((0, 0, 0), 'black')),
-            (['-c', '000'], ((0, 0, 0), 'black')),
-            (['-c', '000000'], ((0, 0, 0), 'black')),
-            (['-c', '#000000'], ((0, 0, 0), 'black')),
-            (['--color', 'black'], ((0, 0, 0), 'black')),
-            (['--color', '000'], ((0, 0, 0), 'black')),
-            (['--color', '000000'], ((0, 0, 0), 'black')),
-            (['--color', '#000000'], ((0, 0, 0), 'black')),
+            (((0, 0, 0), 'black'), ['-c', 'black']),
+            (((0, 0, 0), 'black'), ['-c', '000']),
+            (((0, 0, 0), 'black'), ['-c', '000000']),
+            (((0, 0, 0), 'black'), ['-c', '#000000']),
+            (((0, 0, 0), 'black'), ['--color', 'black']),
+            (((0, 0, 0), 'black'), ['--color', '000']),
+            (((0, 0, 0), 'black'), ['--color', '000000']),
+            (((0, 0, 0), 'black'), ['--color', '#000000']),
 
-            (['--color', '#ff69b4'], ((255, 105, 180), 'hotpink'))
+            (((255, 2, 141), 'hotpink'), ['--color', '#ff028d'])
         )
 
-        for cli, result in args:
-            self.assertEqual(get_options(cli).color, result)
+        for result, cli in args:
+            self.assertEqual(result, get_options(cli).color)
 
     def test_nok(self):
         raise NotImplementedError
 
 
-class TestResolutionOptions(TestCase):
+class TestOptionsColor2(TestCase):
     def test_default(self):
         options = get_options([])
 
-        self.assertEqual(options.resolution, (1920, 1080))
+        self.assertEqual(((0, 253, 114), None), options.color2)
 
     def test_ok(self):
         args = (
-            (['-r', '690x420'], (690, 420)),
-            (['-r', '690:420'], (690, 420)),
-            (['--resolution', '690x420'], (690, 420)),
-            (['--resolution', '690:420'], (690, 420))
+            (((255, 255, 255), 'white'), ['-c', 'black']),
+
+            (((0, 253, 114), None), ['--color', '#ff028d'])
         )
 
-        for cli, result in args:
-            self.assertEqual(get_options(cli).resolution, result)
+        for result, cli in args:
+            self.assertEqual(result, get_options(cli).color2)
+
+
+class TestOptionsResolution(TestCase):
+    def test_default(self):
+        options = get_options([])
+
+        self.assertEqual((1920, 1080), options.resolution)
+
+    def test_ok(self):
+        args = (
+            ((690, 420), ['-r', '690x420']),
+            ((690, 420), ['-r', '690:420']),
+            ((690, 420), ['--resolution', '690x420']),
+            ((690, 420), ['--resolution', '690:420'])
+        )
+
+        for result, cli in args:
+            self.assertEqual(result, get_options(cli).resolution)
 
     def test_nok(self):
         args = (
