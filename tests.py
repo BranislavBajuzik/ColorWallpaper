@@ -1,5 +1,9 @@
-from ColorWallpaper import *
-from unittest import TestCase
+import sys
+
+from io import StringIO
+from unittest.mock import patch
+from unittest import TestCase, skip
+from ColorWallpaper import get_options
 
 
 class TestOptionsColor(TestCase):
@@ -25,6 +29,7 @@ class TestOptionsColor(TestCase):
         for result, cli in args:
             self.assertEqual(result, get_options(cli).color)
 
+    @skip
     def test_nok(self):
         raise NotImplementedError
 
@@ -35,8 +40,8 @@ class TestOptionsColor2(TestCase):
 
         self.assertEqual(((0, 253, 114), None), options.color2)
 
+    @skip
     def test_ok(self):
-        raise NotImplementedError
         args = (
             (((255, 255, 255), 'white'), ['-c', 'black']),
 
@@ -76,5 +81,6 @@ class TestOptionsResolution(TestCase):
             ['-r', ''],
         )
 
-        for cli in args:
-            self.assertRaises(SystemExit, get_options, cli)
+        with patch('sys.stderr', new=StringIO()):
+            for cli in args:
+                self.assertRaises(SystemExit, get_options, cli)
