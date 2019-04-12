@@ -36,6 +36,7 @@ class TestOptionsColor2(TestCase):
         self.assertEqual(((0, 253, 114), None), options.color2)
 
     def test_ok(self):
+        raise NotImplementedError
         args = (
             (((255, 255, 255), 'white'), ['-c', 'black']),
 

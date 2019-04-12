@@ -1,7 +1,7 @@
 from PIL import Image
 from typing import Dict, List
 
-__all__ = ['pretty_names', 'hex_to_color', 'font']
+__all__ = ['pretty_names', 'hex_to_color', 'color_to_hex', 'font']
 
 pretty_names = {
     'aliceblue': 'Alice Blue',
@@ -1710,6 +1710,8 @@ hex_to_color = {
     '13eac9': 'aqua',
     'bf77f6': 'lightpurple'
 }
+color_to_hex = {v: k for k, v in hex_to_color.items()}
+assert len(hex_to_color) == len(color_to_hex)
 
 
 def load_font() -> Dict[str, List[List[bool]]]:

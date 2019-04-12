@@ -4,9 +4,11 @@ matrix:
     - python: 3.6
     - python: 3.7
       dist: xenial
-script:
-  - coverage run --include=ColorWallpaper.py -m unittest tests.py
 before_install:
   - pip install codecov
+install:
+  - pip install Pillow
+script:
+  - coverage run --include=ColorWallpaper.py -m unittest tests.py
 after_success:
   - codecov

@@ -22,10 +22,6 @@ def int_tuple(*t) -> Tuple[int, ...]:
 
 def get_options(args=None) -> argparse.Namespace:
     def color(arg: str) -> Tuple[Tuple[int, int, int], str]:
-        color_to_hex = {v: k for k, v in hex_to_color.items()}
-
-        assert len(hex_to_color) == len(color_to_hex)
-
         hex_groups = hex_re.fullmatch(arg)
         rgb_groups = rgb_re.fullmatch(arg)
 
@@ -73,14 +69,14 @@ def get_options(args=None) -> argparse.Namespace:
 
     ret = argparse.ArgumentParser(description='Minimalist wallpaper generator')
 
-    ret.add_argument('-o', '--output', default=Path('out.png'),
+    ret.add_argument('-o', '--output', metavar='PATH', default=Path('out.png'),
                      type=color, help='Image output path')
 
     ret.add_argument('-c', '--color', default=((255, 2, 141), 'hotpink'),
-                     type=color, help='#Hex / R,B,G / name of background color')
+                     type=color, help='#Hex / R,G,B / name of background color')
 
-    ret.add_argument('--color2', metavar='COLOR',
-                     type=color, help='#Hex / R,B,G / name of highlight color')
+    ret.add_argument('-c2', '--color2', metavar='COLOR',
+                     type=color, help='#Hex / R,G,B / name of highlight color')
 
     ret.add_argument('-r', '--resolution', default=(1920, 1080),
                      type=resolution, help='WIDTHxHEIGHT')
