@@ -1716,18 +1716,18 @@ assert len(hex_to_color) == len(color_to_hex)
 
 def load_font() -> Dict[str, List[List[bool]]]:
     img = Image.open('font.png')
-    chars = (' #\'/'
-             '0123456789'
+    chars = ('0123456789'
              'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-             'abcdefghijklmnopqrstuvwxyz')
+             'abcdefghijklmnopqrstuvwxyz' 
+             ' #\'/')
     letters = {}
 
     for i, ch in enumerate(chars):
         col = 0
-        empty_cols = 0
+        empty_col = False
         letter = [[] for _ in range(8)]
 
-        while empty_cols < 2:
+        while not empty_col:
             empty_col = True
 
             for row in range(8):
@@ -1737,11 +1737,6 @@ def load_font() -> Dict[str, List[List[bool]]]:
                 letter[row].append(not empty)
 
             col += 1
-
-            if empty_col:
-                empty_cols += 1
-            else:
-                empty_cols = 0
 
         letters[ch] = letter
 
