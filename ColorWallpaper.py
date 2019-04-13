@@ -1,9 +1,10 @@
 import re
 import argparse
 
-from PIL import Image, ImageDraw
 from pathlib import Path
-from typing import Tuple, Union
+from colorsys import rgb_to_hsv
+from PIL import Image, ImageDraw
+from typing import Tuple, Union, List
 
 from data import *
 
@@ -64,8 +65,8 @@ def get_options(args=None) -> argparse.Namespace:
 
         res = int_tuple(groups.group(1), groups.group(2))
 
-        if any(dimension < 300 for dimension in res):
-            raise argparse.ArgumentTypeError('Minimal resolution is 200x200')
+        if any(dimension < 150 for dimension in res):
+            raise argparse.ArgumentTypeError('Minimal resolution is 150x150')
 
         return res
 
@@ -83,6 +84,13 @@ def get_options(args=None) -> argparse.Namespace:
     ret.add_argument('-r', '--resolution', default=(1920, 1080),
                      type=resolution, help='WIDTHxHEIGHT')
 
+    ret.add_argument('-l', '--lowercase', action='store_true',
+                     help='Casing of hex output')
+
+    ret.add_argument('-f', '--formats', type=normalized, nargs='+',
+                     choices=['hex', 'rgb', 'hsv'], default=['hex', 'rgb'],
+                     help='Declares the order and formats to display')
+
     ret = ret.parse_args(args)
 
     if ret.color2 is None:
@@ -96,6 +104,11 @@ class Color:
         self.rgb = rgb
         self.name = name
 
+    @property
+    def hsv(self) -> Tuple[int, int, int]:
+        return tuple(round(c*255) for c in
+                     rgb_to_hsv(*(c/255 for c in self.rgb)))
+
 
 class Wallpaper:
     def __init__(self, options: argparse.Namespace):
@@ -103,6 +116,8 @@ class Wallpaper:
         self.resolution: Tuple[int, int] = options.resolution
         self.color: Color = options.color
         self.color2: Color = options.color2
+        self.x: str = 'x' if options.lowercase else 'X'
+        self.formats: List[str] = options.formats
 
     def __generate_text(self, text: str) -> Image.Image:
         text_length = sum(len(font(char)[0]) for char in text) - 1
@@ -130,39 +145,38 @@ class Wallpaper:
 
         img.alpha_composite(self.__generate_text(self.color.name), (8, 8))
 
-        rows = (
-            ('HEX ', 20, '#' + ''.join(f'{c:02X}' for c in self.color.rgb)),
-            ('RGB ', 32, ' '.join(map(str, self.color.rgb)))
-        )
+        x = 20
+        hex_format = f'{{0:02{self.x}}}'
 
-        for label_text, x, text in rows:
-            label = self.__generate_text(label_text)
+        rows = {
+            'hex': '#' + ''.join(hex_format.format(c) for c in self.color.rgb),
+            'rgb': ' '.join(map(str, self.color.rgb)),
+            'hsv': ' '.join(map(str, self.color.hsv))
+        }
+
+        for key in self.formats:
+            label = self.__generate_text(f'{key.upper()} ')
             img.alpha_composite(label, (8, x))
-            img.alpha_composite(self.__generate_text(text),
+            img.alpha_composite(self.__generate_text(rows[key]),
                                 (3 + 5 + label.size[0], x))
+            x += 12
 
         return img
 
     def generate_image(self) -> Image:
-        def position(size) -> int:
-            return (size - decor_size) // 2
-
         img = Image.new('RGBA', self.resolution, self.color.rgb)
 
         smaller = min(self.resolution)
-        decor_size = 128 * round(smaller / 4 / 128)
+        decor_size = 128 * max(round(smaller / 4 / 128), 1)
 
         decoration = self.__generate_decoration()
         decoration = decoration.resize((decor_size, decor_size))
 
-        img.alpha_composite(decoration,
-                            (position(self.resolution[0]),
-                             position(self.resolution[1])))
+        img.alpha_composite(decoration, ((self.resolution[0]-decor_size) // 2,
+                                         (self.resolution[1]-decor_size) // 2))
 
         img.save(str(self.output))
 
 
 if __name__ == '__main__':
-    paper = Wallpaper(get_options())
-
-    paper.generate_image()
+    Wallpaper(get_options()).generate_image()
