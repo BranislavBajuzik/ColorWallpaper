@@ -7,11 +7,13 @@ from ColorWallpaper import get_options
 
 
 class TestOptionsColor(TestCase):
+    @skip
     def test_default(self):
         options = get_options([])
 
         self.assertEqual(((255, 2, 141), 'hotpink'), options.color)
 
+    @skip
     def test_ok(self):
         args = (
             (((0, 0, 0), 'black'), ['-c', 'black']),
@@ -35,6 +37,7 @@ class TestOptionsColor(TestCase):
 
 
 class TestOptionsColor2(TestCase):
+    @skip
     def test_default(self):
         options = get_options([])
 

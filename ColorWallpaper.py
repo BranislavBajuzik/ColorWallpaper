@@ -48,7 +48,7 @@ def get_options(args=None) -> argparse.Namespace:
             rgb = parse_hex(color_to_hex[name])
 
         if name is None:
-            name = hex_to_color.get(''.join(f'{c:02x}' for c in rgb))
+            name = 'anonymous'
 
         return Color(rgb, pretty_names.get(name, name.capitalize()))
 
@@ -105,8 +105,20 @@ class Wallpaper:
         self.color2: Color = options.color2
 
     def __generate_text(self, text: str) -> Image.Image:
-        text_length = sum(len(font[char][0]) for char in text) - 1
-        img = Image.new('RGBA', (128, 128), (0, 0, 0, 0))
+        text_length = sum(len(font(char)[0]) for char in text) - 1
+        img = Image.new('RGBA', (text_length, 8), (0, 0, 0, 0))
+        offset = 0
+        x = 0
+
+        for char in text:
+            pixel_map = font(char)
+
+            for y in range(len(pixel_map)):
+                for x in range(len(pixel_map[y])):
+                    if pixel_map[y][x]:
+                        img.putpixel((offset + x, y), self.color2.rgb)
+
+            offset += x + 1
 
         return img
 
@@ -118,21 +130,18 @@ class Wallpaper:
 
         img.alpha_composite(self.__generate_text(self.color.name), (8, 8))
 
-        label = self.__generate_text('HEX')
-        img.alpha_composite(label, (8, 20))
-        img.alpha_composite(
-            self.__generate_text(''.join(f'{c:02x}' for c in self.color.rgb)),
-            (16 + label.size[1], 20)
+        rows = (
+            ('HEX ', 20, '#' + ''.join(f'{c:02X}' for c in self.color.rgb)),
+            ('RGB ', 32, ' '.join(map(str, self.color.rgb)))
         )
 
-        label = self.__generate_text('RGB')
-        img.alpha_composite(label, (8, 32))
-        img.alpha_composite(
-            self.__generate_text(' '.join(map(str, self.color.rgb))),
-            (16 + label.size[1], 32)
-        )
+        for label_text, x, text in rows:
+            label = self.__generate_text(label_text)
+            img.alpha_composite(label, (8, x))
+            img.alpha_composite(self.__generate_text(text),
+                                (3 + 5 + label.size[0], x))
 
-        return img.resize((256, 256))
+        return img
 
     def generate_image(self) -> Image:
         def position(size) -> int:
@@ -141,10 +150,10 @@ class Wallpaper:
         img = Image.new('RGBA', self.resolution, self.color.rgb)
 
         smaller = min(self.resolution)
-        decor_size = smaller // 4
+        decor_size = 128 * round(smaller / 4 / 128)
 
         decoration = self.__generate_decoration()
-        decoration = decoration.resize([decor_size]*2)
+        decoration = decoration.resize((decor_size, decor_size))
 
         img.alpha_composite(decoration,
                             (position(self.resolution[0]),

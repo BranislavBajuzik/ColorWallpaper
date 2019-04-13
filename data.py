@@ -1719,7 +1719,7 @@ def load_font() -> Dict[str, List[List[bool]]]:
     chars = ('0123456789'
              'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
              'abcdefghijklmnopqrstuvwxyz' 
-             ' #\'/')
+             '#\'/')
     letters = {}
 
     for i, ch in enumerate(chars):
@@ -1743,4 +1743,10 @@ def load_font() -> Dict[str, List[List[bool]]]:
     return letters
 
 
-font = load_font()
+def font(char) -> List[List[bool]]:
+    return chars.get(char, default_char)
+
+
+chars = load_font()
+chars[' '] = [[False]*4]*8
+default_char = [*[True]*7, False]*8
