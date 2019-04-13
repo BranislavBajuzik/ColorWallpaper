@@ -6,7 +6,7 @@
 A Minimalist wallpaper generator
 
 Generates wallpapers such as:
-![Example](example.png?raw=true Example)
+![Example](example.png "Example")
 
 ## Usage
 - `-o`/`--output` `PATH`
