@@ -17,7 +17,9 @@ Generates wallpapers such as:
   - Used to specify text color. Must be of `#Hex`/`R,G,B`/`name` format. Defaults to inverse of `-c`.
 - `-r`/`--resolution` `RESOLUTION`
   - Used to specify image resolution. Must be in `WIDTHxHEIGHT` format. Defaults to `1920x1080`.
+- `-f`/`--formats` `FORMAT` [`FORMAT` ...]
+  - Declares the order and formats to display
 - `-l`/`--lowercase`
   - Controls the casing of hex output
-- `-f`/`--formats` `hex`/`rgb`/`hsv` [`hex`/`rgb`/`hsv` ...]
-  - Declares the order and formats to display
+- `-y`/`--yes`
+  - Forces overwrite of `--output`

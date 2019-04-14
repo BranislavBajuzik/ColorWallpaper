@@ -2,9 +2,9 @@ import re
 import argparse
 
 from pathlib import Path
-from colorsys import rgb_to_hsv
 from PIL import Image, ImageDraw
 from typing import Tuple, Union, List
+from colorsys import rgb_to_hsv, rgb_to_hls
 
 from data import *
 
@@ -73,7 +73,7 @@ def get_options(args=None) -> argparse.Namespace:
     ret = argparse.ArgumentParser(description='Minimalist wallpaper generator')
 
     ret.add_argument('-o', '--output', metavar='PATH', default=Path('out.png'),
-                     type=color, help='Image output path')
+                     type=Path, help='Image output path')
 
     ret.add_argument('-c', '--color', default=Color((255, 2, 141), 'Hot Pink'),
                      type=color, help='#Hex / R,G,B / name of background color')
@@ -84,12 +84,17 @@ def get_options(args=None) -> argparse.Namespace:
     ret.add_argument('-r', '--resolution', default=(1920, 1080),
                      type=resolution, help='WIDTHxHEIGHT')
 
+    ret.add_argument('-f', '--formats', default=['empty', 'hex', 'rgb'],
+                     help='Declares the order and formats to display',
+                     type=normalized, nargs='+',
+                     choices=['empty', 'hex', '#hex', 'rgb', 'hsv', 'hsl',
+                              'cmyk'])
+
     ret.add_argument('-l', '--lowercase', action='store_true',
                      help='Casing of hex output')
 
-    ret.add_argument('-f', '--formats', type=normalized, nargs='+',
-                     choices=['hex', 'rgb', 'hsv'], default=['hex', 'rgb'],
-                     help='Declares the order and formats to display')
+    ret.add_argument('-y', '--yes', action='store_true',
+                     help='Force overwrite of --output')
 
     ret = ret.parse_args(args)
 
@@ -106,8 +111,30 @@ class Color:
 
     @property
     def hsv(self) -> Tuple[int, int, int]:
-        return tuple(round(c*255) for c in
-                     rgb_to_hsv(*(c/255 for c in self.rgb)))
+        h, s, v = rgb_to_hsv(*(comp/255 for comp in self.rgb))
+
+        return int(h*360), int(s*100), int(v*100)
+
+    @property
+    def hsl(self) -> Tuple[int, int, int]:
+        h, l, s = rgb_to_hls(*(comp/255 for comp in self.rgb))
+
+        return int(h*360), int(s*100), int(l*100)
+
+    @property
+    def cmyk(self) -> Tuple[int, int, int, int]:
+        c, m, y = (1 - comp/255 for comp in self.rgb)
+
+        k = min(c, m, y, 1)
+
+        if k == 1:
+            return 0, 0, 0, 100
+
+        c = (c - k) / (1.0 - k)
+        m = (m - k) / (1.0 - k)
+        y = (y - k) / (1.0 - k)
+
+        return tuple(int(comp*100) for comp in (c, m, y, k))
 
 
 class Wallpaper:
@@ -116,8 +143,9 @@ class Wallpaper:
         self.resolution: Tuple[int, int] = options.resolution
         self.color: Color = options.color
         self.color2: Color = options.color2
-        self.x: str = 'x' if options.lowercase else 'X'
         self.formats: List[str] = options.formats
+        self.x: str = 'x' if options.lowercase else 'X'
+        self.y: bool = options.yes
 
     def __generate_text(self, text: str) -> Image.Image:
         text_length = sum(len(font(char)[0]) for char in text) - 1
@@ -143,23 +171,41 @@ class Wallpaper:
         ImageDraw.Draw(img).rectangle((0, 0, 127, 127),
                                       outline=self.color2.rgb, width=3)
 
-        img.alpha_composite(self.__generate_text(self.color.name), (8, 8))
+        name = self.__generate_text(self.color.name)
+        x, y = name.size
 
-        x = 20
+        if x <= 112:
+            img.alpha_composite(name, (8, y))
+        else:
+            text1, text2 = self.color.name.rsplit(' ', 1)
+            img.alpha_composite(self.__generate_text(text1), (8, y))
+            y += 12
+            img.alpha_composite(self.__generate_text(text2), (8, y))
+
         hex_format = f'{{0:02{self.x}}}'
 
         rows = {
-            'hex': '#' + ''.join(hex_format.format(c) for c in self.color.rgb),
-            'rgb': ' '.join(map(str, self.color.rgb)),
-            'hsv': ' '.join(map(str, self.color.hsv))
+            'hex': (
+                'HEX ',
+                ''.join(hex_format.format(c) for c in self.color.rgb)
+            ),
+            '#hex': (
+                'HEX ',
+                '#' + ''.join(hex_format.format(c) for c in self.color.rgb)
+            ),
+            'rgb': ('RGB ', ' '.join(map(str, self.color.rgb))),
+            'hsv': ('HSV ', ' '.join(map(str, self.color.hsv))),
+            'hsl': ('HSL ', ' '.join(map(str, self.color.hsl))),
+            'cmyk': ('CMYK ', ' '.join(map(str, self.color.cmyk))),
+            'empty': (' ', ' ')
         }
 
         for key in self.formats:
-            label = self.__generate_text(f'{key.upper()} ')
-            img.alpha_composite(label, (8, x))
-            img.alpha_composite(self.__generate_text(rows[key]),
-                                (3 + 5 + label.size[0], x))
-            x += 12
+            y += 12
+            label = self.__generate_text(rows[key][0])
+            img.alpha_composite(label, (8, y))
+            img.alpha_composite(self.__generate_text(rows[key][1]),
+                                (3 + 5 + label.size[0], y))
 
         return img
 
@@ -175,7 +221,15 @@ class Wallpaper:
         img.alpha_composite(decoration, ((self.resolution[0]-decor_size) // 2,
                                          (self.resolution[1]-decor_size) // 2))
 
-        img.save(str(self.output))
+        if not self.output.exists():
+            self.output.parent.mkdir(parents=True, exist_ok=True)
+            img.save(str(self.output))
+        elif self.output.is_file():
+            if self.y or input(f'File "{self.output}" exists.\n'
+                               f'Overwrite? [y/n] ').lower().startswith('y'):
+                img.save(str(self.output))
+        else:
+            raise IOError(f'The "{self.output}" exists and is not a file')
 
 
 if __name__ == '__main__':
