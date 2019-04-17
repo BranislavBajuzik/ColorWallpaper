@@ -725,7 +725,8 @@ pretty_names = {
     'brightgreen': 'Bright Green',
     'darkpurple': 'Dark Purple',
     'darkblue': 'Dark Blue',
-    'lightpurple': 'Light Purple'
+    'lightpurple': 'Light Purple',
+    'neonorange': 'Neon Orange'
 }
 
 hex_to_color = {
@@ -1708,7 +1709,8 @@ hex_to_color = {
     '35063e': 'darkpurple',
     'ae7181': 'mauve',
     '13eac9': 'aqua',
-    'bf77f6': 'lightpurple'
+    'bf77f6': 'lightpurple',
+    'FF4127': 'neonorange'
 }
 color_to_hex = {v: k for k, v in hex_to_color.items()}
 assert len(hex_to_color) == len(color_to_hex)
@@ -1749,4 +1751,4 @@ def font(char) -> List[List[bool]]:
 
 chars = load_font()
 chars[' '] = [[False]*4]*8
-default_char = [*[True]*7, False]*8
+default_char = [[*[True]*7, False]]*8

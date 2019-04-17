@@ -2,6 +2,7 @@ import re
 import argparse
 
 from pathlib import Path
+from random import choice
 from PIL import Image, ImageDraw
 from typing import Tuple, Union, List
 from colorsys import rgb_to_hsv, rgb_to_hls
@@ -43,10 +44,17 @@ def get_options(args=None) -> argparse.Namespace:
                 raise argparse.ArgumentTypeError('invalid RGB values')
         else:
             name = normalized(arg)
-            if name not in color_to_hex:
-                raise argparse.ArgumentTypeError(f'{arg} is not a color')
 
-            rgb = parse_hex(color_to_hex[name])
+            if name == 'random':
+                rgb = choice(tuple(hex_to_color))
+                name = hex_to_color[rgb]
+            else:
+                if name not in color_to_hex:
+                    raise argparse.ArgumentTypeError(f'{arg} is not a color')
+
+                rgb = color_to_hex[name]
+
+            rgb = parse_hex(rgb)
 
         if name is None:
             name = 'anonymous'
@@ -70,19 +78,31 @@ def get_options(args=None) -> argparse.Namespace:
 
         return res
 
+    def positive_int(arg: str) -> int:
+        return max(1, int(float(arg)))
+
     ret = argparse.ArgumentParser(description='Minimalist wallpaper generator')
 
     ret.add_argument('-o', '--output', metavar='PATH', default=Path('out.png'),
                      type=Path, help='Image output path')
 
     ret.add_argument('-c', '--color', default=Color((255, 2, 141), 'Hot Pink'),
-                     type=color, help='#Hex / R,G,B / name of background color')
+                     type=color, help='#Hex / R,G,B / random / '
+                                      'name of background color')
 
     ret.add_argument('-c2', '--color2', metavar='COLOR',
-                     type=color, help='#Hex / R,G,B / name of highlight color')
+                     type=color, help='#Hex / R,G,B / random / '
+                                      'name of highlight color')
+
+    ret.add_argument('-d', '--display',
+                     help='Override the display name of -color. '
+                          'Empty string disables the name row')
 
     ret.add_argument('-r', '--resolution', default=(1920, 1080),
                      type=resolution, help='WIDTHxHEIGHT')
+
+    ret.add_argument('-s', '--scale', default=3, type=positive_int,
+                     help='The size of the highlight will be divided by this')
 
     ret.add_argument('-f', '--formats', default=['empty', 'hex', 'rgb'],
                      help='Declares the order and formats to display',
@@ -141,8 +161,10 @@ class Wallpaper:
     def __init__(self, options: argparse.Namespace):
         self.output: Union[str, Path] = options.output
         self.resolution: Tuple[int, int] = options.resolution
+        self.scale: int = options.scale
         self.color: Color = options.color
         self.color2: Color = options.color2
+        self.display: str = options.display
         self.formats: List[str] = options.formats
         self.x: str = 'x' if options.lowercase else 'X'
         self.y: bool = options.yes
@@ -171,16 +193,19 @@ class Wallpaper:
         ImageDraw.Draw(img).rectangle((0, 0, 127, 127),
                                       outline=self.color2.rgb, width=3)
 
-        name = self.__generate_text(self.color.name)
-        x, y = name.size
+        y = -4
+        if self.display != '':
+            name = self.color.name if self.display is None else self.display
+            img_name = self.__generate_text(name)
+            x, y = img_name.size
 
-        if x <= 112:
-            img.alpha_composite(name, (8, y))
-        else:
-            text1, text2 = self.color.name.rsplit(' ', 1)
-            img.alpha_composite(self.__generate_text(text1), (8, y))
-            y += 12
-            img.alpha_composite(self.__generate_text(text2), (8, y))
+            if x <= 112:
+                img.alpha_composite(img_name, (8, y))
+            else:
+                text1, text2 = name.rsplit(' ', 1)
+                img.alpha_composite(self.__generate_text(text1), (8, y))
+                y += 12
+                img.alpha_composite(self.__generate_text(text2), (8, y))
 
         hex_format = f'{{0:02{self.x}}}'
 
@@ -202,10 +227,10 @@ class Wallpaper:
 
         for key in self.formats:
             y += 12
-            label = self.__generate_text(rows[key][0])
-            img.alpha_composite(label, (8, y))
+            img_label = self.__generate_text(rows[key][0])
+            img.alpha_composite(img_label, (8, y))
             img.alpha_composite(self.__generate_text(rows[key][1]),
-                                (3 + 5 + label.size[0], y))
+                                (3 + 5 + img_label.size[0], y))
 
         return img
 
@@ -213,7 +238,7 @@ class Wallpaper:
         img = Image.new('RGBA', self.resolution, self.color.rgb)
 
         smaller = min(self.resolution)
-        decor_size = 128 * max(round(smaller / 4 / 128), 1)
+        decor_size = 128 * max(round(smaller / self.scale / 128), 1)
 
         decoration = self.__generate_decoration()
         decoration = decoration.resize((decor_size, decor_size))
