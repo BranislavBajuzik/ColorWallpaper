@@ -1,3 +1,5 @@
+import os
+
 from PIL import Image
 from typing import Dict, List
 
@@ -1717,7 +1719,9 @@ assert len(hex_to_color) == len(color_to_hex)
 
 
 def load_font() -> Dict[str, List[List[bool]]]:
-    img = Image.open('font.png')
+    img = Image.open(os.path.join(
+        os.path.abspath(os.path.dirname(__file__)), 'font.png')
+    )
     chars = ('0123456789'
              'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
              'abcdefghijklmnopqrstuvwxyz' 
