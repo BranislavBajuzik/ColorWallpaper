@@ -39,5 +39,5 @@ Generates wallpapers such as:
 - `FORMAT`
   - Self explanatory: `hex`, `rgb`, `hsv`, `hsl`, `cmyk` 
   - `empty`: Empty row.
-  - `#hex`: Six hexadecimal digits.
+  - `#hex`: `hex`, but starting with `#`
   
