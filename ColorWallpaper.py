@@ -3,9 +3,14 @@ import argparse
 
 from pathlib import Path
 from random import choice
-from PIL import Image, ImageDraw
 from typing import Tuple, Union, List
 from colorsys import rgb_to_hsv, rgb_to_hls
+
+try:
+    from PIL import Image, ImageDraw
+except ImportError:
+    print('Unable to import PIL. Install it by running "pip install Pillow".')
+    exit(-1)
 
 from data import *
 
@@ -255,6 +260,8 @@ class Wallpaper:
                 img.save(str(self.output))
         else:
             raise IOError(f'The "{self.output}" exists and is not a file')
+
+        print(f'Image "{self.output}" successfully generated')
 
 
 if __name__ == '__main__':
