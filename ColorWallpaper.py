@@ -280,4 +280,10 @@ class Wallpaper:
 
 
 if __name__ == '__main__':
+    while True:
+        options = get_options()
+
+        if Color((255, 255, 255), '') / options.color > 2:
+            break
+
     Wallpaper(get_options()).generate_image()
