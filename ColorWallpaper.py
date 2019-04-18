@@ -1,3 +1,4 @@
+import os
 import re
 import argparse
 
@@ -86,40 +87,45 @@ def get_options(args=None) -> argparse.Namespace:
     def positive_int(arg: str) -> int:
         return max(1, int(float(arg)))
 
-    ret = argparse.ArgumentParser(description='Minimalist wallpaper generator')
+    ret = argparse.ArgumentParser(description='Minimalist wallpaper generator',
+                                  usage=f'python {os.path.basename(__file__)} '
+                                        f'...')
 
-    ret.add_argument('-o', '--output', metavar='PATH', default=Path('out.png'),
-                     type=Path, help='Image output path')
+    general_g = ret.add_argument_group('General options')
+    general_g.add_argument('-o', '--output', metavar='PATH', type=Path,
+                           default=Path('out.png'), help='Image output path')
 
-    ret.add_argument('-c', '--color', default=Color((255, 2, 141), 'Hot Pink'),
-                     type=color, help='#Hex / R,G,B / random / '
-                                      'name of background color')
+    general_g.add_argument('-y', '--yes', action='store_true',
+                           help='Force overwrite of --output')
 
-    ret.add_argument('-c2', '--color2', metavar='COLOR',
-                     type=color, help='#Hex / R,G,B / random / '
-                                      'name of highlight color')
+    color_g = ret.add_argument_group('Color options')
+    color_g.add_argument('-c', '--color', type=color,
+                         default=Color((255, 2, 141), 'Hot Pink'),
+                         help='Background color. #Hex / R,G,B / random / name')
 
-    ret.add_argument('-d', '--display',
-                     help='Override the display name of --color. '
-                          'Empty string disables the name row')
+    color_g.add_argument('-c2', '--color2', metavar='COLOR', type=color,
+                         help='Highlight color. #Hex / R,G,B / random / name')
 
-    ret.add_argument('-r', '--resolution', default=(1920, 1080),
-                     type=resolution, help='WIDTHxHEIGHT')
+    color_g.add_argument('-d', '--display',
+                         help='Override the display name of --color. '
+                              'Empty string disables the name row')
 
-    ret.add_argument('-s', '--scale', default=3, type=positive_int,
-                     help='The size of the highlight will be divided by this')
+    display_g = ret.add_argument_group('Display options')
+    display_g.add_argument('-r', '--resolution', default=(1920, 1080),
+                           type=resolution, help='WIDTHxHEIGHT')
 
-    ret.add_argument('-f', '--formats', default=['empty', 'hex', 'rgb'],
-                     help='Declares the order and formats to display',
-                     type=normalized, nargs='+',
-                     choices=['empty', 'hex', '#hex', 'rgb', 'hsv', 'hsl',
-                              'cmyk'])
+    display_g.add_argument('-s', '--scale', default=3, type=positive_int,
+                           help='The size of the highlight '
+                                'will be divided by this')
 
-    ret.add_argument('-l', '--lowercase', action='store_true',
-                     help='Casing of hex output')
+    display_g.add_argument('-f', '--formats', default=['empty', 'hex', 'rgb'],
+                           help='Declares the order and formats to display',
+                           type=normalized, nargs='+',
+                           choices=['empty', 'hex', '#hex', 'rgb', 'hsv',
+                                    'hsl', 'cmyk'])
 
-    ret.add_argument('-y', '--yes', action='store_true',
-                     help='Force overwrite of --output')
+    display_g.add_argument('-l', '--lowercase', action='store_true',
+                           help='Casing of hex output')
 
     ret = ret.parse_args(args)
 
