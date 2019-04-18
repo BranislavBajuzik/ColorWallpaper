@@ -100,7 +100,7 @@ def get_options(args=None) -> argparse.Namespace:
                                       'name of highlight color')
 
     ret.add_argument('-d', '--display',
-                     help='Override the display name of -color. '
+                     help='Override the display name of --color. '
                           'Empty string disables the name row')
 
     ret.add_argument('-r', '--resolution', default=(1920, 1080),
@@ -162,16 +162,14 @@ class Color:
         return tuple(int(comp*100) for comp in (c, m, y, k))
 
     @property
-    def contrast(self) -> float:
-        r, g, b = (c/12.92 if c <= 0.03928 else 
-                    ((c+0.055)/1.055)**2.4
+    def luminance(self) -> float:
+        r, g, b = (c/12.92 if c <= 0.03928 else ((c+0.055)/1.055)**2.4
                    for c in (comp/255 for comp in self.rgb))
 
         return r*0.2126 + g*0.7152 + b*0.0722
 
     def __truediv__(self, other) -> float:
-        contrasts = sorted((self.contrast, other.contrast))
-        print(contrasts)
+        contrasts = sorted((self.luminance, other.luminance), reverse=True)
 
         return (contrasts[0] + 0.05) / (contrasts[1] + 0.05)
 
@@ -282,10 +280,4 @@ class Wallpaper:
 
 
 if __name__ == '__main__':
-    while True:
-        options = get_options()
-
-        if Color((255, 255, 255), '')/options.color < 0.5:
-            break
-
-    Wallpaper(options).generate_image()
+    Wallpaper(get_options()).generate_image()
