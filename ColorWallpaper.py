@@ -161,6 +161,23 @@ class Color:
 
         return tuple(int(comp*100) for comp in (c, m, y, k))
 
+    @property
+    def contrast(self) -> float:
+        r, g, b = (c/12.92 if c <= 0.03928 else 
+                    ((c+0.055)/1.055)**2.4
+                   for c in (comp/255 for comp in self.rgb))
+
+        return r*0.2126 + g*0.7152 + b*0.0722
+
+    def __truediv__(self, other) -> float:
+        contrasts = sorted((self.contrast, other.contrast))
+        print(contrasts)
+
+        return (contrasts[0] + 0.05) / (contrasts[1] + 0.05)
+
+    def __floordiv__(self, other) -> int:
+        return int(self / other)
+
 
 class Wallpaper:
     def __init__(self, options: argparse.Namespace):
@@ -265,4 +282,10 @@ class Wallpaper:
 
 
 if __name__ == '__main__':
-    Wallpaper(get_options()).generate_image()
+    while True:
+        options = get_options()
+
+        if Color((255, 255, 255), '')/options.color < 0.5:
+            break
+
+    Wallpaper(options).generate_image()
