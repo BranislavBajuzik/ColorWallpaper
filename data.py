@@ -1720,8 +1720,8 @@ assert len(hex_to_color) == len(color_to_hex)
 
 def load_font() -> Dict[str, List[List[bool]]]:
     img = Image.open(os.path.join(
-        os.path.abspath(os.path.dirname(__file__)), 'font.png')
-    )
+        os.path.abspath(os.path.dirname(__file__)), 'font.png'
+    ))
     chars = ('0123456789'
              'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
              'abcdefghijklmnopqrstuvwxyz' 

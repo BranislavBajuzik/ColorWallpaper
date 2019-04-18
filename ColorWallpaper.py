@@ -1,186 +1,22 @@
-import os
-import re
+import sys
 import argparse
 
 from pathlib import Path
-from random import choice
 from typing import Tuple, Union, List
-from colorsys import rgb_to_hsv, rgb_to_hls
 
 try:
     from PIL import Image, ImageDraw
 except ImportError:
-    print('Unable to import PIL. Install it by running "pip install Pillow".')
+    print(f'Unable to import PIL. Install it by running '
+          f'"{sys.executable} -m pip install Pillow".')
     exit(-1)
 
 from data import *
+from CLI import *
+from Color import *
 
 
 __all__ = ['Wallpaper']
-
-hex_re = re.compile(r'\s*#?([\da-f]{6}|[\da-f]{3})\s*', re.I)
-rgb_re = re.compile(r'\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\s*')
-resolution_re = re.compile(r'\s*(\d+)\s*[x:]\s*(\d+)\s*')
-
-
-def get_options(args=None) -> argparse.Namespace:
-    def normalized(s: str) -> str:
-        return ''.join(s.split()).lower()
-
-    def int_tuple(*t) -> Tuple[int, ...]:
-        return tuple(map(int, t))
-
-    def parse_hex(arg: str) -> Tuple[int, int, int]:
-        le = len(arg)
-        return tuple(int(arg[le//3*i:le//3*(i+1)], 16) for i in range(3))
-
-    def color(arg: str) -> Color:
-        hex_groups = hex_re.fullmatch(arg)
-        rgb_groups = rgb_re.fullmatch(arg)
-
-        name = None
-
-        if hex_groups is not None:
-            rgb = parse_hex(hex_groups.group(1))
-        elif rgb_groups is not None:
-            rgb = int_tuple(rgb_groups.group(0),
-                            rgb_groups.group(1),
-                            rgb_groups.group(2))
-            if not all(0 <= c <= 255 for c in rgb):
-                raise argparse.ArgumentTypeError('invalid RGB values')
-        else:
-            name = normalized(arg)
-
-            if name == 'random':
-                rgb = choice(tuple(hex_to_color))
-                name = hex_to_color[rgb]
-            else:
-                if name not in color_to_hex:
-                    raise argparse.ArgumentTypeError(f'{arg} is not a color')
-
-                rgb = color_to_hex[name]
-
-            rgb = parse_hex(rgb)
-
-        if name is None:
-            name = 'anonymous'
-
-        return Color(rgb, pretty_names.get(name, name.capitalize()))
-
-    def inverted_color(source: Tuple[int, int, int]) -> Color:
-        rgb: Tuple[int, int, int] = tuple(255 - x for x in source)
-        return Color(rgb, hex_to_color.get(''.join(f'{c:02x}' for c in rgb)))
-
-    def resolution(arg: str) -> Tuple[int, int]:
-        groups = resolution_re.fullmatch(arg)
-
-        if groups is None:
-            raise argparse.ArgumentTypeError('Unable to parse the resolution')
-
-        res = int_tuple(groups.group(1), groups.group(2))
-
-        if any(dimension < 150 for dimension in res):
-            raise argparse.ArgumentTypeError('Minimal resolution is 150x150')
-
-        return res
-
-    def positive_int(arg: str) -> int:
-        return max(1, int(float(arg)))
-
-    ret = argparse.ArgumentParser(description='Minimalist wallpaper generator',
-                                  usage=f'python {os.path.basename(__file__)} '
-                                        f'...')
-
-    general_g = ret.add_argument_group('General options')
-    general_g.add_argument('-o', '--output', metavar='PATH', type=Path,
-                           default=Path('out.png'), help='Image output path')
-
-    general_g.add_argument('-y', '--yes', action='store_true',
-                           help='Force overwrite of --output')
-
-    color_g = ret.add_argument_group('Color options')
-    color_g.add_argument('-c', '--color', type=color,
-                         default=Color((255, 2, 141), 'Hot Pink'),
-                         help='Background color. #Hex / R,G,B / random / name')
-
-    color_g.add_argument('-c2', '--color2', metavar='COLOR', type=color,
-                         help='Highlight color. #Hex / R,G,B / random / name')
-
-    color_g.add_argument('-d', '--display',
-                         help='Override the display name of --color. '
-                              'Empty string disables the name row')
-
-    display_g = ret.add_argument_group('Display options')
-    display_g.add_argument('-r', '--resolution', default=(1920, 1080),
-                           type=resolution, help='WIDTHxHEIGHT')
-
-    display_g.add_argument('-s', '--scale', default=3, type=positive_int,
-                           help='The size of the highlight '
-                                'will be divided by this')
-
-    display_g.add_argument('-f', '--formats', default=['empty', 'hex', 'rgb'],
-                           help='Declares the order and formats to display',
-                           type=normalized, nargs='+',
-                           choices=['empty', 'hex', '#hex', 'rgb', 'hsv',
-                                    'hsl', 'cmyk'])
-
-    display_g.add_argument('-l', '--lowercase', action='store_true',
-                           help='Casing of hex output')
-
-    ret = ret.parse_args(args)
-
-    if ret.color2 is None:
-        ret.color2 = inverted_color(ret.color.rgb)
-
-    return ret
-
-
-class Color:
-    def __init__(self, rgb: Tuple[int, int, int], name: str):
-        self.rgb = rgb
-        self.name = name
-
-    @property
-    def hsv(self) -> Tuple[int, int, int]:
-        h, s, v = rgb_to_hsv(*(comp/255 for comp in self.rgb))
-
-        return int(h*360), int(s*100), int(v*100)
-
-    @property
-    def hsl(self) -> Tuple[int, int, int]:
-        h, l, s = rgb_to_hls(*(comp/255 for comp in self.rgb))
-
-        return int(h*360), int(s*100), int(l*100)
-
-    @property
-    def cmyk(self) -> Tuple[int, int, int, int]:
-        c, m, y = (1 - comp/255 for comp in self.rgb)
-
-        k = min(c, m, y, 1)
-
-        if k == 1:
-            return 0, 0, 0, 100
-
-        c = (c - k) / (1.0 - k)
-        m = (m - k) / (1.0 - k)
-        y = (y - k) / (1.0 - k)
-
-        return tuple(int(comp*100) for comp in (c, m, y, k))
-
-    @property
-    def luminance(self) -> float:
-        r, g, b = (c/12.92 if c <= 0.03928 else ((c+0.055)/1.055)**2.4
-                   for c in (comp/255 for comp in self.rgb))
-
-        return r*0.2126 + g*0.7152 + b*0.0722
-
-    def __truediv__(self, other) -> float:
-        contrasts = sorted((self.luminance, other.luminance), reverse=True)
-
-        return (contrasts[0] + 0.05) / (contrasts[1] + 0.05)
-
-    def __floordiv__(self, other) -> int:
-        return int(self / other)
 
 
 class Wallpaper:
@@ -287,9 +123,9 @@ class Wallpaper:
 
 if __name__ == '__main__':
     while True:
-        options = get_options()
+        env_options = get_options()
 
-        if Color((255, 255, 255), '') / options.color > 2:
+        if Color((255, 255, 255), '') / env_options.color > 2:
             break
 
     Wallpaper(get_options()).generate_image()
