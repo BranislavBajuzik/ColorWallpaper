@@ -1,5 +1,3 @@
-import sys
-
 from io import StringIO
 from unittest.mock import patch
 from unittest import TestCase, skip

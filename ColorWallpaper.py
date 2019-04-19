@@ -40,9 +40,9 @@ class Wallpaper:
         for char in text:
             pixel_map = font(char)
 
-            for y in range(len(pixel_map)):
-                for x in range(len(pixel_map[y])):
-                    if pixel_map[y][x]:
+            for y, row in enumerate(pixel_map):
+                for x, pixel in enumerate(row):
+                    if pixel:
                         img.putpixel((offset + x, y), self.color2.rgb)
 
             offset += x + 1

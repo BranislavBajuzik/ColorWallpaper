@@ -1715,7 +1715,6 @@ hex_to_color = {
     'FF4127': 'neonorange'
 }
 color_to_hex = {v: k for k, v in hex_to_color.items()}
-assert len(hex_to_color) == len(color_to_hex)
 
 
 def load_font() -> Dict[str, List[List[bool]]]:
@@ -1724,7 +1723,7 @@ def load_font() -> Dict[str, List[List[bool]]]:
     ))
     chars = ('0123456789'
              'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-             'abcdefghijklmnopqrstuvwxyz' 
+             'abcdefghijklmnopqrstuvwxyz'
              '#\'/')
     letters = {}
 
