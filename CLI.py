@@ -1,8 +1,8 @@
 import re
 import argparse
 
-from typing import Tuple
 from pathlib import Path
+from typing import Tuple, Sequence
 
 from common import *
 from Color import *
@@ -15,6 +15,7 @@ resolution_re = re.compile(r'\s*(\d+)\s*[x:]\s*(\d+)\s*')
 
 
 def resolution(arg: str) -> Tuple[int, int]:
+    """Parses resolution CLI argument"""
     groups = resolution_re.fullmatch(arg)
 
     if groups is None:
@@ -29,14 +30,17 @@ def resolution(arg: str) -> Tuple[int, int]:
 
 
 def positive_int(arg: str) -> int:
+    """Parses a positive integer from CLI"""
     return max(1, int(float(arg)))
 
 
-def get_options(args=None) -> argparse.Namespace:
-    ret = argparse.ArgumentParser(
-        description='Minimalist wallpaper generator',
-        usage=f'python %(prog)s ...'
-    )
+def get_options(args: Sequence[str] = None) -> argparse.Namespace:
+    """Parses CLI options
+
+    :param args: None for `sys.argv`
+    :return: Object with options as attributes
+    """
+    ret = argparse.ArgumentParser(description='Minimalist wallpaper generator', usage=f'python %(prog)s ...')
 
     general_g = ret.add_argument_group('General options')
     general_g.add_argument('-o', '--output',

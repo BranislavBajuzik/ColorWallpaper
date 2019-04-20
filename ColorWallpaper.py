@@ -32,6 +32,11 @@ class Wallpaper:
         self.y: bool = options.yes
 
     def __generate_text(self, text: str) -> Image.Image:
+        """Renders text into image
+
+        :param text: text to render
+        :return: Image with the rendered text
+        """
         text_length = sum(len(font(char)[0]) for char in text) - 1
         img = Image.new('RGBA', (text_length, 8), (0, 0, 0, 0))
         offset = 0
@@ -50,10 +55,13 @@ class Wallpaper:
         return img
 
     def __generate_decoration(self) -> Image.Image:
+        """Generates the highlight from :param self:
+
+        :return: Image of the highlight
+        """
         img = Image.new('RGBA', (128, 128), (0, 0, 0, 0))
 
-        ImageDraw.Draw(img).rectangle((0, 0, 127, 127),
-                                      outline=self.color2.rgb, width=3)
+        ImageDraw.Draw(img).rectangle((0, 0, 127, 127), outline=self.color2.rgb, width=3)
 
         y = -4
         if self.display != '':
@@ -91,12 +99,12 @@ class Wallpaper:
             y += 12
             img_label = self.__generate_text(rows[key][0])
             img.alpha_composite(img_label, (8, y))
-            img.alpha_composite(self.__generate_text(rows[key][1]),
-                                (3 + 5 + img_label.size[0], y))
+            img.alpha_composite(self.__generate_text(rows[key][1]), (3 + 5 + img_label.size[0], y))
 
         return img
 
-    def generate_image(self) -> Image:
+    def generate_image(self):
+        """Generates a wallpaper from :param self:"""
         img = Image.new('RGBA', self.resolution, self.color.rgb)
 
         smaller = min(self.resolution)
@@ -105,8 +113,7 @@ class Wallpaper:
         decoration = self.__generate_decoration()
         decoration = decoration.resize((decor_size, decor_size))
 
-        img.alpha_composite(decoration, ((self.resolution[0]-decor_size) // 2,
-                                         (self.resolution[1]-decor_size) // 2))
+        img.alpha_composite(decoration, ((self.resolution[0]-decor_size) // 2, (self.resolution[1]-decor_size) // 2))
 
         if not self.output.exists():
             self.output.parent.mkdir(parents=True, exist_ok=True)

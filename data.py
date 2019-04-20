@@ -1718,9 +1718,11 @@ color_to_hex = {v: k for k, v in hex_to_color.items()}
 
 
 def load_font() -> Dict[str, List[List[bool]]]:
-    img = Image.open(os.path.join(
-        os.path.abspath(os.path.dirname(__file__)), 'font.png'
-    ))
+    """Loads a font into memory
+
+    :return: Loaded fontmap
+    """
+    img = Image.open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'font.png'))
     chars = ('0123456789'
              'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
              'abcdefghijklmnopqrstuvwxyz'
@@ -1749,6 +1751,11 @@ def load_font() -> Dict[str, List[List[bool]]]:
 
 
 def font(char) -> List[List[bool]]:
+    """Helper function to enforce default char
+
+    :param char: Character to load
+    :return: Fontmap of :param char:. if unknown, full block will be returned
+    """
     return chars.get(char, default_char)
 
 
