@@ -23,6 +23,8 @@ class Color:
         :param rgb: (R,G,B) of the color
         :param name: Overrides the color name lookup
         """
+        if not all(0 <= c <= 255 for c in rgb):
+            raise ValueError('Invalid RGB values')
         self.rgb = rgb
 
         if name is None:
@@ -90,7 +92,7 @@ class Color:
         """Returns a new Color object of inverted :param self:"""
         return Color(tuple(255 - x for x in self.rgb))
 
-    def contrasted(self, min_contrast: float = 4.5) -> "Color":
+    def contrasted(self, min_contrast: float) -> "Color":
         """Returns a new Color that is in contrast with :param self:
 
         :param min_contrast: Minimum contrast. Must be in range (0-21)

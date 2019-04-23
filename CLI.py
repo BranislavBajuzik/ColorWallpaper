@@ -2,7 +2,7 @@ import re
 import argparse
 
 from pathlib import Path
-from typing import Tuple, Sequence
+from typing import Tuple, Sequence, Type
 
 from common import *
 from Color import *
@@ -29,9 +29,23 @@ def resolution(arg: str) -> Tuple[int, int]:
     return res
 
 
-def positive_int(arg: str) -> int:
-    """Parses a positive integer from CLI"""
-    return max(1, int(float(arg)))
+def positive(typ: Type):
+    def typed_positive(arg: str):
+        """Parses a positive number of :param type: from CLI"""
+        return max(1, typ(float(arg)))
+    return typed_positive
+
+
+def in_range(typ: Type, low: float, high: float):
+    low, high = sorted((low, high))
+
+    def is_in_range(arg: str):
+        arg = typ(float(arg))
+        if not (low <= arg <= high):
+            raise AssertionError(f'"{arg}" must be in range ({low}, {high})')
+
+        return arg
+    return is_in_range
 
 
 def get_options(args: Sequence[str] = None) -> argparse.Namespace:
@@ -65,27 +79,30 @@ def get_options(args: Sequence[str] = None) -> argparse.Namespace:
                          help='Highlight color. #Hex / R,G,B / random / name')
 
     color_g.add_argument('-d', '--display',
-                         help='Override the display name of --color. '
-                              'Empty string disables the name row')
+                         help='Override the display name of --color. Empty string disables the name row')
+
+    color_g.add_argument('--min-contrast',
+                         type=in_range(float, 0, 21),
+                         default=4.5,
+                         help='Min contrast of --color and --color2. Must be in range (0-21). '
+                              'RuntimeError will be raised if this can not be satisfied')
 
     display_g = ret.add_argument_group('Display options')
     display_g.add_argument('-r', '--resolution',
                            type=resolution,
                            default=(1920, 1080),
-                           help='WIDTHxHEIGHT')
+                           help='The dimensions of the result image. WIDTHxHEIGHT')
 
     display_g.add_argument('-s', '--scale',
-                           type=positive_int,
+                           type=positive(int),
                            default=3,
-                           help='The size of the highlight '
-                                'will be divided by this')
+                           help='The size of the highlight will be divided by this')
 
     display_g.add_argument('-f', '--formats',
                            type=normalized,
                            default=['empty', 'hex', 'rgb'],
                            nargs='+',
-                           choices=['empty', 'hex', '#hex', 'rgb', 'hsv',
-                                    'hsl', 'cmyk'],
+                           choices=['empty', 'hex', '#hex', 'rgb', 'hsv', 'hsl', 'cmyk'],
                            help='Declares the order and formats to display')
 
     display_g.add_argument('-l', '--lowercase',

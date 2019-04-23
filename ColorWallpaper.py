@@ -69,7 +69,7 @@ class Wallpaper:
             img_name = self.__generate_text(name)
             x, y = img_name.size
 
-            if x <= 112:
+            if x <= 112:  # Split the words. Needs a proper implementation
                 img.alpha_composite(img_name, (8, y))
             else:
                 text1, text2 = name.rsplit(' ', 1)
@@ -80,14 +80,8 @@ class Wallpaper:
         hex_format = f'{{0:02{self.x}}}'
 
         rows = {
-            'hex': (
-                'HEX ',
-                ''.join(hex_format.format(c) for c in self.color.rgb)
-            ),
-            '#hex': (
-                'HEX ',
-                '#' + ''.join(hex_format.format(c) for c in self.color.rgb)
-            ),
+            'hex': ('HEX ', ''.join(hex_format.format(c) for c in self.color.rgb)),
+            '#hex': ('HEX ', '#' + ''.join(hex_format.format(c) for c in self.color.rgb)),
             'rgb': ('RGB ', ' '.join(map(str, self.color.rgb))),
             'hsv': ('HSV ', ' '.join(map(str, self.color.hsv))),
             'hsl': ('HSL ', ' '.join(map(str, self.color.hsl))),
