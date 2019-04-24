@@ -132,7 +132,7 @@ if __name__ == '__main__':
     while True:
         env_options = get_options()
 
-        if Color((255, 255, 255), '') / env_options.color > 2:
+        if Color((255, 255, 255), '') / env_options.color > 3:
             break
 
     Wallpaper(get_options()).generate_image()

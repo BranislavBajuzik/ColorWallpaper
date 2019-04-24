@@ -728,7 +728,18 @@ pretty_names = {
     'darkpurple': 'Dark Purple',
     'darkblue': 'Dark Blue',
     'lightpurple': 'Light Purple',
-    'neonorange': 'Neon Orange'
+    'neonorange': 'Neon Orange',
+    'pink/purple': 'Pink/Purple',
+    'green/yellow': 'Green/Yellow',
+    'grey/green': 'Grey/Green',
+    'green/blue': 'Green/Blue',
+    'purple/blue': 'Purple/Blue',
+    'grey/blue': 'Grey/Blue',
+    'purple/pink': 'Purple/Pink',
+    'blue/grey': 'Blue/Grey',
+    'yellow/green': 'Yellow/Green',
+    'blue/green': 'Blue/Green',
+    'blue/purple': 'Blue/Purple'
 }
 
 hex_to_color = {
