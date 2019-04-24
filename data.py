@@ -1723,7 +1723,7 @@ hex_to_color = {
     'ae7181': 'mauve',
     '13eac9': 'aqua',
     'bf77f6': 'lightpurple',
-    'FF4127': 'neonorange'
+    'ff4127': 'neonorange'
 }
 color_to_hex = {v: k for k, v in hex_to_color.items()}
 
