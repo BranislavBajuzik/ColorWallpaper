@@ -33,6 +33,12 @@ class Color:
         else:
             self.name = name
 
+    def __str__(self):
+        return f'Color(rgb={self.rgb}, name={self.name})'
+
+    def __repr__(self):
+        return str(self)
+
     @staticmethod
     def __normalize(components: Tuple[float, float, float]) -> Tuple[float, float, float]:
         """Helper function for converting int RGB to float RGB"""
