@@ -739,7 +739,8 @@ pretty_names = {
     'blue/grey': 'Blue/Grey',
     'yellow/green': 'Yellow/Green',
     'blue/green': 'Blue/Green',
-    'blue/purple': 'Blue/Purple'
+    'blue/purple': 'Blue/Purple',
+    'rebeccapurple': 'Rebecca Purple'
 }
 
 hex_to_color = {
