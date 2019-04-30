@@ -92,17 +92,17 @@ def get_options(args: Sequence[str] = None) -> argparse.Namespace:
 
     color_g.add_argument('-c2', '--color2',
                          metavar='COLOR',
-                         type=Color.from_str,
-                         help='Highlight color. #Hex / R,G,B / random / name')
+                         default='inverted',
+                         help='Highlight color. #Hex / R,G,B / random / inverted / name')
 
     color_g.add_argument('-d', '--display',
                          help='Override the display name of --color. Empty string disables the name row')
 
     color_g.add_argument('--min-contrast',
-                         type=in_range(float, 0, 21),
-                         default=4.5,
-                         help='Min contrast of --color and --color2. Must be in range (0-21). '
-                              'RuntimeError will be raised if this can not be satisfied')
+                         type=in_range(float, 1, 21),
+                         default=2.5,
+                         help='Min contrast of --color and --color2, if --color2 is `inverted`.'
+                              'Must be in range (1-21). RuntimeError will be raised if this can not be satisfied')
 
     display_g = ret.add_argument_group('Display options')
     display_g.add_argument('-r', '--resolution',
@@ -128,7 +128,7 @@ def get_options(args: Sequence[str] = None) -> argparse.Namespace:
 
     ret = ret.parse_args(args)
 
-    if ret.color2 is None:
-        ret.color2 = ret.color.inverted()
+    if normalized(ret.color2) == 'inverted':
+        ret.color2 = ret.color.inverted(ret.min_contrast)
 
     return ret

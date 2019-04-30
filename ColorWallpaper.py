@@ -82,7 +82,7 @@ class Wallpaper:
         rows = {
             'hex': ('HEX ', self.color.hex(self.lowercase)),
             '#hex': ('HEX ', '#' + self.color.hex(self.lowercase)),
-            **{k: (k.upper(), ' '.join(map(str, getattr(self.color, k))))
+            **{k: (f'{k.upper()} ', ' '.join(map(str, getattr(self.color, k))))
                for k in ('rgb', 'hsv', 'hsl', 'cmyk')},
             'empty': (' ', ' ')
         }

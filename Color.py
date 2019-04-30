@@ -4,7 +4,7 @@ import re
 
 from typing import Tuple
 from random import choice
-from colorsys import rgb_to_hsv, rgb_to_hls
+from colorsys import rgb_to_hsv, rgb_to_hls, hls_to_rgb
 
 from data import *
 from common import *
@@ -75,11 +75,9 @@ class Color:
         if k == 1:
             return 0, 0, 0, 100
 
-        c = (c - k) / (1.0 - k)
-        m = (m - k) / (1.0 - k)
-        y = (y - k) / (1.0 - k)
+        c, m, y = ((component - k) / (1.0 - k) for component in (c, m, y))
 
-        return tuple(int(component*100) for component in (c, m, y, k))
+        return int_tuple(*(component*100 for component in (c, m, y, k)))
 
     @property
     def luminance(self) -> float:
@@ -97,16 +95,50 @@ class Color:
     def __floordiv__(self, other) -> int:
         return int(self / other)
 
-    def inverted(self) -> "Color":
-        """Returns a new Color object of inverted :param self:"""
-        return Color(tuple(255 - x for x in self.rgb))
-
-    def contrasted(self, min_contrast: float) -> "Color":
+    def inverted(self, min_contrast: float) -> "Color":
         """Returns a new Color that is in contrast with :param self:
 
-        :param min_contrast: Minimum contrast. Must be in range (0-21)
+        :param min_contrast: Minimum contrast. Must be in range (1-21)
         """
-        pass  # ToDo
+        ret = Color(tuple(255 - x for x in self.rgb))
+
+        if self / ret >= min_contrast:
+            return ret
+
+        h, s, l = ret.hsl
+        l_down, l_up = l-1, l+1
+
+        while l_down >= 0 and l_up <= 100:
+            if l_down >= 0:
+                ret = self.from_hsl(h, s, l_down)
+
+                if self / ret >= min_contrast:
+                    return ret
+
+                l_down -= 1
+
+            if l_up <= 100:
+                ret = self.from_hsl(h, s, l_up)
+
+                if self / ret >= min_contrast:
+                    return ret
+
+                l_up += 1
+
+        raise RuntimeError(f'Unable to to find a color that has contrast of at least {min_contrast} with {self}')
+
+    @staticmethod
+    def from_hsl(h: int, s: int, l: int) -> "Color":
+        """Creates a Color object from hue, saturation and luminance
+
+        :param h: Hue
+        :param s: Saturation
+        :param l: Luminance
+        :return: New Color object
+        """
+        rgb = hls_to_rgb(h/360, l/100, s/100)
+
+        return Color(int_tuple(*(component*255 for component in rgb)))
 
     @staticmethod
     def from_str(arg: str) -> "Color":
