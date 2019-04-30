@@ -103,7 +103,7 @@ class Color:
 
         :param min_contrast: Minimum contrast. Must be in range (0-21)
         """
-        pass
+        pass  # ToDo
 
     @staticmethod
     def from_str(arg: str) -> "Color":

@@ -69,7 +69,7 @@ class Wallpaper:
             img_name = self.__generate_text(name)
             x, y = img_name.size
 
-            if x <= 112:  # Split the words. Needs a proper implementation
+            if x <= 112:  # ToDo Split the words. Needs a proper implementation
                 img.alpha_composite(img_name, (8, y))
             else:
                 text1, text2 = name.rsplit(' ', 1)
