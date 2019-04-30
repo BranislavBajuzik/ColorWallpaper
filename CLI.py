@@ -1,3 +1,5 @@
+"""Handles CLI parsing"""
+
 import re
 import argparse
 
@@ -30,18 +32,33 @@ def resolution(arg: str) -> Tuple[int, int]:
 
 
 def positive(typ: Type):
+    """Binds a type to the inner function
+
+    :param typ: Type to be bound
+    :return: A function that returns a number of max(:param typ:, 1)
+    """
     def typed_positive(arg: str):
-        """Parses a positive number of :param type: from CLI"""
+        """Parses a number from :param arg:. The smallest number returned is 1"""
         return max(1, typ(float(arg)))
     return typed_positive
 
 
 def in_range(typ: Type, low: float, high: float):
+    """Binds a range and type to the inner function
+
+    :param typ: Type to be bound
+    :param low: Lower bound
+    :param high: Upper bound
+    :return: A function that raises if a number is not in range.
+    """
     low, high = sorted((low, high))
 
     def is_in_range(arg: str):
+        """Parses a number from :param arg:
+        :raises AssertionError: If not in the bound range
+        """
         arg = typ(float(arg))
-        if not (low <= arg <= high):
+        if not low <= arg <= high:
             raise AssertionError(f'"{arg}" must be in range ({low}, {high})')
 
         return arg
@@ -70,7 +87,7 @@ def get_options(args: Sequence[str] = None) -> argparse.Namespace:
     color_g = ret.add_argument_group('Color options')
     color_g.add_argument('-c', '--color',
                          type=Color.from_str,
-                         default=Color((255, 2, 141), 'Hot Pink'),
+                         default=Color((255, 2, 141)),
                          help='Background color. #Hex / R,G,B / random / name')
 
     color_g.add_argument('-c2', '--color2',

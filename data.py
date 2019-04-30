@@ -1,3 +1,5 @@
+"""Data backend. Declarations, file loading"""
+
 import os
 
 from PIL import Image
@@ -1735,13 +1737,13 @@ def load_font() -> Dict[str, List[List[bool]]]:
     :return: Loaded fontmap
     """
     img = Image.open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'font.png'))
-    chars = ('0123456789'
-             'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-             'abcdefghijklmnopqrstuvwxyz'
-             '#\'/')
+    font_chars = ('0123456789'
+                  'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+                  'abcdefghijklmnopqrstuvwxyz'
+                  '#\'/')
     letters = {}
 
-    for i, ch in enumerate(chars):
+    for i, ch in enumerate(font_chars):
         col = 0
         empty_col = False
         letter = [[] for _ in range(8)]

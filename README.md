@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.com/BranislavBajuzik/ColorWallpaper.svg?branch=master)](https://travis-ci.com/BranislavBajuzik/ColorWallpaper)
 [![Codecov](https://codecov.io/gh/BranislavBajuzik/ColorWallpaper/branch/master/graph/badge.svg)](https://codecov.io/gh/BranislavBajuzik/ColorWallpaper)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/af954c94432a446a95e004079d089f6a)](https://www.codacy.com/app/BranislavBajuzik/ColorWallpaper?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=BranislavBajuzik/ColorWallpaper&amp;utm_campaign=Badge_Grade)
 
 A Minimalist wallpaper generator
 

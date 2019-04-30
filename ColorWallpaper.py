@@ -1,3 +1,5 @@
+"""Main file"""
+
 import sys
 import argparse
 
@@ -7,8 +9,7 @@ from typing import Tuple, Union, List
 try:
     from PIL import Image, ImageDraw
 except ImportError:
-    print(f'Unable to import PIL. Install it by running '
-          f'"{sys.executable} -m pip install Pillow".')
+    print(f'Unable to import PIL. Install it by running "{sys.executable} -m pip install Pillow".')
     exit(-1)
 
 from data import *
@@ -20,6 +21,7 @@ __all__ = ['Wallpaper']
 
 
 class Wallpaper:
+    """Main class"""
     def __init__(self, options: argparse.Namespace):
         self.output: Union[str, Path] = options.output
         self.resolution: Tuple[int, int] = options.resolution
@@ -28,8 +30,8 @@ class Wallpaper:
         self.color2: Color = options.color2
         self.display: str = options.display
         self.formats: List[str] = options.formats
-        self.x: str = 'x' if options.lowercase else 'X'
-        self.y: bool = options.yes
+        self.lowercase: bool = options.lowercase
+        self.yes: bool = options.yes
 
     def __generate_text(self, text: str) -> Image.Image:
         """Renders text into image
@@ -77,15 +79,11 @@ class Wallpaper:
                 y += 12
                 img.alpha_composite(self.__generate_text(text2), (8, y))
 
-        hex_format = f'{{0:02{self.x}}}'
-
         rows = {
-            'hex': ('HEX ', ''.join(hex_format.format(c) for c in self.color.rgb)),
-            '#hex': ('HEX ', '#' + ''.join(hex_format.format(c) for c in self.color.rgb)),
-            'rgb': ('RGB ', ' '.join(map(str, self.color.rgb))),
-            'hsv': ('HSV ', ' '.join(map(str, self.color.hsv))),
-            'hsl': ('HSL ', ' '.join(map(str, self.color.hsl))),
-            'cmyk': ('CMYK ', ' '.join(map(str, self.color.cmyk))),
+            'hex': ('HEX ', self.color.hex(self.lowercase)),
+            '#hex': ('HEX ', '#' + self.color.hex(self.lowercase)),
+            **{k: (k.upper(), ' '.join(map(str, getattr(self.color, k))))
+               for k in ('rgb', 'hsv', 'hsl', 'cmyk')},
             'empty': (' ', ' ')
         }
 
@@ -113,8 +111,8 @@ class Wallpaper:
             self.output.parent.mkdir(parents=True, exist_ok=True)
             img.save(str(self.output))
         elif self.output.is_file():
-            if self.y or input(f'File "{self.output}" exists.\n'
-                               f'Overwrite? [y/n] ').lower().startswith('y'):
+            if self.yes or input(f'File "{self.output}" exists.\n'
+                                 f'Overwrite? [y/n] ').lower().startswith('y'):
                 img.save(str(self.output))
         else:
             raise IOError(f'The "{self.output}" exists and is not a file')

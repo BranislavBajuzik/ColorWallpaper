@@ -1,3 +1,5 @@
+"""Common functions"""
+
 from typing import Tuple, Iterable
 
 

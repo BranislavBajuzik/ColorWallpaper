@@ -1,3 +1,5 @@
+"""Handles color calculation"""
+
 import re
 
 from typing import Tuple
@@ -28,7 +30,7 @@ class Color:
         self.rgb = rgb
 
         if name is None:
-            name = hex_to_color.get(self.hex, 'anonymous')
+            name = hex_to_color.get(self.hex(), 'anonymous')
             self.name = pretty_names.get(name, name.capitalize())
         else:
             self.name = name
@@ -44,9 +46,10 @@ class Color:
         """Helper function for converting int RGB to float RGB"""
         return tuple(component/255 for component in components)
 
-    @property
-    def hex(self) -> str:
-        return ''.join(f'{c:02x}' for c in self.rgb)
+    def hex(self, lowercase: bool = True) -> str:
+        """Returns HEX representation of :param self:"""
+        format_string = f'{{0:02{"x" if lowercase else "X"}}}'
+        return ''.join(format_string.format(c) for c in self.rgb)
 
     @property
     def hsv(self) -> Tuple[int, int, int]:
