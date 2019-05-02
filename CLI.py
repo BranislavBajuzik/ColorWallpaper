@@ -59,7 +59,7 @@ def in_range(typ: Type, low: float, high: float):
         """
         arg = typ(float(arg))
         if not low <= arg <= high:
-            raise AssertionError(f'"{arg}" must be in range ({low}, {high})')
+            raise argparse.ArgumentTypeError(f'"{arg}" must be in range ({low}, {high})')
 
         return arg
     return is_in_range
@@ -101,7 +101,7 @@ def get_options(args: Sequence[str] = None) -> argparse.Namespace:
                          type=in_range(float, 1, 21),
                          default=1,
                          help='Min contrast of --color and --color2, if --color2 is `inverted`.'
-                              'Must be in range (1-21). RuntimeError will be raised if this can not be satisfied')
+                              'Must be in range (1-21). Will be raise if this can not be satisfied')
 
     color_g.add_argument('--overlay-color',
                          metavar='COLOR',
@@ -112,7 +112,7 @@ def get_options(args: Sequence[str] = None) -> argparse.Namespace:
                          type=in_range(float, 1, 21),
                          default=1,
                          help='Min contrast of --color and --overlay-color.'
-                              'Must be in range (1-21). RuntimeError will be raised if this can not be satisfied')
+                              'Must be in range (1-21). Will be raise if this can not be satisfied')
 
     display_g = ret.add_argument_group('Display options')
     display_g.add_argument('-r', '--resolution',

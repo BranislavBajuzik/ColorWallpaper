@@ -24,11 +24,11 @@ Color options
 - `-d`/`--display` `NAME`
   - Overrides the display name of the `--color`. Empty string disables the name row.
 - `--min-contrast` `CONTRAST`
-  - Min contrast of `--color` and `--color2`, if `--color2` is `inverted`. RuntimeError will be raised if this can not be satisfied. Defaults to `1`
+  - Min contrast of `--color` and `--color2`, if `--color2` is `inverted`. Will be raise if this can not be satisfied. Defaults to `1`
 - `--overlay-color` `COLOR`
   - Used to specify color of potential overlay, like icons or text.
 - `--overlay-contrast` `CONTRAST`
-  - Min contrast of --color and --overlay-color. RuntimeError will be raised if this can not be satisfied. Defaults to `1`
+  - Min contrast of --color and --overlay-color. Will be raise if this can not be satisfied. Defaults to `1`
 
 Display options
 - `-r`/`--resolution` `RESOLUTION`
