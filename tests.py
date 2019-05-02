@@ -1,9 +1,7 @@
-import sys
-
 from io import StringIO
 from unittest.mock import patch
 from unittest import TestCase, skip
-from ColorWallpaper import get_options
+from CLI import get_options
 
 
 class TestOptionsColor(TestCase):
