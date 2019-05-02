@@ -5,7 +5,7 @@ import os
 from PIL import Image
 from typing import Dict, List
 
-__all__ = ['pretty_names', 'hex_to_color', 'color_to_hex', 'font']
+__all__ = ['pretty_names', 'hex_to_color', 'color_hexes', 'color_to_hex', 'font']
 
 pretty_names = {
     'acidgreen': 'Acid Green',
@@ -1728,6 +1728,7 @@ hex_to_color = {
     'ffffe4': 'offwhite',
     'ffffff': 'white'
 }
+color_hexes = tuple(hex_to_color)
 color_to_hex = {v: k for k, v in hex_to_color.items()}
 
 

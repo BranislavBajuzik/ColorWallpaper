@@ -18,13 +18,17 @@ General options
 
 Color options
 - `-c`/`--color` `COLOR`
-  - Used to specify Background color. Defaults to `Hot Pink`.
+  - Used to specify Background color. Also accepts `random` (the default) which picks random named color.
 - `-c2`/`--color2` `COLOR`
   - Used to specify text color. Also accepts `inverted` (the default) which is the inverse of `--color`.
 - `-d`/`--display` `NAME`
   - Overrides the display name of the `--color`. Empty string disables the name row.
 - `--min-contrast` `CONTRAST`
-  - Min contrast of `--color` and `--color2`, if `--color2` is `inverted`. RuntimeError will be raised if this can not be satisfied. Defaults to `2.5`
+  - Min contrast of `--color` and `--color2`, if `--color2` is `inverted`. RuntimeError will be raised if this can not be satisfied. Defaults to `1`
+- `--overlay-color` `COLOR`
+  - Used to specify color of potential overlay, like icons or text.
+- `--overlay-contrast` `CONTRAST`
+  - Min contrast of --color and --overlay-color. RuntimeError will be raised if this can not be satisfied. Defaults to `1`
 
 Display options
 - `-r`/`--resolution` `RESOLUTION`
@@ -40,7 +44,6 @@ Display options
 - `COLOR`
   - `#Hex`: Three or six hexadecimal digits optionally starting with `#`.
   - `R,G,B`: Three comma separated numbers in range 0-255.
-  - `random`: Literal string. Will pick a random color with a name.
   - Valid name of a color.
 - `CONTRAST`
   - A float in range 0-21.

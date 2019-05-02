@@ -141,6 +141,11 @@ class Color:
         return Color(int_tuple(*(component*255 for component in rgb)))
 
     @staticmethod
+    def random() -> "Color":
+        """Returns random named color"""
+        return Color(parse_hex(choice(color_hexes)))
+
+    @staticmethod
     def from_str(arg: str) -> "Color":
         """Creates a Color object from string
 
@@ -159,14 +164,9 @@ class Color:
         else:
             name = normalized(arg)
 
-            if name == 'random':
-                rgb = choice(tuple(hex_to_color))
-            else:
-                if name not in color_to_hex:
-                    raise NameError(f'"{arg}" is not a color name')
+            if name not in color_to_hex:
+                raise NameError(f'"{arg}" is not a color name')
 
-                rgb = color_to_hex[name]
-
-            rgb = parse_hex(rgb)
+            rgb = parse_hex(color_to_hex[name])
 
         return Color(rgb)

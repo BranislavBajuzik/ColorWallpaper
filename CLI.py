@@ -86,22 +86,32 @@ def get_options(args: Sequence[str] = None) -> argparse.Namespace:
 
     color_g = ret.add_argument_group('Color options')
     color_g.add_argument('-c', '--color',
-                         type=Color.from_str,
-                         default=Color((255, 2, 141)),
+                         default='random',
                          help='Background color. #Hex / R,G,B / random / name')
 
     color_g.add_argument('-c2', '--color2',
                          metavar='COLOR',
                          default='inverted',
-                         help='Highlight color. #Hex / R,G,B / random / inverted / name')
+                         help='Highlight color. #Hex / R,G,B / inverted / name')
 
     color_g.add_argument('-d', '--display',
                          help='Override the display name of --color. Empty string disables the name row')
 
     color_g.add_argument('--min-contrast',
                          type=in_range(float, 1, 21),
-                         default=2.5,
+                         default=1,
                          help='Min contrast of --color and --color2, if --color2 is `inverted`.'
+                              'Must be in range (1-21). RuntimeError will be raised if this can not be satisfied')
+
+    color_g.add_argument('--overlay-color',
+                         metavar='COLOR',
+                         type=Color.from_str,
+                         help='Color of potential overlay, like icons or text. #Hex / R,G,B / name')
+
+    color_g.add_argument('--overlay-contrast',
+                         type=in_range(float, 1, 21),
+                         default=1,
+                         help='Min contrast of --color and --overlay-color.'
                               'Must be in range (1-21). RuntimeError will be raised if this can not be satisfied')
 
     display_g = ret.add_argument_group('Display options')
@@ -128,7 +138,32 @@ def get_options(args: Sequence[str] = None) -> argparse.Namespace:
 
     ret = ret.parse_args(args)
 
-    if normalized(ret.color2) == 'inverted':
-        ret.color2 = ret.color.inverted(ret.min_contrast)
+    random = normalized(ret.color) == 'random'
+    inverted = normalized(ret.color2) == 'inverted'
+
+    if random:
+        ret.color = Color.random()
+    else:
+        ret.color = Color.from_str(ret.color)
+
+    while True:
+        if ret.overlay_color is not None:
+            if not random and ret.color / ret.overlay_color < ret.overlay_contrast:
+                raise RuntimeError(f'Contrast of {ret.color} and {ret.overlay_color} is lower than '
+                                   f'{ret.overlay_contrast} ({ret.color / ret.overlay_color})')
+
+            while ret.color / ret.overlay_color < ret.overlay_contrast:
+                ret.color = Color.random()
+
+        if inverted:
+            try:
+                ret.color2 = ret.color.inverted(ret.min_contrast)
+            except RuntimeError:
+                ret.color = Color.random()
+            else:
+                break
+        else:
+            ret.color2 = Color.from_str(ret.color2)
+            break
 
     return ret
