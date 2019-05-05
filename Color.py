@@ -30,8 +30,7 @@ class Color:
         self.rgb = rgb
 
         if name is None:
-            name = hex_to_color.get(self.hex(), 'anonymous')
-            self.name = pretty_names.get(name, name.capitalize())
+            self.name = hex_to_color.get(self.hex(), 'Anonymous')
         else:
             self.name = name
 
