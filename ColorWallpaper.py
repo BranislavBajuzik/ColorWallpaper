@@ -23,15 +23,19 @@ __all__ = ['Wallpaper']
 class Wallpaper:
     """Main class"""
     def __init__(self, options: argparse.Namespace):
+        # General options
         self.output: Union[str, Path] = options.output
-        self.resolution: Tuple[int, int] = options.resolution
-        self.scale: int = options.scale
+        self.yes: bool = options.yes
+
+        # Color options
         self.color: Color = options.color
         self.color2: Color = options.color2
         self.display: str = options.display
+
+        # Display options
+        self.resolution: Tuple[int, int] = options.resolution
+        self.scale: int = options.scale
         self.formats: List[str] = options.formats
-        self.lowercase: bool = options.lowercase
-        self.yes: bool = options.yes
 
     def __generate_text(self, text: str) -> Image.Image:
         """Renders text into image
@@ -80,8 +84,10 @@ class Wallpaper:
                 img.alpha_composite(self.__generate_text(text2), (8, y))
 
         rows = {
-            'hex': ('HEX ', self.color.hex(self.lowercase)),
-            '#hex': ('HEX ', '#' + self.color.hex(self.lowercase)),
+            'hex': ('HEX ', self.color.hex(True)),
+            '#hex': ('HEX ', '#' + self.color.hex(True)),
+            'HEX': ('HEX ', self.color.hex(False)),
+            '#HEX': ('HEX ', '#' + self.color.hex(False)),
             **{k: (f'{k.upper()} ', ' '.join(map(str, getattr(self.color, k))))
                for k in ('rgb', 'hsv', 'hsl', 'cmyk')},
             'empty': (' ', ' ')

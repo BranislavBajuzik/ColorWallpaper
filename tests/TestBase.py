@@ -6,7 +6,7 @@ __all__ = ['TestBase']
 
 
 class TestBase(TestCase):
-    def assertRaises(self,  # type: ignore
+    def assertRaises(self,
                      exception: Union[Type[BaseException], Tuple[Type[BaseException], ...]],
                      callable: Callable[..., Any],
                      *args: Any, **kwargs: Any) -> None:

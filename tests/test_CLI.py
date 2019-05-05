@@ -1,9 +1,9 @@
 from io import StringIO
 from pathlib import Path
 from unittest.mock import patch
-from unittest import skip
 
 import Color as ColorModule
+
 from CLI import get_options
 from tests.TestBase import TestBase
 
@@ -53,51 +53,11 @@ class Yes(TestBase):
 
 # Color Options
 class Color(TestBase):  # ToDo
-    def test_default(self):
-        options = get_options([])
-
-        self.assertIs(ColorModule.Color, type(options.color))
-
-    @skip
-    def test_ok(self):
-        args = (
-            (((0, 0, 0), 'black'), ['-c', 'black']),
-            (((0, 0, 0), 'black'), ['-c', '000']),
-            (((0, 0, 0), 'black'), ['-c', '000000']),
-            (((0, 0, 0), 'black'), ['-c', '#000000']),
-            (((0, 0, 0), 'black'), ['--color', 'black']),
-            (((0, 0, 0), 'black'), ['--color', '000']),
-            (((0, 0, 0), 'black'), ['--color', '000000']),
-            (((0, 0, 0), 'black'), ['--color', '#000000']),
-
-            (((255, 2, 141), 'hotpink'), ['--color', '#ff028d'])
-        )
-
-        for result, cli in args:
-            self.assertEqual(result, get_options(cli).color)
-
-    @skip
-    def test_nok(self):
-        raise NotImplementedError
+    pass
 
 
 class Color2(TestBase):  # ToDo
-    @skip
-    def test_default(self):
-        options = get_options([])
-
-        self.assertEqual(((0, 253, 114), None), options.color2)
-
-    @skip
-    def test_ok(self):
-        args = (
-            (((255, 255, 255), 'white'), ['-c', 'black']),
-
-            (((0, 253, 114), None), ['--color', '#ff028d'])
-        )
-
-        for result, cli in args:
-            self.assertEqual(result, get_options(cli).color2)
+    pass
 
 
 class Display(TestBase):
@@ -255,55 +215,50 @@ class Scale(TestBase):
                 self.assertRaises(SystemExit, get_options, cli)
 
 
-class Formats(TestBase):  # ToDo
+class Formats(TestBase):
     def test_default(self):
         options = get_options([])
 
-        self.assertEqual(3, options.scale)
+        self.assertEqual(['empty', 'HEX', 'rgb'], options.formats)
 
     def test_ok(self):
         args = (
-            (1, ['-s', '1']),
-            (420, ['-s', '420']),
-            (1, ['--scale', '1']),
-            (420, ['--scale', '420']),
+            (['empty'], ['-f', 'empty']),
+            (['hex'], ['-f', 'hex']),
+            (['#hex'], ['-f', '#hex']),
+            (['rgb'], ['-f', 'rgb']),
+            (['hsv'], ['-f', 'hsv']),
+            (['hsl'], ['-f', 'hsl']),
+            (['cmyk'], ['-f', 'cmyk']),
 
-            (1, ['--scale', '0']),
-            (1, ['--scale', '0.9']),
-            (1, ['--scale', '1.5'])
+            (['empty'], ['--formats', 'empty']),
+            (['hex'], ['--formats', 'hex']),
+            (['#hex'], ['--formats', '#hex']),
+            (['rgb'], ['--formats', 'rgb']),
+            (['hsv'], ['--formats', 'hsv']),
+            (['hsl'], ['--formats', 'hsl']),
+            (['cmyk'], ['--formats', 'cmyk']),
+
+            (['empty', 'hex', '#hex', 'rgb', 'hsv', 'hsl', 'cmyk'],
+             ['--formats', 'eMptY', 'hex', '#hex', 'Rgb', 'hSv', 'Hsl', 'cMyK']),
+
+            (['rgb', 'rgb', 'rgb', 'rgb', 'rgb', 'rgb'],
+             ['--formats', 'rgb', 'rgB', 'RGb', 'rgb', 'rgb', 'rgb']),
         )
 
         for result, cli in args:
-            self.assertEqual(result, get_options(cli).scale)
+            self.assertEqual(sorted(result), sorted(get_options(cli).formats))
 
     def test_nok(self):
         args = (
-            ['-s', 'a'],
-            ['-s', 'nan'],
-            ['-s', ''],
+            ['-f', 'r g b'],
+            ['-f', 'heX'],
+            ['-f', '#Hex'],
+            ['-f', 'a'],
+            ['-f', ''],
+            ['-f'],
         )
 
         with patch('sys.stderr', new=StringIO()):
             for cli in args:
                 self.assertRaises(SystemExit, get_options, cli)
-
-
-class Lowercase(TestBase):
-    def test_default(self):
-        options = get_options([])
-
-        self.assertEqual(False, options.lowercase)
-
-    def test_ok(self):
-        args = (
-            (True, ['-l']),
-            (True, ['-l']),
-            (True, ['--lowercase']),
-            (True, ['--lowercase'])
-        )
-
-        for result, cli in args:
-            self.assertEqual(result, get_options(cli).lowercase)
-
-    def test_nok(self):
-        pass

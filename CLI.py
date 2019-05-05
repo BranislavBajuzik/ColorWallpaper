@@ -65,13 +65,50 @@ def in_range(typ: Type, low: float, high: float):
     return is_in_range
 
 
+def fix_casing(names: Sequence[str]):
+    """Binds :param names: to the inner function
+       fix_casing(('One', 'Two', 'Three'))('tHreE') ~> 'Three'\n
+       fix_casing(('aaa', 'Aaa', 'bbb'))('BbB') ~> 'bbb'\n
+       fix_casing(('aaa', 'Aaa', 'bbb'))('aaa') ~> 'aaa'\n
+       fix_casing(('aaa', 'Aaa', 'bbb'))('aAa') ~> argparse.ArgumentTypeError  # Ambiguous choice
+
+    :param names: Templates for the fixing, non-empty
+    :return: A function that fixes casing
+    """
+    def cased(arg: str) -> str:
+        """Fixes the casing of :param arg: using the bound :param names: as template
+
+        :param arg: Argument that needs to be fixed
+        :return: Correctly cased :param arg:
+        """
+        low_names = tuple(name.lower() for name in names)
+
+        if type(arg) is not str or arg.lower() not in low_names:
+            raise argparse.ArgumentTypeError(f'Invalid choice: "{arg}". Chose from {names}')
+
+        duplicate_names = set(name for name in low_names if low_names.count(name) > 1)
+
+        if arg in names:
+            arg = names[names.index(arg)]
+        elif arg.lower() not in duplicate_names:
+            arg = names[low_names.index(arg.lower())]
+        else:
+            raise argparse.ArgumentTypeError(
+                f'Ambiguous choice: {arg}. Unable to decide between '
+                f'{[name for name in names if name.lower() in duplicate_names and name.lower() == arg.lower()]}'
+            )
+        return arg
+    return cased
+
+
 def get_options(args: Sequence[str] = None) -> argparse.Namespace:
     """Parses CLI options
 
     :param args: None for `sys.argv`
     :return: Object with options as attributes
     """
-    ret = argparse.ArgumentParser(description='Minimalist wallpaper generator', usage=f'python %(prog)s ...')
+    ret = argparse.ArgumentParser(description='Minimalist wallpaper generator', usage=f'python %(prog)s ...',
+                                  allow_abbrev=False)
 
     general_g = ret.add_argument_group('General options')
     general_g.add_argument('-o', '--output',
@@ -126,15 +163,11 @@ def get_options(args: Sequence[str] = None) -> argparse.Namespace:
                            help='The size of the highlight will be divided by this')
 
     display_g.add_argument('-f', '--formats',
-                           type=normalized,
-                           default=['empty', 'hex', 'rgb'],
+                           type=fix_casing(('empty', 'hex', '#hex', 'HEX', '#HEX', 'rgb', 'hsv', 'hsl', 'cmyk')),
+                           default=['empty', 'HEX', 'rgb'],
                            nargs='+',
-                           choices=['empty', 'hex', '#hex', 'rgb', 'hsv', 'hsl', 'cmyk'],
-                           help='Declares the order and formats to display')
-
-    display_g.add_argument('-l', '--lowercase',
-                           action='store_true',
-                           help='Casing of hex output')
+                           help='Declares the order and formats to display. Available choices: '
+                                '{hex, #hex, HEX, #HEX, rgb, hsv, hsl, cmyk, empty}')
 
     ret = ret.parse_args(args)
 

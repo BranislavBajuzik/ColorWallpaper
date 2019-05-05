@@ -46,10 +46,11 @@ Display options
   - `R,G,B`: Three comma separated numbers in range 0-255.
   - Valid name of a color.
 - `CONTRAST`
-  - A float in range 0-21.
+  - A float in range 1-21.
 - `RESOLUTION`
   - Two positive integers greater or equal to 150, separated by `x` or `:`.
 - `FORMAT`
   - Self explanatory: `hex`, `rgb`, `hsv`, `hsl`, `cmyk` 
   - `empty`: Empty row.
   - `#hex`: `hex`, but starting with `#`
+  - `#HEX`, `HEX`: Like `hex`, but uppercase
