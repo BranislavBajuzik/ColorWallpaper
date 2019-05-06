@@ -1,6 +1,6 @@
 """Common functions"""
 
-from typing import Tuple, Iterable
+from typing import Tuple, Any
 
 
 __all__ = ['parse_hex', 'int_tuple', 'normalized']
@@ -13,16 +13,18 @@ def parse_hex(arg: str) -> Tuple[int, int, int]:
     :return: (R, G, B)
     """
     length = len(arg)
+    if length not in (3, 6):
+        raise ValueError(f'Length of input has to be either 3 or 6 not {length}')
     return tuple(int(arg[length//3*i:length//3*(i+1)], 16) for i in range(3))
 
 
-def int_tuple(*t: Iterable) -> Tuple[int, ...]:
-    """Maps int over an iterable into tuple
+def int_tuple(*source: Any) -> Tuple[int, ...]:
+    """Maps int over input params and returns them as int
 
-    :param t: Iterable to iterate over
+    :param source: Iterable to iterate over
     :return: Tuple of ints
     """
-    return tuple(map(int, t))
+    return tuple(int(float(t)) for t in source)
 
 
 def normalized(s: str) -> str:
