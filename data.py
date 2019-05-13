@@ -1525,7 +1525,7 @@ def load_font() -> Dict[str, List[List[bool]]]:
     font_chars = ('0123456789'
                   'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
                   'abcdefghijklmnopqrstuvwxyz'
-                  '#\'/()-')
+                  '#\'/()-.,')
     letters = {}
 
     for i, ch in enumerate(font_chars):
