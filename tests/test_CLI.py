@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 import Color as ColorModule
 
-from CLI import get_options
+from CLI import *
 from tests.TestBase import TestBase
 
 
