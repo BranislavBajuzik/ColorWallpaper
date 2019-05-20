@@ -1522,10 +1522,6 @@ def load_font() -> Dict[str, List[List[bool]]]:
     :return: Loaded fontmap
     """
     img = Image.open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'font.png'))
-    font_chars = ('0123456789'
-                  'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-                  'abcdefghijklmnopqrstuvwxyz'
-                  '#\'/()-')
     letters = {}
 
     for i, ch in enumerate(font_chars):
@@ -1555,9 +1551,15 @@ def font(char) -> List[List[bool]]:
     :param char: Character to load
     :return: Fontmap of :param char:. if unknown, full block will be returned
     """
+    if len(char) != 1:
+        raise AssertionError('Length of char must be 1')
     return chars.get(char, default_char)
 
 
+font_chars = ('0123456789'
+              'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+              'abcdefghijklmnopqrstuvwxyz'
+              '#\'/()-')
 chars = load_font()
 chars[' '] = [[False]*4]*8
 default_char = [[*[True]*7, False]]*8

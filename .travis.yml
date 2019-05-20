@@ -9,6 +9,6 @@ before_install:
 install:
   - pip install Pillow
 script:
-  - coverage run --include=common.py,data.py,CLI.py,Color.py -m unittest tests/test_*.py
+  - coverage run --include=src/*.py -m unittest tests/test_*.py
 after_success:
   - codecov

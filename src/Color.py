@@ -12,6 +12,7 @@ from common import *
 __all__ = ['Color']
 
 
+# http://colorizer.org/ <-- Very nice
 hex_re = re.compile(r'\s*#?([\da-f]{6}|[\da-f]{3})\s*', re.I)
 rgb_re = re.compile(r'\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\s*')
 
@@ -25,7 +26,7 @@ class Color:
         :param rgb: (R,G,B) of the color
         :param name: Overrides the color name lookup
         """
-        if not all(0 <= c <= 255 for c in rgb):
+        if len(rgb) != 3 or not all(0 <= c <= 255 for c in rgb):
             raise ValueError('Invalid RGB values')
         self.rgb = rgb
 
@@ -35,7 +36,7 @@ class Color:
             self.name = name
 
     def __str__(self):
-        return f'Color(rgb={self.rgb}, name={self.name})'
+        return f'Color(rgb={self.rgb}, name=\'{self.name}\')'
 
     def __repr__(self):
         return str(self)
