@@ -1,7 +1,7 @@
 from io import StringIO
 from unittest.mock import patch
 
-from data import *
+from src.data import *
 from tests.TestBase import TestBase
 
 

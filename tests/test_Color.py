@@ -1,7 +1,7 @@
 from io import StringIO
 from unittest.mock import patch
 
-from Color import *
+from src.Color import *
 from tests.TestBase import TestBase
 
 
