@@ -5,10 +5,6 @@ from src.Color import *
 from tests.TestBase import TestBase
 
 
-def color_compare(color: Color, rgb: tuple, name: str) -> bool:
-    return color.rgb == rgb and color.name == name
-
-
 class Create(TestBase):
     def test_ok(self):
         args = (
@@ -19,9 +15,9 @@ class Create(TestBase):
         )
 
         for rgb, name in args:
-            self.assertTrue(color_compare(Color(rgb), rgb, name))
+            self.color_compare(Color(rgb), rgb, name)
 
-        self.assertTrue(color_compare(Color((0x12, 0x34, 0x56), 'Custom'), (0x12, 0x34, 0x56), 'Custom'))
+        self.color_compare(Color((0x12, 0x34, 0x56), 'Custom'), (0x12, 0x34, 0x56), 'Custom')
 
     def test_nok(self):
         args = (
@@ -86,6 +82,46 @@ class CMYK(TestBase):
             self.assertEqual(result, Color(rgb).cmyk)
 
 
+class Luminance(TestBase):  # ToDo
+    pass
+
+
+class TrueDiv(TestBase):
+    def test(self):
+        args = (
+            ((0x00, 0x00, 0x00), (0xFF, 0xFF, 0xFF), 21.0),
+            ((0x00, 0x00, 0xFF), (0xFF, 0xFF, 0xFF), 8.59),
+            ((0x00, 0x00, 0xFF), (0xFF, 0x00, 0x00), 2.14),
+            ((0x00, 0x00, 0x00), (0x00, 0x00, 0x00), 1.0),
+            ((0xFF, 0xFF, 0xFF), (0xFF, 0xFF, 0xFF), 1.0)
+        )
+
+        for a, b, result in args:
+            a, b = Color(a), Color(b)
+            self.assertEqual(a / b, b / a)
+            self.assertEqual(result, int((a / b)*100)/100)
+
+
+class Div(TestBase):
+    def test(self):
+        args = (
+            ((0x00, 0x00, 0x00), (0xFF, 0xFF, 0xFF), 21),
+            ((0x00, 0x00, 0xFF), (0xFF, 0xFF, 0xFF), 8),
+            ((0x00, 0x00, 0xFF), (0xFF, 0x00, 0x00), 2),
+            ((0x00, 0x00, 0x00), (0x00, 0x00, 0x00), 1),
+            ((0xFF, 0xFF, 0xFF), (0xFF, 0xFF, 0xFF), 1)
+        )
+
+        for a, b, result in args:
+            a, b = Color(a), Color(b)
+            self.assertEqual(a // b, b // a)
+            self.assertEqual(result, a // b)
+
+
+class Inverted(TestBase):  # ToDo
+    pass
+
+
 class Random(TestBase):
     def test(self):
         color = Color.random()
@@ -95,6 +131,32 @@ class Random(TestBase):
         self.assertEqual(color.name, hex_to_color[color.hex()])
 
 
-class FromStr(TestBase):
+class FromHSL(TestBase):
+    def test_ok(self):
+        args = (
+            ((0, 0, 0), (0x00, 0x00, 0x00), 'Black'),
+            ((0, 100, 50), (0xFF, 0x00, 0x00), 'Red'),
+            ((210, 68, 80.5), (0xAB, 0xCD, 0xEF), 'Anonymous')
+        )
+
+        for (h, s, l), rgb, name in args:
+            self.color_compare(Color.from_hsl(h, s, l), rgb, name)
+
+    def test_nok(self):
+        args = (
+            (-1, 0, 0),
+            (0, -1, 0),
+            (0, 0, -1),
+            (361, 0, 0),
+            (0, 361, 0),
+            (0, 0, 361),
+        )
+
+        with patch('sys.stderr', new=StringIO()):
+            for arg in args:
+                self.assertRaises(ValueError, Color.from_hsl, *arg)
+
+
+class FromStr(TestBase):  # ToDo
     def test_ok(self):
         pass

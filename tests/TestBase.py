@@ -2,6 +2,9 @@ from unittest import TestCase
 from typing import Any, Callable, Tuple, Type, Union
 
 
+from src.Color import Color
+
+
 __all__ = ['TestBase']
 
 
@@ -21,3 +24,7 @@ class TestBase(TestCase):
 
             raise AssertionError(f'{getattr(callable, "__name__", repr(callable))}({args_str}{kwargs_str}) '
                                  f'did not raise {exception.__name__}') from None
+
+    def color_compare(self, color: Color, rgb: tuple, name: str) -> None:
+        self.assertEqual(rgb, color.rgb)
+        self.assertEqual(name, color.name)
