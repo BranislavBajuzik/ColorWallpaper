@@ -669,7 +669,6 @@ hex_to_color = {
     '6258c4': 'Iris',
     '019529': 'Irish Green',
     'f4f0ec': 'Isabelline',
-    '009000': 'Islamic Green',
     'ffffcb': 'Ivory',
     '1fa774': 'Jade',
     '2baf6a': 'Jade Green',
@@ -1420,7 +1419,7 @@ hex_to_color = {
     'b26400': 'Umber',
     'ffddca': 'Unbleached Silk',
     '5b92e5': 'United Nations Blue',
-    '644117': 'Ups Brown',
+    '644117': 'UPS Brown',
     'ae2029': 'Upsdell Red',
     'afdbf5': 'Uranian Blue',
     '004f98': 'Usafa Blue',
@@ -1559,7 +1558,7 @@ def font(char) -> List[List[bool]]:
 font_chars = ('0123456789'
               'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
               'abcdefghijklmnopqrstuvwxyz'
-              '#\'/()-')
+              '#\'/()-.,')
 chars = load_font()
 chars[' '] = [[False]*4]*8
 default_char = [[*[True]*7, False]]*8
