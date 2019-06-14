@@ -32,6 +32,12 @@ class Create(TestBase):
                 self.assertRaises(ValueError, Color, arg)
 
 
+class StrRepr(TestBase):
+    def test(self):
+        self.assertEqual('Color(rgb=(0, 0, 0), name=\'Black\')', str(Color((0x00, 0x00, 0x00), 'Black')))
+        self.assertEqual('Color(rgb=(0, 0, 0), name=\'Black\')', repr(Color((0x00, 0x00, 0x00), 'Black')))
+
+
 class Hex(TestBase):
     def test(self):
         args = (
@@ -82,8 +88,18 @@ class CMYK(TestBase):
             self.assertEqual(result, Color(rgb).cmyk)
 
 
-class Luminance(TestBase):  # ToDo
-    pass
+class Luminance(TestBase):
+    def test(self):
+        args = (
+            (0.0, (0x00, 0x00, 0x00)),
+            (1.0, (0xFF, 0xFF, 0xFF)),
+            (0.2126, (0xFF, 0x00, 0x00)),
+            (0.7151, (0x00, 0xFF, 0x00)),
+            (0.0722, (0x00, 0x00, 0xFF)),
+        )
+
+        for luminance, rgb in args:
+            self.assertEqual(luminance, int(Color(rgb).luminance*10_000)/10_000)
 
 
 class TrueDiv(TestBase):
