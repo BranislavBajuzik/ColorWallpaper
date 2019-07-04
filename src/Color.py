@@ -140,13 +140,13 @@ class Color:
         :param l: Luminance
         :return: New Color object
         """
-        components = (360, h, 'h'), (100, l, 'l'), (100, s, 's')
+        components = (360, h, "h"), (100, l, "l"), (100, s, "s")
 
         for bound, component, name in components:
             if not 0 <= component <= bound:
-                raise ValueError(f'{name} is outside of [0, {bound}]: {component}')
+                raise ValueError(f"{name} is outside of [0, {bound}]: {component}")
 
-        rgb = hls_to_rgb(*(component/bound for bound, component, name in components))
+        rgb = hls_to_rgb(*(component / bound for bound, component, name in components))
 
         return Color(int_tuple(*(component * 255 for component in rgb)))
 
