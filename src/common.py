@@ -3,7 +3,7 @@
 from typing import Tuple, Any
 
 
-__all__ = ['parse_hex', 'int_tuple', 'normalized']
+__all__ = ["parse_hex", "int_tuple", "normalized"]
 
 
 def parse_hex(arg: str) -> Tuple[int, int, int]:
@@ -14,8 +14,8 @@ def parse_hex(arg: str) -> Tuple[int, int, int]:
     """
     length = len(arg)
     if length not in (3, 6):
-        raise ValueError(f'Length of input has to be either 3 or 6 not {length}')
-    return tuple(int(arg[length//3*i:length//3*(i+1)], 16) for i in range(3))
+        raise ValueError(f"Length of input has to be either 3 or 6 not {length}")
+    return tuple(int(arg[length // 3 * i : length // 3 * (i + 1)], 16) for i in range(3))
 
 
 def int_tuple(*source: Any) -> Tuple[int, ...]:
@@ -33,4 +33,4 @@ def normalized(s: str) -> str:
     :param s: String to normalize
     :return: Lowered string without whitespace
     """
-    return ''.join(s.split()).lower()
+    return "".join(s.split()).lower()

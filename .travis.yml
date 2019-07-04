@@ -4,13 +4,14 @@ matrix:
     - python: 3.6
     - python: 3.7
       dist: xenial
-before_install:
-  - pip install codecov
 install:
+  - pip install codecov
   - pip install Pillow
+  - pip install black
 before_script:
   - export PYTHONPATH=$PYTHONPATH:$(pwd)/src
 script:
+  - python -m black -l 120 --check src/
   - coverage run --include=src/*.py -m unittest tests/test_*.py
 after_success:
   - codecov
