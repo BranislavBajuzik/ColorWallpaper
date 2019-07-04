@@ -88,9 +88,9 @@ class MinContrast(TestBase):
 
     def test_ok(self):
         args = (
-            (1, ['--min-contrast', '1']),
-            (21, ['--min-contrast', '21']),
-            (4.5, ['--min-contrast', '4.5']),
+            (1, ['-c', 'black', '--min-contrast', '1']),
+            (21, ['-c', 'black', '--min-contrast', '21']),
+            (4.5, ['-c', 'black', '--min-contrast', '4.5']),
         )
 
         for result, cli in args:

@@ -127,6 +127,11 @@ class Color:
         raise RuntimeError(f"Unable to to find a color that has contrast of at least {min_contrast} with {self}")
 
     @staticmethod
+    def random() -> "Color":
+        """Returns random named color"""
+        return Color(parse_hex(choice(color_hexes)))
+
+    @staticmethod
     def from_hsl(h: int, s: int, l: int) -> "Color":
         """Creates a Color object from hue, saturation and luminance
 
@@ -135,14 +140,15 @@ class Color:
         :param l: Luminance
         :return: New Color object
         """
-        rgb = hls_to_rgb(h / 360, l / 100, s / 100)
+        components = (360, h, 'h'), (100, l, 'l'), (100, s, 's')
+
+        for bound, component, name in components:
+            if not 0 <= component <= bound:
+                raise ValueError(f'{name} is outside of [0, {bound}]: {component}')
+
+        rgb = hls_to_rgb(*(component/bound for bound, component, name in components))
 
         return Color(int_tuple(*(component * 255 for component in rgb)))
-
-    @staticmethod
-    def random() -> "Color":
-        """Returns random named color"""
-        return Color(parse_hex(choice(color_hexes)))
 
     @staticmethod
     def from_str(arg: str) -> "Color":
