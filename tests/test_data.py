@@ -26,13 +26,13 @@ class Font(TestBase):
                 [t, t, t, t, t, t, t, f],
                 [t, t, t, t, t, t, t, f],
             ],
-            font('👌')
+            font("👌"),
         )
 
     def test_ok(self):
         f = False
         t = True
-        
+
         self.assertEqual(
             [
                 [f, f, f, f],
@@ -44,7 +44,7 @@ class Font(TestBase):
                 [f, f, f, f],
                 [f, f, f, f],
             ],
-            font(' ')
+            font(" "),
         )
 
         self.assertEqual(
@@ -58,7 +58,7 @@ class Font(TestBase):
                 [f, t, f, t, f, f],
                 [f, f, f, f, f, f],
             ],
-            font('#')
+            font("#"),
         )
 
         self.assertEqual(
@@ -72,10 +72,10 @@ class Font(TestBase):
                 [f, t, t, t, f, f],
                 [f, f, f, f, f, f],
             ],
-            font('0')
+            font("0"),
         )
 
     def test_nok(self):
-        with patch('sys.stderr', new=StringIO()):
-            self.assertRaises(AssertionError, font, '')
-            self.assertRaises(AssertionError, font, '12')
+        with patch("sys.stderr", new=StringIO()):
+            self.assertRaises(AssertionError, font, "")
+            self.assertRaises(AssertionError, font, "12")

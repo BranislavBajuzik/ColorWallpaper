@@ -13,9 +13,12 @@ def parse_hex(arg: str) -> Tuple[int, int, int]:
     :return: (R, G, B)
     """
     length = len(arg)
-    if length not in (3, 6):
-        raise ValueError(f"Length of input has to be either 3 or 6 not {length}")
-    return tuple(int(arg[length // 3 * i : length // 3 * (i + 1)], 16) for i in range(3))
+    if length == 3:
+        return tuple(int(arg[i : i + 1] * 2, 16) for i in range(3))
+    elif length == 6:
+        return tuple(int(arg[2 * i : 2 * (i + 1)], 16) for i in range(3))
+
+    raise ValueError(f"Length of input has to be either 3 or 6 not {length}")
 
 
 def int_tuple(*source: Any) -> Tuple[int, ...]:

@@ -154,7 +154,7 @@ class Color:
     def from_str(arg: str) -> "Color":
         """Creates a Color object from string
 
-        :param arg: Input string. Must be either "random", Color name, (R,G,B), #HEX or HEX
+        :param arg: Input string. Must be either Color name, (R,G,B), #HEX or HEX
         :return: New Color object
         """
         hex_groups = hex_re.fullmatch(arg)
@@ -170,7 +170,7 @@ class Color:
             name = normalized(arg)
 
             if name not in color_to_hex:
-                raise NameError(f'"{arg}" is not a color name')
+                raise ValueError(f'"{arg}" is not a color name')
 
             rgb = parse_hex(color_to_hex[name])
 
