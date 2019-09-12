@@ -26,9 +26,6 @@ class Output(TestBase):
         for result, cli in args:
             self.assertEqual(result, get_options(cli).output)
 
-    def test_nok(self):
-        pass
-
 
 class Yes(TestBase):
     def test_default(self):
@@ -37,22 +34,89 @@ class Yes(TestBase):
         self.assertEqual(False, options.yes)
 
     def test_ok(self):
-        args = ((True, ["-y"]), (True, ["-y"]), (True, ["--yes"]), (True, ["--yes"]))
+        args = ((True, ["-y"]), (True, ["--yes"]))
 
         for result, cli in args:
             self.assertEqual(result, get_options(cli).yes)
 
-    def test_nok(self):
-        pass
-
 
 # Color Options
-class Color(TestBase):  # ToDo
-    pass
+class Color(TestBase):
+    def test_default(self):
+        options = get_options([])
+
+        self.assertWeakIsInstance(options.color, ColorModule.Color)
+        self.assertNotEqual(get_options([]).color, get_options([]).color)
+
+    def test_ok(self):
+        args = (
+            (["-c", "  Black"], (0x00, 0x00, 0x00), "Black"),
+            (["--color", "255  ,   216,0"], (0xFF, 0xD8, 0x00), "School Bus Yellow"),
+            (["-c", " F00"], (0xFF, 0x00, 0x00), "Red"),
+            (["--color", "#F00 "], (0xFF, 0x00, 0x00), "Red"),
+            (["-c", "  FF0000"], (0xFF, 0x00, 0x00), "Red"),
+            (["--color", "#FF0000  "], (0xFF, 0x00, 0x00), "Red"),
+        )
+
+        for cli, rgb, name in args:
+            self.assertColorEqual(get_options(cli).color, rgb, name)
+
+    def test_ok_random(self):
+        self.assertWeakIsInstance(get_options(["-c", "RandOm"]).color, ColorModule.Color)
+        self.assertWeakIsInstance(get_options(["--color", "RandOm"]).color, ColorModule.Color)
+
+    def test_nok(self):
+        args = (
+            ["-c", "Custom"],
+            ["--color", "Custom"],
+            ["-c", ""],
+            ["--color", ""],
+            ["-c", "1234"],
+            ["--color", "#12"],
+        )
+
+        with patch("sys.stderr", new=StringIO()):
+            for cli in args:
+                self.assertRaises(ValueError, get_options, cli)
 
 
-class Color2(TestBase):  # ToDo
-    pass
+class Color2(TestBase):
+    def test_default(self):
+        options = get_options(["-c", "black"])
+
+        self.assertColorEqual(options.color2, (0xFF, 0xFF, 0xFF), "White")
+
+    def test_ok(self):
+        args = (
+            (["-c2", "  Black"], (0x00, 0x00, 0x00), "Black"),
+            (["--color2", "255  ,   216,0"], (0xFF, 0xD8, 0x00), "School Bus Yellow"),
+            (["-c2", " F00"], (0xFF, 0x00, 0x00), "Red"),
+            (["--color2", "#F00 "], (0xFF, 0x00, 0x00), "Red"),
+            (["-c2", "  FF0000"], (0xFF, 0x00, 0x00), "Red"),
+            (["--color2", "#FF0000  "], (0xFF, 0x00, 0x00), "Red"),
+        )
+
+        for cli, rgb, name in args:
+            self.assertColorEqual(get_options(cli).color2, rgb, name)
+
+    def test_nok(self):
+        args = (
+            ["-c2", "Custom"],
+            ["--color2", "Custom"],
+            ["-c2", ""],
+            ["--color2", ""],
+            ["-c2", "1234"],
+            ["--color2", "#12"],
+        )
+
+        with patch("sys.stderr", new=StringIO()):
+            for cli in args:
+                self.assertRaises(ValueError, get_options, cli)
+
+    def test_ok_inverted(self):
+        options = get_options(["-c", "white", "-c2", "inverted"])
+
+        self.assertColorEqual(options.color2, (0, 0, 0), "Black")
 
 
 class Display(TestBase):
@@ -61,14 +125,11 @@ class Display(TestBase):
 
         self.assertEqual(None, options.display)
 
-    def test_ok(self):
+    def test(self):
         args = (("", ["-d", ""]), ("Custom", ["-d", "Custom"]), ("Custom", ["--display", "Custom"]))
 
         for result, cli in args:
             self.assertEqual(result, get_options(cli).display)
-
-    def test_nok(self):
-        pass
 
 
 class MinContrast(TestBase):

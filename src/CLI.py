@@ -124,10 +124,10 @@ def get_options(args: Sequence[str] = None) -> argparse.Namespace:
     general_g.add_argument("-y", "--yes", action="store_true", help="Force overwrite of --output")
 
     color_g = ret.add_argument_group("Color options")
-    color_g.add_argument("-c", "--color", default="random", help="Background color. #Hex / R,G,B / random / name")
+    color_g.add_argument("-c", "--color", default="random", help="Background color. #Hex / R,G,B / random / NAME")
 
     color_g.add_argument(
-        "-c2", "--color2", metavar="COLOR", default="inverted", help="Highlight color. #Hex / R,G,B / inverted / name"
+        "-c2", "--color2", metavar="COLOR", default="inverted", help="Highlight color. #Hex / R,G,B / inverted / NAME"
     )
 
     color_g.add_argument(
@@ -205,7 +205,10 @@ def get_options(args: Sequence[str] = None) -> argparse.Namespace:
             try:
                 ret.color2 = ret.color.inverted(ret.min_contrast)
             except RuntimeError:
-                ret.color = Color.random()
+                if random:
+                    ret.color = Color.random()
+                else:
+                    raise
             else:
                 break
         else:

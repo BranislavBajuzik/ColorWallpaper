@@ -15,9 +15,9 @@ class Create(TestBase):
         )
 
         for rgb, name in args:
-            self.color_compare(Color(rgb), rgb, name)
+            self.assertColorEqual(Color(rgb), rgb, name)
 
-        self.color_compare(Color((0x12, 0x34, 0x56), "Custom"), (0x12, 0x34, 0x56), "Custom")
+        self.assertColorEqual(Color((0x12, 0x34, 0x56), "Custom"), (0x12, 0x34, 0x56), "Custom")
 
     def test_nok(self):
         args = ((0x00, 0x00), (0x00, 0x00, 0x00, 0x00), (0x1FF, 0x00, 0x00), (-0x01, 0x00, 0x00))
@@ -151,7 +151,7 @@ class FromHSL(TestBase):
         )
 
         for (h, s, l), rgb, name in args:
-            self.color_compare(Color.from_hsl(h, s, l), rgb, name)
+            self.assertColorEqual(Color.from_hsl(h, s, l), rgb, name)
 
     def test_nok(self):
         args = ((-1, 0, 0), (0, -1, 0), (0, 0, -1), (361, 0, 0), (0, 361, 0), (0, 0, 361))
@@ -170,7 +170,7 @@ class FromStr(TestBase):
         )
 
         for string, rgb, name in args:
-            self.color_compare(Color.from_str(string), rgb, name)
+            self.assertColorEqual(Color.from_str(string), rgb, name)
 
     def test_nok_name(self):
         args = ("", "random", "Anonymous")
@@ -187,7 +187,7 @@ class FromStr(TestBase):
         )
 
         for string, rgb, name in args:
-            self.color_compare(Color.from_str(string), rgb, name)
+            self.assertColorEqual(Color.from_str(string), rgb, name)
 
     def test_nok_rgb(self):
         args = ("-1, 0, 0", "0, -1, 0", "0, 0, -1", "256, 0, 0", "0, 256, 0", "0, 0, 256")
@@ -211,7 +211,7 @@ class FromStr(TestBase):
         )
 
         for string, rgb, name in args:
-            self.color_compare(Color.from_str(string), rgb, name)
+            self.assertColorEqual(Color.from_str(string), rgb, name)
 
     def test_nok_hex(self):
         args = ("1", "11", "1111", "11111", "hhhhhh", "1111111", "##000000")

@@ -30,6 +30,12 @@ class TestBase(TestCase):
                 f"did not raise {exception.__name__}"
             ) from None
 
-    def color_compare(self, color: Color, rgb: tuple, name: str) -> None:
+    def assertColorEqual(self, color: Color, rgb: tuple, name: str) -> None:
         self.assertEqual(rgb, color.rgb)
         self.assertEqual(name, color.name)
+
+    def assertWeakIsInstance(self, obj: Any, cls: Union[type, Tuple[type, ...]]) -> None:
+        typ = type(obj)
+
+        self.assertEqual(typ.__name__, cls.__name__)
+        self.assertEqual(dir(typ), dir(cls))
