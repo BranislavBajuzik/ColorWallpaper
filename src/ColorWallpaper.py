@@ -55,18 +55,18 @@ class Wallpaper:
         while words:
             next_word = words.pop(0)
 
-            next_length = sum(len(font(char)[0]) for char in f" {next_word}")
+            next_word_length = sum(len(font(char)[0]) for char in f" {next_word}")
 
-            if text_length + next_length <= 112:
+            if text_length + next_word_length <= 112:
                 texts[-1].append(next_word)
-                text_length += next_length
-                max_text_length = max(text_length, max_text_length)
+                text_length += next_word_length
             else:
-                if next_length > 112:
-                    pass  # ToDo
+                if next_word_length > 112:
+                    pass  # ToDo Split the word
 
                 texts.append([next_word])
-                text_length = next_length - first_glyph_whitespace
+                text_length = next_word_length - first_glyph_whitespace
+            max_text_length = min(max(text_length, max_text_length), 112)
 
         return [" ".join(text) for text in texts], max_text_length
 
@@ -78,10 +78,12 @@ class Wallpaper:
         """
         texts, max_text_length = self.__arrange_text(text)
 
-        img = Image.new("RGBA", (max_text_length, len(texts) * 12 - 4), (0, 0, 0, 0))
         x = 0
         x_offset = 0
         y_offset = 0
+        width = max_text_length
+        height = len(texts) * 12 - 4
+        img = Image.new("RGBA", (width, height), (0, 0, 0, 0))
 
         for text in texts:
             for char in text:
@@ -90,7 +92,7 @@ class Wallpaper:
                 for y, row in enumerate(pixel_map):
 
                     for x, pixel in enumerate(row):
-                        if pixel:
+                        if pixel and x_offset + x < width and y_offset + y < height:
                             img.putpixel((x_offset + x, y_offset + y), self.color2.rgb)
 
                 x_offset += x + 1
