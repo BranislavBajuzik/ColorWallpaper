@@ -39,6 +39,26 @@ class Wallpaper:
         self.formats: List[str] = options.formats
 
     @staticmethod
+    def __split_word(word: str) -> List[str]:
+        head = ""
+        word_length = 0
+        word = list(word)
+
+        while word:
+            next_char = word.pop(0)
+
+            next_char_length = len(font(next_char)[0])
+
+            if word_length + next_char_length <= 112:
+                head += next_char
+                word_length += next_char_length
+            else:
+                word.insert(0, next_char)
+                break
+
+        return [head, "".join(word)]
+
+    @staticmethod
     def __arrange_text(text: str) -> Tuple[List[str], int]:
         """Wraps the text
 
@@ -57,13 +77,14 @@ class Wallpaper:
 
             next_word_length = sum(len(font(char)[0]) for char in f" {next_word}")
 
+            if next_word_length > 112:
+                words = Wallpaper.__split_word(next_word) + words
+                continue
+
             if text_length + next_word_length <= 112:
                 texts[-1].append(next_word)
                 text_length += next_word_length
             else:
-                if next_word_length > 112:
-                    pass  # ToDo Split the word
-
                 texts.append([next_word])
                 text_length = next_word_length - first_glyph_whitespace
             max_text_length = min(max(text_length, max_text_length), 112)
@@ -127,11 +148,22 @@ class Wallpaper:
             "empty": (" ", " "),
         }
 
-        for key in self.formats:
+        for i, key in enumerate(self.formats, 1):
             y += 12
             img_label = self.__generate_text(rows[key][0])
             img.alpha_composite(img_label, (8, y))
             img.alpha_composite(self.__generate_text(rows[key][1]), (3 + 5 + img_label.size[0], y))
+
+            if y >= 116:
+                ignored = len(self.formats) - i
+                print(
+                    f"Too many formats specified. "
+                    f"Ignoring {ignored} format{'s' if ignored == 0 else ''}: "
+                    f"{', '.join(self.formats[i:])}",
+                    file=sys.stderr,
+                )
+
+                break
 
         return img
 

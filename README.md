@@ -29,7 +29,7 @@ Color options
 - `--overlay-color` `COLOR`
   - Used to specify color of potential overlay, like icons or text.
 - `--overlay-contrast` `CONTRAST`
-  - Min contrast of --color and --overlay-color. Will be raise if this can not be satisfied. Defaults to `1`
+  - Min contrast of --color and --overlay-color. Will raise if this can not be satisfied. Defaults to `1`
 
 Display options
 - `-r`/`--resolution` `RESOLUTION`
