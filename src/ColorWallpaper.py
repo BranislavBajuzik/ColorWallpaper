@@ -38,26 +38,87 @@ class Wallpaper:
         self.scale: int = options.scale
         self.formats: List[str] = options.formats
 
+    @staticmethod
+    def __split_word(word: str) -> List[str]:
+        head = ""
+        word_length = 0
+        word = list(word)
+
+        while word:
+            next_char = word.pop(0)
+
+            next_char_length = len(font(next_char)[0])
+
+            if word_length + next_char_length <= 112:
+                head += next_char
+                word_length += next_char_length
+            else:
+                word.insert(0, next_char)
+                break
+
+        return [head, "".join(word)]
+
+    @staticmethod
+    def __arrange_text(text: str) -> Tuple[List[str], int]:
+        """Wraps the text
+
+        :param text: Text to wrap
+        :return: Tuple of Wrapped text and max pixel width
+        """
+        first_glyph_whitespace = len(font(" ")[0]) + 1
+
+        texts = [[]]
+        max_text_length = 0
+        text_length = -first_glyph_whitespace
+        words = text.split(" ")
+
+        while words:
+            next_word = words.pop(0)
+
+            next_word_length = sum(len(font(char)[0]) for char in f" {next_word}")
+
+            if next_word_length > 112:
+                words = Wallpaper.__split_word(next_word) + words
+                continue
+
+            if text_length + next_word_length <= 112:
+                texts[-1].append(next_word)
+                text_length += next_word_length
+            else:
+                texts.append([next_word])
+                text_length = next_word_length - first_glyph_whitespace
+            max_text_length = min(max(text_length, max_text_length), 112)
+
+        return [" ".join(text) for text in texts], max_text_length
+
     def __generate_text(self, text: str) -> Image.Image:
         """Renders text into image
 
         :param text: text to render
         :return: Image with the rendered text
         """
-        text_length = sum(len(font(char)[0]) for char in text) - 1
-        img = Image.new("RGBA", (text_length, 8), (0, 0, 0, 0))
-        offset = 0
+        texts, max_text_length = self.__arrange_text(text)
+
         x = 0
+        x_offset = 0
+        y_offset = 0
+        width = max_text_length
+        height = len(texts) * 12 - 4
+        img = Image.new("RGBA", (width, height), (0, 0, 0, 0))
 
-        for char in text:
-            pixel_map = font(char)
+        for text in texts:
+            for char in text:
+                pixel_map = font(char)
 
-            for y, row in enumerate(pixel_map):
-                for x, pixel in enumerate(row):
-                    if pixel:
-                        img.putpixel((offset + x, y), self.color2.rgb)
+                for y, row in enumerate(pixel_map):
 
-            offset += x + 1
+                    for x, pixel in enumerate(row):
+                        if pixel and x_offset + x < width and y_offset + y < height:
+                            img.putpixel((x_offset + x, y_offset + y), self.color2.rgb)
+
+                x_offset += x + 1
+            x_offset = 0
+            y_offset += 12
 
         return img
 
@@ -76,13 +137,7 @@ class Wallpaper:
             img_name = self.__generate_text(name)
             x, y = img_name.size
 
-            if x <= 112:  # ToDo Split the words. Needs a proper implementation
-                img.alpha_composite(img_name, (8, y))
-            else:
-                text1, text2 = name.rsplit(" ", 1)
-                img.alpha_composite(self.__generate_text(text1), (8, y))
-                y += 12
-                img.alpha_composite(self.__generate_text(text2), (8, y))
+            img.alpha_composite(img_name, (8, 8))
 
         rows = {
             "hex": ("HEX ", self.color.hex(True)),
@@ -93,11 +148,22 @@ class Wallpaper:
             "empty": (" ", " "),
         }
 
-        for key in self.formats:
+        for i, key in enumerate(self.formats, 1):
             y += 12
             img_label = self.__generate_text(rows[key][0])
             img.alpha_composite(img_label, (8, y))
             img.alpha_composite(self.__generate_text(rows[key][1]), (3 + 5 + img_label.size[0], y))
+
+            if y >= 116:
+                ignored = len(self.formats) - i
+                print(
+                    f"Too many formats specified. "
+                    f"Ignoring {ignored} format{'s' if ignored == 0 else ''}: "
+                    f"{', '.join(self.formats[i:])}",
+                    file=sys.stderr,
+                )
+
+                break
 
         return img
 

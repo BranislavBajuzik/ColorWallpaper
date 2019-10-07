@@ -3,6 +3,7 @@
 [![Build Status](https://travis-ci.com/BranislavBajuzik/ColorWallpaper.svg?branch=master)](https://travis-ci.com/BranislavBajuzik/ColorWallpaper)
 [![Codecov](https://codecov.io/gh/BranislavBajuzik/ColorWallpaper/branch/master/graph/badge.svg)](https://codecov.io/gh/BranislavBajuzik/ColorWallpaper)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/af954c94432a446a95e004079d089f6a)](https://www.codacy.com/app/BranislavBajuzik/ColorWallpaper?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=BranislavBajuzik/ColorWallpaper&amp;utm_campaign=Badge_Grade)
+[![Code style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 A Minimalist wallpaper generator
 
@@ -24,11 +25,11 @@ Color options
 - `-d`/`--display` `NAME`
   - Overrides the display name of the `--color`. Empty string disables the name row.
 - `--min-contrast` `CONTRAST`
-  - Min contrast of `--color` and `--color2`, if `--color2` is `inverted`. Will be raise if this can not be satisfied. Defaults to `1`
+  - Min contrast of `--color` and `--color2`, if `--color2` is `inverted`. Will raise if this can not be satisfied. Defaults to `1`
 - `--overlay-color` `COLOR`
   - Used to specify color of potential overlay, like icons or text.
 - `--overlay-contrast` `CONTRAST`
-  - Min contrast of --color and --overlay-color. Will be raise if this can not be satisfied. Defaults to `1`
+  - Min contrast of --color and --overlay-color. Will raise if this can not be satisfied. Defaults to `1`
 
 Display options
 - `-r`/`--resolution` `RESOLUTION`
@@ -54,3 +55,6 @@ Display options
   - `empty`: Empty row.
   - `#hex`: `hex`, but starting with `#`
   - `#HEX`, `HEX`: Like `hex`, but uppercase
+
+## Dependencies
+- [PIL](https://github.com/python-pillow/Pillow)
