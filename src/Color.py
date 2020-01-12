@@ -19,6 +19,7 @@ rgb_re = re.compile(r"\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\s*")
 
 class Color:
     """Class for color handling"""
+
     rgb: Tuple[int, int, int]
     name: str
 
