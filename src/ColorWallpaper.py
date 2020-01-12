@@ -156,12 +156,13 @@ class Wallpaper:
 
             if y >= 116:
                 ignored = len(self.formats) - i
-                print(
-                    f"Too many formats specified. "
-                    f"Ignoring {ignored} format{'s' if ignored == 0 else ''}: "
-                    f"{', '.join(self.formats[i:])}",
-                    file=sys.stderr,
-                )
+                if ignored:
+                    print(
+                        f"Too many formats specified. "
+                        f"Ignoring {ignored} format{'' if ignored == 1 else 's'}: "
+                        f"{', '.join(self.formats[i:])}",
+                        file=sys.stderr,
+                    )
 
                 break
 
@@ -175,7 +176,7 @@ class Wallpaper:
         decor_size = 128 * max(round(smaller / self.scale / 128), 1)
 
         decoration = self.__generate_decoration()
-        decoration = decoration.resize((decor_size, decor_size))
+        decoration = decoration.resize((decor_size, decor_size), resample=Image.NEAREST)
 
         img.alpha_composite(
             decoration, ((self.resolution[0] - decor_size) // 2, (self.resolution[1] - decor_size) // 2)
