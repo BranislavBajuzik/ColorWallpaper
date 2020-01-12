@@ -2,10 +2,8 @@ from io import StringIO
 from pathlib import Path
 from unittest.mock import patch
 
-import src.Color as ColorModule
-
 from src.CLI import *
-from tests.TestBase import TestBase
+from tests.TestBase import *
 
 
 # General Options
@@ -45,7 +43,7 @@ class Color(TestBase):
     def test_default(self):
         options = get_options([])
 
-        self.assertWeakIsInstance(options.color, ColorModule.Color)
+        self.assertIsColorInstance(options.color)
         self.assertNotEqual(get_options([]).color, get_options([]).color)
 
     def test_ok(self):
@@ -62,8 +60,8 @@ class Color(TestBase):
             self.assertColorEqual(get_options(cli).color, rgb, name)
 
     def test_ok_random(self):
-        self.assertWeakIsInstance(get_options(["-c", "RandOm"]).color, ColorModule.Color)
-        self.assertWeakIsInstance(get_options(["--color", "RandOm"]).color, ColorModule.Color)
+        self.assertIsColorInstance(get_options(["-c", "RandOm"]).color)
+        self.assertIsColorInstance(get_options(["--color", "RandOm"]).color)
 
     def test_nok(self):
         args = (
@@ -82,6 +80,10 @@ class Color(TestBase):
 
 class Color2(TestBase):
     def test_default(self):
+        options = get_options([])
+
+        self.assertEqual(options.color2, options.color.inverted(options.min_contrast))
+
         options = get_options(["-c", "black"])
 
         self.assertColorEqual(options.color2, (0xFF, 0xFF, 0xFF), "White")
@@ -114,9 +116,25 @@ class Color2(TestBase):
                 self.assertRaises(ValueError, get_options, cli)
 
     def test_ok_inverted(self):
-        options = get_options(["-c", "white", "-c2", "inverted"])
+        args = (
+            (["-c", "white", "-c2", "inverted"], (0x00, 0x00, 0x00), "Black"),
+            (["-c", "black", "-c2", "inverted"], (0xFF, 0xFF, 0xFF), "White"),
+            (["-c", "red", "-c2", "inverted"], (0x00, 0xFF, 0xFF), "Cyan"),
+            (["-c", "cyan", "-c2", "inverted"], (0xFF, 0x00, 0x00), "Red"),
+        )
 
-        self.assertColorEqual(options.color2, (0, 0, 0), "Black")
+        for cli, rgb, name in args:
+            self.assertColorEqual(get_options(cli).color2, rgb, name)
+
+    def test_impossible_inverted(self):
+        with patch("sys.stderr", new=StringIO()):
+            self.assertRaises(RuntimeError, get_options, ["-c", "7F7F7F", "-c2", "inverted", "--min-contrast", "21"])
+
+    @override_color_random([(0x7F, 0x7F, 0x7F), (0x00, 0x00, 0x00)])
+    def test_random_inverted(self):
+        options = get_options(["-c2", "inverted", "--min-contrast", "21"])
+
+        self.assertColorEqual(options.color2, (0xFF, 0xFF, 0xFF), "White")
 
 
 class Display(TestBase):
@@ -156,8 +174,54 @@ class MinContrast(TestBase):
                 self.assertRaises(SystemExit, get_options, cli)
 
 
-class OverlayColor(TestBase):  # ToDo
-    pass
+class OverlayColor(TestBase):
+    def test_default(self):
+        options = get_options([])
+
+        self.assertEqual(None, options.overlay_color)
+
+    def test_ok(self):
+        args = (
+            (["--overlay-color", "  Black"], (0x00, 0x00, 0x00), "Black"),
+            (["--overlay-color", "255  ,   216,0"], (0xFF, 0xD8, 0x00), "School Bus Yellow"),
+            (["--overlay-color", " F00"], (0xFF, 0x00, 0x00), "Red"),
+            (["--overlay-color", "#F00 "], (0xFF, 0x00, 0x00), "Red"),
+            (["--overlay-color", "  FF0000"], (0xFF, 0x00, 0x00), "Red"),
+            (["--overlay-color", "#FF0000  "], (0xFF, 0x00, 0x00), "Red"),
+        )
+
+        for cli, rgb, name in args:
+            self.assertColorEqual(get_options(cli).overlay_color, rgb, name)
+
+    def test_nok(self):
+        args = (
+            ["--overlay-color", "Custom"],
+            ["--overlay-color", ""],
+            ["--overlay-color", "1234"],
+            ["--overlay-color", "#12"],
+        )
+
+        with patch("sys.stderr", new=StringIO()):
+            for cli in args:
+                self.assertRaises(SystemExit, get_options, cli)
+
+    def test_nok_contrast(self):
+        args = (
+            ["-c", "7F7F7F", "--overlay-color", "7F7F7F", "--overlay-contrast", "6"],
+            ["-c", "000001", "--overlay-color", "white", "--overlay-contrast", "21"],
+        )
+
+        with patch("sys.stderr", new=StringIO()):
+            for cli in args:
+                self.assertRaises(RuntimeError, get_options, cli)
+
+    @override_color_random([(0x7F, 0x7F, 0x7F), (0x00, 0x00, 0x00)])
+    def test_random_regenerate(self):
+        options = get_options(["--overlay-color", "7F7F7F", "--overlay-contrast", "3"])
+
+        self.assertColorEqual(options.color, (0x00, 0x00, 0x00), "Black")
+        self.assertColorEqual(options.color2, (0xFF, 0xFF, 0xFF), "White")
+        self.assertColorEqual(options.overlay_color, (0x7F, 0x7F, 0x7F), "Anonymous")
 
 
 class OverlayContrast(TestBase):

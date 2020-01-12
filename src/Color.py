@@ -41,6 +41,9 @@ class Color:
     def __repr__(self):
         return str(self)
 
+    def __eq__(self, other):
+        return self.rgb == other.rgb and self.name == other.name
+
     @staticmethod
     def __normalize(components: Tuple[float, float, float]) -> Tuple[float, float, float]:
         """Helper function for converting int RGB to float RGB"""
