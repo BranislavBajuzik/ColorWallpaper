@@ -19,6 +19,8 @@ rgb_re = re.compile(r"\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\s*")
 
 class Color:
     """Class for color handling"""
+    rgb: Tuple[int, int, int]
+    name: str
 
     def __init__(self, rgb: Tuple[int, int, int], name: str = None):
         """Color constructor
@@ -40,6 +42,9 @@ class Color:
 
     def __repr__(self):
         return str(self)
+
+    def __eq__(self, other):
+        return self.rgb == other.rgb and self.name == other.name
 
     @staticmethod
     def __normalize(components: Tuple[float, float, float]) -> Tuple[float, float, float]:

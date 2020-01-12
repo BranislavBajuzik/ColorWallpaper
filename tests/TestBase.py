@@ -1,11 +1,12 @@
+from functools import wraps
 from unittest import TestCase
-from typing import Any, Callable, Tuple, Type, Union
+from typing import Any, Callable, Tuple, Type, Union, List
 
 
-from src.Color import Color
+from src.CLI import Color
 
 
-__all__ = ["TestBase"]
+__all__ = ["TestBase", "override_color_random"]
 
 
 class TestBase(TestCase):
@@ -34,8 +35,30 @@ class TestBase(TestCase):
         self.assertEqual(rgb, color.rgb)
         self.assertEqual(name, color.name)
 
-    def assertWeakIsInstance(self, obj: Any, cls: Union[type, Tuple[type, ...]]) -> None:
-        typ = type(obj)
+    def assertIsColorInstance(self, obj: Any) -> None:
+        self.assertIsInstance(obj, Color)
 
-        self.assertEqual(typ.__name__, cls.__name__)
-        self.assertEqual(dir(typ), dir(cls))
+
+def override_color_random(colors: List[Tuple[int, int, int]]):
+    if not colors:
+        raise TypeError("At least one color required")
+
+    def fake_random():
+        return Color(colors.pop(0))
+
+    def wrapper(func):
+
+        @wraps(func)
+        def color_overrider(*args, **kwargs):
+            original_random = Color.random
+            Color.random = fake_random
+
+            ret = func(*args, **kwargs)
+
+            Color.random = original_random
+
+            return ret
+
+        return color_overrider
+
+    return wrapper
