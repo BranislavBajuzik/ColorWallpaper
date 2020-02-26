@@ -8,7 +8,7 @@ from tests.TestBase import *
 
 class Help(TestBase):
     def test(self):
-        args = (['-h'], ['--help'])
+        args = (["-h"], ["--help"])
 
         with patch("sys.stdout", new=StringIO()):
             for cli in args:

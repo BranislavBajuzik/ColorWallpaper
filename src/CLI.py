@@ -110,9 +110,9 @@ class ArgumentDefaultsHelpFormatter(argparse.HelpFormatter):
     """Help message formatter which adds default values to argument help."""
 
     __format_map = {
-        'yes': lambda _: None,
-        'resolution': lambda s: 'x'.join(map(str, s)),
-        'formats': lambda s: ' '.join(map(str, s)),
+        "yes": lambda _: None,
+        "resolution": lambda s: "x".join(map(str, s)),
+        "formats": lambda s: " ".join(map(str, s)),
     }
 
     def __init__(self, prog):
