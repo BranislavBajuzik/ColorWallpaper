@@ -11,35 +11,44 @@ Generates wallpapers such as:
 ![Example](example.png "Example")
 
 ## Usage
-General options
+- `-h`/`--help`
+  - Display help and exit
+
+File options
 - `-o`/`--output` `PATH`
-  - Used to specify image output path. Defaults to `out.png`.
+  - Used to specify image output path.
+  - Default: `out.png`
 - `-y`/`--yes`
   - Forces overwrite of `--output`
 
 Color options
 - `-c`/`--color` `COLOR`
-  - Used to specify Background color. Also accepts `random` (the default) which picks random named color.
+  - Used to specify Background color. Also accepts `random` which picks random named color.
+  - Default: `random`
 - `-c2`/`--color2` `COLOR`
-  - Used to specify text color. Also accepts `inverted` (the default) which is the inverse of `--color`.
+  - Used to specify text color. Also accepts `inverted` which is the inverse of `--color`.
+  - Default: `inverted`
 - `-d`/`--display` `NAME`
   - Overrides the display name of the `--color`. Empty string disables the name row.
 - `--min-contrast` `CONTRAST`
-  - Min contrast of `--color` and `--color2`, if `--color2` is `inverted`. Will raise if this can not be satisfied. Defaults to `1`
+  - Min contrast of `--color` and `--color2`, if `--color2` is `inverted`. Will raise if this can not be satisfied.
+  - Default: `1`
 - `--overlay-color` `COLOR`
   - Used to specify color of potential overlay, like icons or text.
 - `--overlay-contrast` `CONTRAST`
-  - Min contrast of --color and --overlay-color. Will raise if this can not be satisfied. Defaults to `1`
+  - Min contrast of --color and --overlay-color. Will raise if this can not be satisfied.
+  - Default: `1`
 
 Display options
 - `-r`/`--resolution` `RESOLUTION`
-  - Used to specify image resolution. Defaults to `1920x1080`.
+  - Used to specify image resolution.
+  - Default: `1920x1080`.
 - `-s`/`--scale` `SCALE`
-  - The size of the highlight will be divided by this. Defaults to `3`.
+  - The size of the highlight will be divided by this.
+  - Default: `3`
 - `-f`/`--formats` `FORMAT` [`FORMAT` ...]
   - Declares the order and formats to display
-- `-l`/`--lowercase`
-  - Controls the casing of hex output
+  - Default: `empty HEX rgb`
 
 ### Argument formats
 - `COLOR`
