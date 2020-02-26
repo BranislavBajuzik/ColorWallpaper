@@ -6,6 +6,15 @@ from src.CLI import *
 from tests.TestBase import *
 
 
+class Help(TestBase):
+    def test(self):
+        args = (['-h'], ['--help'])
+
+        with patch("sys.stdout", new=StringIO()):
+            for cli in args:
+                self.assertRaises(SystemExit, get_options, cli)
+
+
 # General Options
 class Output(TestBase):
     def test_default(self):

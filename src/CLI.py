@@ -106,6 +106,38 @@ def fix_casing(names: Sequence[str]):
     return cased
 
 
+class ArgumentDefaultsHelpFormatter(argparse.HelpFormatter):
+    """Help message formatter which adds default values to argument help."""
+
+    __format_map = {
+        'yes': lambda _: None,
+        'resolution': lambda s: 'x'.join(map(str, s)),
+        'formats': lambda s: ' '.join(map(str, s)),
+    }
+
+    def __init__(self, prog):
+        super().__init__(prog)
+
+        self.default = None
+
+    def _get_help_string(self, action):
+        self.default = None
+
+        if action.default not in (None, argparse.SUPPRESS):
+            if action.option_strings or action.nargs in (argparse.OPTIONAL, argparse.ZERO_OR_MORE):
+                self.default = self.__format_map.get(action.dest, lambda s: s)(action.default)
+
+        return action.help
+
+    def _split_lines(self, text, width):
+        lines = super()._split_lines(text, width)
+
+        if self.default is not None:
+            lines.append(f"Default: {self.default}")
+
+        return lines
+
+
 def get_options(args: Sequence[str] = None) -> argparse.Namespace:
     """Parses CLI options
 
@@ -113,10 +145,13 @@ def get_options(args: Sequence[str] = None) -> argparse.Namespace:
     :return: Object with options as attributes
     """
     ret = argparse.ArgumentParser(
-        description="Minimalist wallpaper generator", usage=f"python %(prog)s ...", allow_abbrev=False
+        allow_abbrev=False,
+        description="Minimalist wallpaper generator",
+        usage=f"python %(prog)s ...",
+        formatter_class=ArgumentDefaultsHelpFormatter,
     )
 
-    general_g = ret.add_argument_group("General options")
+    general_g = ret.add_argument_group("File options")
     general_g.add_argument(
         "-o", "--output", metavar="PATH", type=Path, default=Path("out.png"), help="Image output path"
     )
@@ -138,7 +173,7 @@ def get_options(args: Sequence[str] = None) -> argparse.Namespace:
         "--min-contrast",
         type=in_range(float, 1, 21),
         default=1,
-        help="Min contrast of --color and --color2, if --color2 is `inverted`."
+        help="Min contrast of --color and --color2, if --color2 is `inverted`. "
         "Must be in range (1-21). Will be raise if this can not be satisfied",
     )
 
@@ -153,7 +188,7 @@ def get_options(args: Sequence[str] = None) -> argparse.Namespace:
         "--overlay-contrast",
         type=in_range(float, 1, 21),
         default=1,
-        help="Min contrast of --color and --overlay-color."
+        help="Min contrast of --color and --overlay-color. "
         "Must be in range (1-21). Will be raise if this can not be satisfied",
     )
 
@@ -177,7 +212,7 @@ def get_options(args: Sequence[str] = None) -> argparse.Namespace:
         default=["empty", "HEX", "rgb"],
         nargs="+",
         help="Declares the order and formats to display. Available choices: "
-        "{hex, #hex, HEX, #HEX, rgb, hsv, hsl, cmyk, empty}",
+        "{empty, hex, #hex, HEX, #HEX, rgb, hsv, hsl, cmyk}",
     )
 
     ret = ret.parse_args(args)
