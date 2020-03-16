@@ -5,6 +5,10 @@ from src.data import *
 from tests.TestBase import TestBase
 
 
+f = False
+t = True
+
+
 class UniqueColors(TestBase):
     def test(self):
         self.assertTrue(len(hex_to_color) == len(color_hexes) == len(hex_to_color))
@@ -12,9 +16,6 @@ class UniqueColors(TestBase):
 
 class Font(TestBase):
     def test_default(self):
-        f = False
-        t = True
-
         self.assertEqual(
             [
                 [t, t, t, t, t, t, t, f],
@@ -30,9 +31,6 @@ class Font(TestBase):
         )
 
     def test_ok(self):
-        f = False
-        t = True
-
         self.assertEqual(
             [
                 [f, f, f, f],

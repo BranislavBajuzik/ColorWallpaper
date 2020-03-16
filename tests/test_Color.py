@@ -129,8 +129,54 @@ class Div(TestBase):
             self.assertEqual(result, a // b)
 
 
-class Inverted(TestBase):  # ToDo
-    pass
+class Inverted(TestBase):
+    def test_ok(self):
+        args = (1, 21)
+
+        for arg in args:
+            self.assertPasses(Color((0, 0, 0)).inverted, arg)
+
+        args = (
+            (Color((0x00, 0x00, 0x00)), (0xFF, 0xFF, 0xFF), "White"),
+            (Color((0xFF, 0xFF, 0xFF)), (0x00, 0x00, 0x00), "Black"),
+            (Color((0x00, 0xFF, 0xFF)), (0xFF, 0x00, 0x00), "Red"),
+            (Color((0xFF, 0x00, 0x00)), (0x00, 0xFF, 0xFF), "Cyan"),
+        )
+
+        for color, rgb, name in args:
+            self.assertColorEqual(color.inverted(), rgb, name)
+
+    def test_ok_calculate(self):
+        args = (
+            (Color((0x50, 0x50, 0x50)), 4, (0xB7, 0xB7, 0xB7)),
+            (Color((0xB7, 0xB7, 0xB7)), 6, (0x35, 0x35, 0x35)),
+        )
+
+        for color, contrast, rgb in args:
+            self.assertColorEqual(color.inverted(contrast), rgb)
+
+    def test_ok_contrast(self):
+        args = (1, 21)
+
+        for arg in args:
+            self.assertPasses(Color((0, 0, 0)).inverted, arg)
+
+    def test_nok_contrast(self):
+        args = (0.9, 21.1)
+
+        with patch("sys.stderr", new=StringIO()):
+            for arg in args:
+                self.assertRaises(ValueError, Color((0, 0, 0)).inverted, arg)
+
+    def test_impossible(self):
+        args = (
+            (Color((0x7F, 0x7F, 0x7F)), 10),
+            (Color((0x00, 0xFF, 0xFF)), 21),
+        )
+
+        with patch("sys.stderr", new=StringIO()):
+            for color, contrast in args:
+                self.assertRaises(RuntimeError, color.inverted, contrast)
 
 
 class Random(TestBase):
