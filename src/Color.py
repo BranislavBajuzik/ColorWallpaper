@@ -97,12 +97,18 @@ class Color:
     def __floordiv__(self, other) -> int:
         return int(self / other)
 
-    def inverted(self, min_contrast: float) -> "Color":
+    def inverted(self, min_contrast: float = None) -> "Color":
         """Returns a new Color that is in contrast with :param self:
 
         :param min_contrast: Minimum contrast. Must be in range (1-21)
         """
         ret = Color(tuple(255 - x for x in self.rgb))
+
+        if min_contrast in (1, None):
+            return ret
+
+        if not 1 <= min_contrast <= 21:
+            raise ValueError(f"min_contrast is outside of [1, 21]: {min_contrast}")
 
         if self / ret >= min_contrast:
             return ret

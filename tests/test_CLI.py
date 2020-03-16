@@ -230,7 +230,7 @@ class OverlayColor(TestBase):
 
         self.assertColorEqual(options.color, (0x00, 0x00, 0x00), "Black")
         self.assertColorEqual(options.color2, (0xFF, 0xFF, 0xFF), "White")
-        self.assertColorEqual(options.overlay_color, (0x7F, 0x7F, 0x7F), "Anonymous")
+        self.assertColorEqual(options.overlay_color, (0x7F, 0x7F, 0x7F))
 
 
 class OverlayContrast(TestBase):

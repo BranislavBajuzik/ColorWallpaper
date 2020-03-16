@@ -1,12 +1,22 @@
 from functools import wraps
 from unittest import TestCase
-from typing import Any, Callable, Tuple, Type, Union, List
+from typing import Any, Callable, Dict, Tuple, Type, Union, List
 
 
 from src.CLI import Color
 
 
 __all__ = ["TestBase", "override_color_random"]
+
+
+def make_signature(func: Callable[..., Any], args: Tuple[Any], kwargs: Dict[str, Any]):
+    args_str = ", ".join(map(str, args))
+    kwargs_str = ", ".join(f"{k}={v!r}" for k, v in kwargs.items())
+
+    if args and kwargs:
+        args_str += ", "
+
+    return f"{getattr(func, '__name__', repr(func))}({args_str}{kwargs_str})"
 
 
 class TestBase(TestCase):
@@ -20,20 +30,22 @@ class TestBase(TestCase):
         try:
             super().assertRaises(exception, callable, *args, *kwargs)
         except AssertionError:
-            args_str = ", ".join(map(str, args))
-            kwargs_str = ", ".join(f"{k}={v}" for k, v in kwargs.items())
-
-            if args and kwargs:
-                args_str += ", "
-
             raise AssertionError(
-                f'{getattr(callable, "__name__", repr(callable))}({args_str}{kwargs_str}) '
-                f"did not raise {exception.__name__}"
+                f"{make_signature(callable, args, kwargs)} did not raise {exception.__name__}"
             ) from None
 
-    def assertColorEqual(self, color: Color, rgb: tuple, name: str) -> None:
+    def assertPasses(self, callable: Callable[..., Any], *args, **kwargs):
+        try:
+            callable(*args, **kwargs)
+        except BaseException as ex:
+            raise AssertionError(
+                f"{make_signature(callable, args, kwargs)} raised {ex.__class__.__name__}: {ex}"
+            ) from None
+
+    def assertColorEqual(self, color: Color, rgb: tuple, name: str = None) -> None:
         self.assertEqual(rgb, color.rgb)
-        self.assertEqual(name, color.name)
+        if name is not None:
+            self.assertEqual(name, color.name)
 
     def assertIsColorInstance(self, obj: Any) -> None:
         self.assertIsInstance(obj, Color)
@@ -47,7 +59,6 @@ def override_color_random(colors: List[Tuple[int, int, int]]):
         return Color(colors.pop(0))
 
     def wrapper(func):
-
         @wraps(func)
         def color_overrider(*args, **kwargs):
             original_random = Color.random
