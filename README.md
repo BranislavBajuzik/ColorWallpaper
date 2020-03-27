@@ -11,7 +11,7 @@ Generates wallpapers such as:
 ![Example](example.png "Example")
 
 ## Requirements
-- [Python 3.7+](https://www.python.org/downloads/ "Download Python")
+- [Python 3.6+](https://www.python.org/downloads/ "Download Python")
 - [PIL](https://pypi.org/project/Pillow/ "Download PIL")
 
 ## Usage
