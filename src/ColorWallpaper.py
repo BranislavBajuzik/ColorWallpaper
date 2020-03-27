@@ -182,16 +182,21 @@ class Wallpaper:
             decoration, ((self.resolution[0] - decor_size) // 2, (self.resolution[1] - decor_size) // 2)
         )
 
+        generate = True
+
         if not self.output.exists():
             self.output.parent.mkdir(parents=True, exist_ok=True)
             img.save(str(self.output))
         elif self.output.is_file():
-            if self.yes or input(f'File "{self.output}" exists.\n' f"Overwrite? [y/n] ").lower().startswith("y"):
+            generate = self.yes or input(f'File "{self.output}" exists.\n' f"Overwrite? [y/n] ").lower().startswith("y")
+
+            if generate:
                 img.save(str(self.output))
         else:
             raise IOError(f'The "{self.output}" exists and is not a file')
 
-        print(f'Image "{self.output}" successfully generated')
+        if generate:
+            print(f'Image "{self.output}" successfully generated')
 
 
 if __name__ == "__main__":

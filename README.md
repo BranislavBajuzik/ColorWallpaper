@@ -10,7 +10,14 @@ A Minimalist wallpaper generator
 Generates wallpapers such as:
 ![Example](example.png "Example")
 
+## Requirements
+- [Python 3.7+](https://www.python.org/downloads/ "Download Python")
+- [PIL](https://pypi.org/project/Pillow/ "Download PIL")
+
 ## Usage
+`python ColorWallpaper.py --option[s]`
+
+Help:
 - `-h`/`--help`
   - Display help and exit
 
@@ -64,6 +71,3 @@ Display options
   - `empty`: Empty row.
   - `#hex`: `hex`, but starting with `#`
   - `#HEX`, `HEX`: Like `hex`, but uppercase
-
-## Dependencies
-- [PIL](https://github.com/python-pillow/Pillow)

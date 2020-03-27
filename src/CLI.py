@@ -216,6 +216,7 @@ def get_options(args: Sequence[str] = None) -> argparse.Namespace:
     )
 
     ret = ret.parse_args(args)
+    ret.output = ret.output.absolute()
 
     random = normalized(ret.color) == "random"
     inverted = normalized(ret.color2) == "inverted"

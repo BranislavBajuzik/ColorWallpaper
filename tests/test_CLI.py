@@ -20,14 +20,14 @@ class Output(TestBase):
     def test_default(self):
         options = get_options([])
 
-        self.assertEqual(Path("out.png"), options.output)
+        self.assertEqual(Path("out.png").absolute(), options.output)
 
     def test_ok(self):
         args = (
-            (Path("picture"), ["-o", "picture"]),
-            (Path("picture.png"), ["-o", "picture.png"]),
-            (Path("picture"), ["--output", "picture"]),
-            (Path("picture.png"), ["--output", "picture.png"]),
+            (Path("picture").absolute(), ["-o", "picture"]),
+            (Path("picture.png").absolute(), ["-o", "picture.png"]),
+            (Path("picture").absolute(), ["--output", "picture"]),
+            (Path("picture.png").absolute(), ["--output", "picture.png"]),
         )
 
         for result, cli in args:

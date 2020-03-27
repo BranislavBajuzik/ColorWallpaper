@@ -1,9 +1,8 @@
 """Data backend. Declarations, file loading"""
 
-import os
-
 from PIL import Image
 from typing import Dict, List
+from pathlib import Path
 
 from common import *
 
@@ -1520,7 +1519,7 @@ def load_font() -> Dict[str, List[List[bool]]]:
 
     :return: Loaded fontmap
     """
-    img = Image.open(os.path.join(os.path.abspath(os.path.dirname(__file__)), "font.png"))
+    img = Image.open(Path(__file__).absolute().parent / "font.png")
     letters = {}
 
     for i, ch in enumerate(font_chars):
