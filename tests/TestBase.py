@@ -1,12 +1,13 @@
 from functools import wraps
 from unittest import TestCase
-from typing import Any, Callable, Dict, Tuple, Type, Union, List
-
+from argparse import ArgumentParser
+from contextlib import contextmanager
+from typing import Any, Callable, Dict, List, Sequence, Tuple, Type, Union
 
 from src.CLI import Color
 
 
-__all__ = ["TestBase", "override_color_random"]
+__all__ = ["TestBase", "override_color_random", "override_cli"]
 
 
 def make_signature(func: Callable[..., Any], args: Tuple[Any], kwargs: Dict[str, Any]):
@@ -64,12 +65,25 @@ def override_color_random(colors: List[Tuple[int, int, int]]):
             original_random = Color.random
             Color.random = fake_random
 
-            ret = func(*args, **kwargs)
-
-            Color.random = original_random
+            try:
+                ret = func(*args, **kwargs)
+            finally:
+                Color.random = original_random
 
             return ret
 
         return color_overrider
 
     return wrapper
+
+
+@contextmanager
+def override_cli(cli: Sequence[str] = ()):
+    original_cli = ArgumentParser.parse_args
+
+    try:
+        ArgumentParser.parse_args = lambda self, _: original_cli(self, cli)
+
+        yield None
+    finally:
+        ArgumentParser.parse_args = original_cli

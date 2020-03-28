@@ -15,9 +15,10 @@ Generates wallpapers such as:
 - [PIL](https://pypi.org/project/Pillow/ "Download PIL")
 
 ## Usage
-`python ColorWallpaper.py --option[s]`
+Menu: `python ColorWallpaper.py`\
+Direct generation: `python ColorWallpaper.py --option[s]`
 
-Help:
+Options:
 - `-h`/`--help`
   - Display help and exit
 

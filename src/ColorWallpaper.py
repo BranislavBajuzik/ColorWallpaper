@@ -1,7 +1,6 @@
 """Main file"""
 
 import sys
-import argparse
 
 from pathlib import Path
 from typing import Tuple, Union, List
@@ -12,9 +11,10 @@ except ImportError:
     print(f'Unable to import PIL. Install it by running "{sys.executable} -m pip install Pillow".')
     exit(-1)
 
+from common import *
 from data import *
-from CLI import *
 from Color import *
+from CLI import *
 
 
 __all__ = ["Wallpaper"]
@@ -23,20 +23,81 @@ __all__ = ["Wallpaper"]
 class Wallpaper:
     """Main class"""
 
-    def __init__(self, options: argparse.Namespace):
-        # General options
-        self.output: Union[str, Path] = options.output
-        self.yes: bool = options.yes
+    # File options
+    output: Union[str, Path]
+    yes: bool
 
-        # Color options
-        self.color: Color = options.color
-        self.color2: Color = options.color2
-        self.display: str = options.display
+    # Color options
+    color: Color
+    color2: Color
+    display: str
+    min_contrast: float
+    overlay_color: Color
+    overlay_contrast: float
 
-        # Display options
-        self.resolution: Tuple[int, int] = options.resolution
-        self.scale: int = options.scale
-        self.formats: List[str] = options.formats
+    # Display options
+    resolution: Tuple[int, int]
+    scale: int
+    formats: List[str]
+
+    def __init__(self, **kwargs):
+        options = get_options()
+
+        args = (
+            "output",
+            "yes",
+            "color",
+            "color2",
+            "display",
+            "min_contrast",
+            "overlay_color",
+            "overlay_contrast",
+            "resolution",
+            "scale",
+            "formats",
+        )
+
+        for arg in args:
+            setattr(self, arg, kwargs.get(arg, getattr(options, arg)))
+
+        self.output = Path(self.output).absolute()
+
+        random = False
+
+        if type(self.color) is str:
+            random = normalized(self.color) == "random"
+
+            if random:
+                self.color = Color.random()
+            else:
+                self.color = Color.from_str(self.color)
+
+        inverted = type(self.color2) is str and normalized(self.color2) == "inverted"
+
+        while True:
+            if self.overlay_color is not None:
+                if not random and self.color / self.overlay_color < self.overlay_contrast:
+                    raise RuntimeError(
+                        f"Contrast of {self.color} and {self.overlay_color} is lower than "
+                        f"{self.overlay_contrast} ({self.color / self.overlay_color})"
+                    )
+
+                while self.color / self.overlay_color < self.overlay_contrast:
+                    self.color = Color.random()
+
+            if inverted:
+                try:
+                    self.color2 = self.color.inverted(self.min_contrast)
+                except RuntimeError:
+                    if random:
+                        self.color = Color.random()
+                    else:
+                        raise
+                else:
+                    break
+            else:
+                self.color2 = Color.from_str(self.color2)
+                break
 
     @staticmethod
     def __split_word(word: str) -> List[str]:
@@ -200,4 +261,4 @@ class Wallpaper:
 
 
 if __name__ == "__main__":
-    Wallpaper(get_options()).generate_image()
+    Wallpaper().generate_image()

@@ -20,14 +20,14 @@ class Output(TestBase):
     def test_default(self):
         options = get_options([])
 
-        self.assertEqual(Path("out.png").absolute(), options.output)
+        self.assertEqual(Path("out.png"), options.output)
 
     def test_ok(self):
         args = (
-            (Path("picture").absolute(), ["-o", "picture"]),
-            (Path("picture.png").absolute(), ["-o", "picture.png"]),
-            (Path("picture").absolute(), ["--output", "picture"]),
-            (Path("picture.png").absolute(), ["--output", "picture.png"]),
+            (Path("picture"), ["-o", "picture"]),
+            (Path("picture.png"), ["-o", "picture.png"]),
+            (Path("picture"), ["--output", "picture"]),
+            (Path("picture.png"), ["--output", "picture.png"]),
         )
 
         for result, cli in args:
@@ -52,39 +52,20 @@ class Color(TestBase):
     def test_default(self):
         options = get_options([])
 
-        self.assertIsColorInstance(options.color)
-        self.assertNotEqual(get_options([]).color, get_options([]).color)
+        self.assertEqual(options.color, "random")
 
     def test_ok(self):
         args = (
-            (["-c", "  Black"], (0x00, 0x00, 0x00), "Black"),
-            (["--color", "255  ,   216,0"], (0xFF, 0xD8, 0x00), "School Bus Yellow"),
-            (["-c", " F00"], (0xFF, 0x00, 0x00), "Red"),
-            (["--color", "#F00 "], (0xFF, 0x00, 0x00), "Red"),
-            (["-c", "  FF0000"], (0xFF, 0x00, 0x00), "Red"),
-            (["--color", "#FF0000  "], (0xFF, 0x00, 0x00), "Red"),
+           ["-c", "  Black"],
+           ["--color", "255  ,   216,0"],
+           ["-c", " F00"],
+           ["--color", "#F00 "],
+           ["-c", "  FF0000"],
+           ["--color", "#FF0000  "],
         )
 
-        for cli, rgb, name in args:
-            self.assertColorEqual(get_options(cli).color, rgb, name)
-
-    def test_ok_random(self):
-        self.assertIsColorInstance(get_options(["-c", "RandOm"]).color)
-        self.assertIsColorInstance(get_options(["--color", "RandOm"]).color)
-
-    def test_nok(self):
-        args = (
-            ["-c", "Custom"],
-            ["--color", "Custom"],
-            ["-c", ""],
-            ["--color", ""],
-            ["-c", "1234"],
-            ["--color", "#12"],
-        )
-
-        with patch("sys.stderr", new=StringIO()):
-            for cli in args:
-                self.assertRaises(ValueError, get_options, cli)
+        for cli in args:
+            self.assertEqual(get_options(cli).color, cli[-1])
 
 
 class Color2(TestBase):
@@ -213,24 +194,6 @@ class OverlayColor(TestBase):
         with patch("sys.stderr", new=StringIO()):
             for cli in args:
                 self.assertRaises(SystemExit, get_options, cli)
-
-    def test_nok_contrast(self):
-        args = (
-            ["-c", "7F7F7F", "--overlay-color", "7F7F7F", "--overlay-contrast", "6"],
-            ["-c", "000001", "--overlay-color", "white", "--overlay-contrast", "21"],
-        )
-
-        with patch("sys.stderr", new=StringIO()):
-            for cli in args:
-                self.assertRaises(RuntimeError, get_options, cli)
-
-    @override_color_random([(0x7F, 0x7F, 0x7F), (0x00, 0x00, 0x00)])
-    def test_random_regenerate(self):
-        options = get_options(["--overlay-color", "7F7F7F", "--overlay-contrast", "3"])
-
-        self.assertColorEqual(options.color, (0x00, 0x00, 0x00), "Black")
-        self.assertColorEqual(options.color2, (0xFF, 0xFF, 0xFF), "White")
-        self.assertColorEqual(options.overlay_color, (0x7F, 0x7F, 0x7F))
 
 
 class OverlayContrast(TestBase):
