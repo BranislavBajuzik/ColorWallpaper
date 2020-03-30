@@ -50,18 +50,16 @@ class InitColor(TestBase):
         with patch("sys.stderr", new=StringIO()):
             for cli in args:
                 with override_cli(cli):
-                    self.assertRaises(ValueError, lambda: Wallpaper().color)
+                    self.assertRaises(ValueError, Wallpaper)
 
 
 class InitColor2(TestBase):
     def test_default(self):
-        options = get_options([])
+        pape = Wallpaper()
 
-        self.assertEqual(options.color2, options.color.inverted(options.min_contrast))
+        self.assertEqual(pape.color2, pape.color.inverted(pape.min_contrast))
 
-        options = get_options(["-c", "black"])
-
-        self.assertColorEqual(options.color2, (0xFF, 0xFF, 0xFF), "White")
+        self.assertColorEqual(Wallpaper(color="black").color2, (0xFF, 0xFF, 0xFF), "White")
 
     def test_ok(self):
         args = (
@@ -74,7 +72,8 @@ class InitColor2(TestBase):
         )
 
         for cli, rgb, name in args:
-            self.assertColorEqual(get_options(cli).color2, rgb, name)
+            with override_cli(cli):
+                self.assertColorEqual(Wallpaper().color2, rgb, name)
 
     def test_nok(self):
         args = (
@@ -88,7 +87,8 @@ class InitColor2(TestBase):
 
         with patch("sys.stderr", new=StringIO()):
             for cli in args:
-                self.assertRaises(ValueError, get_options, cli)
+                with override_cli(cli):
+                    self.assertRaises(ValueError, Wallpaper)
 
     def test_ok_inverted(self):
         args = (
@@ -99,17 +99,19 @@ class InitColor2(TestBase):
         )
 
         for cli, rgb, name in args:
-            self.assertColorEqual(get_options(cli).color2, rgb, name)
+            with override_cli(cli):
+                self.assertColorEqual(Wallpaper().color2, rgb, name)
 
     def test_impossible_inverted(self):
-        with patch("sys.stderr", new=StringIO()):
-            self.assertRaises(RuntimeError, get_options, ["-c", "7F7F7F", "-c2", "inverted", "--min-contrast", "21"])
+        with patch("sys.stderr", new=StringIO()), override_cli(
+            ["-c", "7F7F7F", "-c2", "inverted", "--min-contrast", "21"]
+        ):
+            self.assertRaises(RuntimeError, Wallpaper)
 
     @override_color_random([(0x7F, 0x7F, 0x7F), (0x00, 0x00, 0x00)])
     def test_random_inverted(self):
-        options = get_options(["-c2", "inverted", "--min-contrast", "21"])
-
-        self.assertColorEqual(options.color2, (0xFF, 0xFF, 0xFF), "White")
+        with override_cli(["-c2", "inverted", "--min-contrast", "21"]):
+            self.assertColorEqual(Wallpaper().color2, (0xFF, 0xFF, 0xFF), "White")
 
 
 class InitOverlayColor(TestBase):

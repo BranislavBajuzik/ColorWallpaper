@@ -56,12 +56,12 @@ class Color(TestBase):
 
     def test_ok(self):
         args = (
-           ["-c", "  Black"],
-           ["--color", "255  ,   216,0"],
-           ["-c", " F00"],
-           ["--color", "#F00 "],
-           ["-c", "  FF0000"],
-           ["--color", "#FF0000  "],
+            ["-c", "  Black"],
+            ["--color", "255  ,   216,0"],
+            ["-c", " F00"],
+            ["--color", "#F00 "],
+            ["-c", "  FF0000"],
+            ["--color", "#FF0000  "],
         )
 
         for cli in args:
@@ -72,59 +72,20 @@ class Color2(TestBase):
     def test_default(self):
         options = get_options([])
 
-        self.assertEqual(options.color2, options.color.inverted(options.min_contrast))
-
-        options = get_options(["-c", "black"])
-
-        self.assertColorEqual(options.color2, (0xFF, 0xFF, 0xFF), "White")
+        self.assertEqual(options.color2, "inverted")
 
     def test_ok(self):
         args = (
-            (["-c2", "  Black"], (0x00, 0x00, 0x00), "Black"),
-            (["--color2", "255  ,   216,0"], (0xFF, 0xD8, 0x00), "School Bus Yellow"),
-            (["-c2", " F00"], (0xFF, 0x00, 0x00), "Red"),
-            (["--color2", "#F00 "], (0xFF, 0x00, 0x00), "Red"),
-            (["-c2", "  FF0000"], (0xFF, 0x00, 0x00), "Red"),
-            (["--color2", "#FF0000  "], (0xFF, 0x00, 0x00), "Red"),
+            ["-c2", "  Black"],
+            ["--color2", "255  ,   216,0"],
+            ["-c2", " F00"],
+            ["--color2", "#F00 "],
+            ["-c2", "  FF0000"],
+            ["--color2", "#FF0000  "],
         )
 
-        for cli, rgb, name in args:
-            self.assertColorEqual(get_options(cli).color2, rgb, name)
-
-    def test_nok(self):
-        args = (
-            ["-c2", "Custom"],
-            ["--color2", "Custom"],
-            ["-c2", ""],
-            ["--color2", ""],
-            ["-c2", "1234"],
-            ["--color2", "#12"],
-        )
-
-        with patch("sys.stderr", new=StringIO()):
-            for cli in args:
-                self.assertRaises(ValueError, get_options, cli)
-
-    def test_ok_inverted(self):
-        args = (
-            (["-c", "white", "-c2", "inverted"], (0x00, 0x00, 0x00), "Black"),
-            (["-c", "black", "-c2", "inverted"], (0xFF, 0xFF, 0xFF), "White"),
-            (["-c", "red", "-c2", "inverted"], (0x00, 0xFF, 0xFF), "Cyan"),
-            (["-c", "cyan", "-c2", "inverted"], (0xFF, 0x00, 0x00), "Red"),
-        )
-
-        for cli, rgb, name in args:
-            self.assertColorEqual(get_options(cli).color2, rgb, name)
-
-    def test_impossible_inverted(self):
-        with patch("sys.stderr", new=StringIO()):
-            self.assertRaises(RuntimeError, get_options, ["-c", "7F7F7F", "-c2", "inverted", "--min-contrast", "21"])
-
-    @override_color_random([(0x7F, 0x7F, 0x7F), (0x00, 0x00, 0x00)])
-    def test_random_inverted(self):
-        options = get_options(["-c2", "inverted", "--min-contrast", "21"])
-
-        self.assertColorEqual(options.color2, (0xFF, 0xFF, 0xFF), "White")
+        for cli in args:
+            self.assertEqual(get_options(cli).color2, cli[-1])
 
 
 class Display(TestBase):

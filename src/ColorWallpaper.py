@@ -43,21 +43,7 @@ class Wallpaper:
     def __init__(self, **kwargs):
         options = get_options()
 
-        args = (
-            "output",
-            "yes",
-            "color",
-            "color2",
-            "display",
-            "min_contrast",
-            "overlay_color",
-            "overlay_contrast",
-            "resolution",
-            "scale",
-            "formats",
-        )
-
-        for arg in args:
+        for arg in self.__class__.__annotations__:
             setattr(self, arg, kwargs.get(arg, getattr(options, arg)))
 
         self.output = Path(self.output).absolute()
@@ -100,7 +86,7 @@ class Wallpaper:
                 break
 
     @staticmethod
-    def __split_word(word: str) -> List[str]:
+    def _split_word(word: str) -> List[str]:
         head = ""
         word_length = 0
         word = list(word)
@@ -120,7 +106,7 @@ class Wallpaper:
         return [head, "".join(word)]
 
     @staticmethod
-    def __arrange_text(text: str) -> Tuple[List[str], int]:
+    def _arrange_text(text: str) -> Tuple[List[str], int]:
         """Wraps the text
 
         :param text: Text to wrap
@@ -139,7 +125,7 @@ class Wallpaper:
             next_word_length = sum(len(font(char)[0]) for char in f" {next_word}")
 
             if next_word_length > 112:
-                words = Wallpaper.__split_word(next_word) + words
+                words = Wallpaper._split_word(next_word) + words
                 continue
 
             if text_length + next_word_length <= 112:
@@ -152,13 +138,13 @@ class Wallpaper:
 
         return [" ".join(text) for text in texts], max_text_length
 
-    def __generate_text(self, text: str) -> Image.Image:
+    def _generate_text(self, text: str) -> Image.Image:
         """Renders text into image
 
         :param text: text to render
         :return: Image with the rendered text
         """
-        texts, max_text_length = self.__arrange_text(text)
+        texts, max_text_length = self._arrange_text(text)
 
         x = 0
         x_offset = 0
@@ -183,7 +169,7 @@ class Wallpaper:
 
         return img
 
-    def __generate_decoration(self) -> Image.Image:
+    def _generate_decoration(self) -> Image.Image:
         """Generates the highlight from :param self:
 
         :return: Image of the highlight
@@ -195,7 +181,7 @@ class Wallpaper:
         y = -4
         if self.display != "":
             name = self.color.name if self.display is None else self.display
-            img_name = self.__generate_text(name)
+            img_name = self._generate_text(name)
             x, y = img_name.size
 
             img.alpha_composite(img_name, (8, 8))
@@ -211,9 +197,9 @@ class Wallpaper:
 
         for i, key in enumerate(self.formats, 1):
             y += 12
-            img_label = self.__generate_text(rows[key][0])
+            img_label = self._generate_text(rows[key][0])
             img.alpha_composite(img_label, (8, y))
-            img.alpha_composite(self.__generate_text(rows[key][1]), (3 + 5 + img_label.size[0], y))
+            img.alpha_composite(self._generate_text(rows[key][1]), (3 + 5 + img_label.size[0], y))
 
             if y >= 116:
                 ignored = len(self.formats) - i
@@ -236,7 +222,7 @@ class Wallpaper:
         smaller = min(self.resolution)
         decor_size = 128 * max(round(smaller / self.scale / 128), 1)
 
-        decoration = self.__generate_decoration()
+        decoration = self._generate_decoration()
         decoration = decoration.resize((decor_size, decor_size), resample=Image.NEAREST)
 
         img.alpha_composite(
