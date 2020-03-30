@@ -55,11 +55,13 @@ class InitColor(TestBase):
 
 class InitColor2(TestBase):
     def test_default(self):
-        pape = Wallpaper()
+        with override_cli():
+            pape = Wallpaper()
 
-        self.assertEqual(pape.color2, pape.color.inverted(pape.min_contrast))
+            self.assertEqual(pape.color2, pape.color.inverted(pape.min_contrast))
 
-        self.assertColorEqual(Wallpaper(color="black").color2, (0xFF, 0xFF, 0xFF), "White")
+        with override_cli(["--color", "black"]):
+            self.assertColorEqual(Wallpaper().color2, (0xFF, 0xFF, 0xFF), "White")
 
     def test_ok(self):
         args = (
