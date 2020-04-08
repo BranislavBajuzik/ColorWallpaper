@@ -1,5 +1,6 @@
 """Main file"""
 
+import re
 import sys
 
 from pathlib import Path
@@ -20,8 +21,13 @@ from CLI import *
 __all__ = ["Wallpaper"]
 
 
+newline_re = re.compile(r"(?:\n|\\n)")
+
+
 class Wallpaper:
     """Main class"""
+
+    USABLE_SIZE = 112
 
     # File options
     output: Union[str, Path]
@@ -85,8 +91,8 @@ class Wallpaper:
                 self.color2 = Color.from_str(self.color2)
                 break
 
-    @staticmethod
-    def _split_word(word: str) -> List[str]:
+    @classmethod
+    def _split_word(cls, word: str) -> List[str]:
         head = ""
         word_length = 0
         word = list(word)
@@ -96,7 +102,7 @@ class Wallpaper:
 
             next_char_length = len(font(next_char)[0])
 
-            if word_length + next_char_length <= 112:
+            if word_length + next_char_length <= cls.USABLE_SIZE:
                 head += next_char
                 word_length += next_char_length
             else:
@@ -105,8 +111,8 @@ class Wallpaper:
 
         return [head, "".join(word)]
 
-    @staticmethod
-    def _arrange_text(text: str) -> Tuple[List[str], int]:
+    @classmethod
+    def _arrange_text(cls, text: str) -> Tuple[List[str], int]:
         """Wraps the text
 
         :param text: Text to wrap
@@ -117,24 +123,27 @@ class Wallpaper:
         texts = [[]]
         max_text_length = 0
         text_length = -first_glyph_whitespace
-        words = text.split(" ")
+        words = newline_re.sub(r" \n ", text).split(" ")
 
         while words:
             next_word = words.pop(0)
 
             next_word_length = sum(len(font(char)[0]) for char in f" {next_word}")
 
-            if next_word_length > 112:
-                words = Wallpaper._split_word(next_word) + words
+            if next_word_length - 4 > cls.USABLE_SIZE:
+                words = cls._split_word(next_word) + words
                 continue
 
-            if text_length + next_word_length <= 112:
+            if next_word == "\n":
+                texts.append([])
+                text_length = -first_glyph_whitespace
+            elif text_length + next_word_length <= cls.USABLE_SIZE:
                 texts[-1].append(next_word)
                 text_length += next_word_length
             else:
                 texts.append([next_word])
                 text_length = next_word_length - first_glyph_whitespace
-            max_text_length = min(max(text_length, max_text_length), 112)
+            max_text_length = min(max(text_length, max_text_length), cls.USABLE_SIZE)
 
         return [" ".join(text) for text in texts], max_text_length
 
@@ -186,6 +195,9 @@ class Wallpaper:
 
             img.alpha_composite(img_name, (8, 8))
 
+            if y > self.USABLE_SIZE:
+                print("Display text is too long and will be cut off", file=sys.stderr)
+
         rows = {
             "hex": ("HEX ", self.color.hex(True)),
             "#hex": ("HEX ", "#" + self.color.hex(True)),
@@ -195,23 +207,22 @@ class Wallpaper:
             "empty": (" ", " "),
         }
 
-        for i, key in enumerate(self.formats, 1):
-            y += 12
-            img_label = self._generate_text(rows[key][0])
-            img.alpha_composite(img_label, (8, y))
-            img.alpha_composite(self._generate_text(rows[key][1]), (3 + 5 + img_label.size[0], y))
-
-            if y >= 116:
+        for i, key in enumerate(self.formats):
+            if y > self.USABLE_SIZE:
                 ignored = len(self.formats) - i
                 if ignored:
                     print(
-                        f"Too many formats specified. "
-                        f"Ignoring {ignored} format{'' if ignored == 1 else 's'}: "
+                        f"Unable to display {ignored} format{'' if ignored == 1 else 's'}: "
                         f"{', '.join(self.formats[i:])}",
                         file=sys.stderr,
                     )
 
                 break
+
+            y += 12
+            img_label = self._generate_text(rows[key][0])
+            img.alpha_composite(img_label, (8, y))
+            img.alpha_composite(self._generate_text(rows[key][1]), (3 + 5 + img_label.size[0], y))
 
         return img
 
