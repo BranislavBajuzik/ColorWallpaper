@@ -7,7 +7,7 @@
 
 A Minimalist wallpaper generator
 
-[**Get latest release**](https://github.com/BranislavBajuzik/ColorWallpaper/releases/latest "Download")
+### [**Get the latest release**](https://github.com/BranislavBajuzik/ColorWallpaper/releases/latest "Download")
 
 Generates wallpapers such as:
 ![Example](example.png "Example")
@@ -18,7 +18,6 @@ Generated with `python ColorWallpaper.py --color black --output example.png --fo
 - [PIL](https://pypi.org/project/Pillow/ "Download PIL")
 
 ## Usage
-Menu: `python ColorWallpaper.py`\
 Direct generation: `python ColorWallpaper.py --option[s]`
 
 ### Options:
@@ -80,7 +79,8 @@ Direct generation: `python ColorWallpaper.py --option[s]`
 
 ### Setup environment
 Run:
-
-    pip install -r requirements.txt
-    pip install -r requirements-dev.txt
-    pre-commit install
+```Shell
+pip install -r requirements.txt
+pip install -r requirements-dev.txt
+pre-commit install
+```

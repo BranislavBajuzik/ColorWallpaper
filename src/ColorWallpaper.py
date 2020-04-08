@@ -226,12 +226,12 @@ class Wallpaper:
 
         return img
 
-    def generate_image(self):
+    def generate_image(self):  # ToDo Add an option to just return the image without saving to disk
         """Generates a wallpaper from :param self:"""
         img = Image.new("RGBA", self.resolution, self.color.rgb)
 
         smaller = min(self.resolution)
-        decor_size = 128 * max(round(smaller / self.scale / 128), 1)  # ToDo make the scale not inverse
+        decor_size = 128 * max(round(smaller / self.scale / 128), 1)  # ToDo make the scale inversen't
 
         decoration = self._generate_decoration()
         decoration = decoration.resize((decor_size, decor_size), resample=Image.NEAREST)
