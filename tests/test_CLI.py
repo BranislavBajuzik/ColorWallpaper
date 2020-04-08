@@ -261,6 +261,7 @@ class Formats(TestBase):
 
     def test_ok(self):
         args = (
+            ([], ["-f"]),
             (["empty"], ["-f", "empty"]),
             (["hex"], ["-f", "hex"]),
             (["#hex"], ["-f", "#hex"]),
@@ -286,7 +287,7 @@ class Formats(TestBase):
             self.assertEqual(sorted(result), sorted(get_options(cli).formats))
 
     def test_nok(self):
-        args = (["-f", "r g b"], ["-f", "heX"], ["-f", "#Hex"], ["-f", "a"], ["-f", ""], ["-f"])
+        args = (["-f", "r g b"], ["-f", "heX"], ["-f", "#Hex"], ["-f", "a"], ["-f", ""])
 
         with patch("sys.stderr", new=StringIO()):
             for cli in args:
