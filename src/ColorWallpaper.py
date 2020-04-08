@@ -70,7 +70,8 @@ class Wallpaper:
         texts = [[]]
         max_text_length = 0
         text_length = -first_glyph_whitespace
-        words = text.split(" ")
+        LINE_BREAK = "\\n"
+        words = text.replace(LINE_BREAK, f" {LINE_BREAK} ").split(" ")
 
         while words:
             next_word = words.pop(0)
@@ -81,7 +82,10 @@ class Wallpaper:
                 words = Wallpaper.__split_word(next_word) + words
                 continue
 
-            if text_length + next_word_length <= 112:
+            if next_word == LINE_BREAK:
+                texts.append([])
+                text_length = -first_glyph_whitespace
+            elif text_length + next_word_length <= 112:
                 texts[-1].append(next_word)
                 text_length += next_word_length
             else:
@@ -158,7 +162,7 @@ class Wallpaper:
                 ignored = len(self.formats) - i
                 if ignored:
                     print(
-                        f"Too many formats specified. "
+                        f"Text too long or too many formats specified. "
                         f"Ignoring {ignored} format{'' if ignored == 1 else 's'}: "
                         f"{', '.join(self.formats[i:])}",
                         file=sys.stderr,
