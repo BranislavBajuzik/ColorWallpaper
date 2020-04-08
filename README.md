@@ -7,21 +7,31 @@
 
 A Minimalist wallpaper generator
 
+[**Get latest release**](https://github.com/BranislavBajuzik/ColorWallpaper/releases/latest "Download")
+
 Generates wallpapers such as:
 ![Example](example.png "Example")
+Generated with `python ColorWallpaper.py --color black --output example.png --formats empty HEX rgb --resolution 960x540 --scale 2`
+
+## Requirements
+- [Python 3.6+](https://www.python.org/downloads/ "Download Python")
+- [PIL](https://pypi.org/project/Pillow/ "Download PIL")
 
 ## Usage
+Direct generation: `python ColorWallpaper.py --option[s]`
+
+### Options:
 - `-h`/`--help`
   - Display help and exit
 
-File options
+#### File options
 - `-o`/`--output` `PATH`
   - Used to specify image output path.
   - Default: `out.png`
 - `-y`/`--yes`
   - Forces overwrite of `--output`
 
-Color options
+#### Color options
 - `-c`/`--color` `COLOR`
   - Used to specify Background color. Also accepts `random` which picks random named color.
   - Default: `random`
@@ -39,7 +49,7 @@ Color options
   - Min contrast of --color and --overlay-color. Will raise if this can not be satisfied.
   - Default: `1`
 
-Display options
+#### Display options
 - `-r`/`--resolution` `RESOLUTION`
   - Used to specify image resolution.
   - Default: `1920x1080`.
@@ -50,7 +60,7 @@ Display options
   - Declares the order and formats to display
   - Default: `empty HEX rgb`
 
-### Argument formats
+#### Argument formats
 - `COLOR`
   - `#Hex`: Three or six hexadecimal digits optionally starting with `#`.
   - `R,G,B`: Three comma separated numbers in range 0-255.
@@ -64,6 +74,3 @@ Display options
   - `empty`: Empty row.
   - `#hex`: `hex`, but starting with `#`
   - `#HEX`, `HEX`: Like `hex`, but uppercase
-
-## Dependencies
-- [PIL](https://github.com/python-pillow/Pillow)
