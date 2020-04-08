@@ -54,9 +54,9 @@ Direct generation: `python ColorWallpaper.py --option[s]`
   - Used to specify image resolution.
   - Default: `1920x1080`.
 - `-s`/`--scale` `SCALE`
-  - The size of the highlight will be divided by this.
+  - The size of the highlight (128px) will be multiplied by this.
   - Default: `3`
-- `-f`/`--formats` `FORMAT` [`FORMAT` ...]
+- `-f`/`--formats` [`FORMAT` ...]
   - Declares the order and formats to display
   - Default: `empty HEX rgb`
 

@@ -226,12 +226,16 @@ class Wallpaper:
 
         return img
 
-    def generate_image(self):  # ToDo Add an option to just return the image without saving to disk
-        """Generates a wallpaper from :param self:"""
+    def generate_image(self, save: bool = True) -> Image.Image:
+        """Generates a wallpaper from :param self:
+
+        :param save: Whether to save the image to `self.output`
+        :return: The generated image
+        """
         img = Image.new("RGBA", self.resolution, self.color.rgb)
 
         smaller = min(self.resolution)
-        decor_size = 128 * max(round(smaller / self.scale / 128), 1)  # ToDo make the scale inversen't
+        decor_size = 128 * min(self.scale, (smaller - 22) // 128)
 
         decoration = self._generate_decoration()
         decoration = decoration.resize((decor_size, decor_size), resample=Image.NEAREST)
@@ -242,19 +246,22 @@ class Wallpaper:
 
         generate = True
 
-        if not self.output.exists():
-            self.output.parent.mkdir(parents=True, exist_ok=True)
-            img.save(str(self.output))
-        elif self.output.is_file():
-            generate = self.yes or input(f'File "{self.output}" exists.\n' f"Overwrite? [y/n] ").lower().startswith("y")
-
-            if generate:
+        if save:
+            if not self.output.exists():
+                self.output.parent.mkdir(parents=True, exist_ok=True)
                 img.save(str(self.output))
-        else:
-            raise IOError(f'The "{self.output}" exists and is not a file')
+            elif self.output.is_file():
+                generate = self.yes or input(f'File "{self.output}" exists.\nOverwrite? [y/n] ').lower().startswith("y")
+
+                if generate:
+                    img.save(str(self.output))
+            else:
+                raise IOError(f'The "{self.output}" exists and is not a file')
 
         if generate:
             print(f'Image "{self.output}" successfully generated')
+
+        return img
 
 
 if __name__ == "__main__":

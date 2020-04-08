@@ -202,7 +202,7 @@ def get_options(args: Sequence[str] = None) -> argparse.Namespace:
     )
 
     display_g.add_argument(
-        "-s", "--scale", type=positive(int), default=3, help="The size of the highlight will be divided by this"
+        "-s", "--scale", type=positive(int), default=3, help="The size of the highlight will be multiplied by this"
     )
 
     display_g.add_argument(
@@ -210,7 +210,7 @@ def get_options(args: Sequence[str] = None) -> argparse.Namespace:
         "--formats",
         type=fix_casing(("empty", "hex", "#hex", "HEX", "#HEX", "rgb", "hsv", "hsl", "cmyk")),
         default=["empty", "HEX", "rgb"],
-        nargs="+",
+        nargs="*",
         help="Declares the order and formats to display. Available choices: "
         "{empty, hex, #hex, HEX, #HEX, rgb, hsv, hsl, cmyk}",
     )
