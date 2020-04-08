@@ -15,7 +15,7 @@ def parse_hex(arg: str) -> Tuple[int, int, int]:
     length = len(arg)
     if length == 3:
         return tuple(int(arg[i : i + 1] * 2, 16) for i in range(3))
-    elif length == 6:
+    if length == 6:
         return tuple(int(arg[2 * i : 2 * (i + 1)], 16) for i in range(3))
 
     raise ValueError(f"Length of input has to be either 3 or 6 not {length}")
@@ -27,6 +27,9 @@ def int_tuple(*source: Any) -> Tuple[int, ...]:
     :param source: Iterable to iterate over
     :return: Tuple of ints
     """
+    if len(source) == 1:
+        source = source[0]
+
     return tuple(int(float(t)) for t in source)
 
 

@@ -2,7 +2,6 @@
 
 import re
 import sys
-import argparse
 
 from pathlib import Path
 from typing import Tuple, Union, List
@@ -13,9 +12,10 @@ except ImportError:
     print(f'Unable to import PIL. Install it by running "{sys.executable} -m pip install Pillow".')
     exit(-1)
 
+from common import *
 from data import *
-from CLI import *
 from Color import *
+from CLI import *
 
 
 __all__ = ["Wallpaper"]
@@ -29,23 +29,70 @@ class Wallpaper:
 
     USABLE_SIZE = 112
 
-    def __init__(self, options: argparse.Namespace):
-        # General options
-        self.output: Union[str, Path] = options.output
-        self.yes: bool = options.yes
+    # File options
+    output: Union[str, Path]
+    yes: bool
 
-        # Color options
-        self.color: Color = options.color
-        self.color2: Color = options.color2
-        self.display: str = options.display
+    # Color options
+    color: Color
+    color2: Color
+    display: str
+    min_contrast: float
+    overlay_color: Color
+    overlay_contrast: float
 
-        # Display options
-        self.resolution: Tuple[int, int] = options.resolution
-        self.scale: int = options.scale
-        self.formats: List[str] = options.formats
+    # Display options
+    resolution: Tuple[int, int]
+    scale: int
+    formats: List[str]
+
+    def __init__(self, **kwargs):
+        options = get_options()
+
+        for arg in self.__class__.__annotations__:
+            setattr(self, arg, kwargs.get(arg, getattr(options, arg)))
+
+        self.output = Path(self.output).absolute()
+
+        random = False
+
+        if type(self.color) is str:
+            random = normalized(self.color) == "random"
+
+            if random:
+                self.color = Color.random()
+            else:
+                self.color = Color.from_str(self.color)
+
+        inverted = type(self.color2) is str and normalized(self.color2) == "inverted"
+
+        while True:
+            if self.overlay_color is not None:
+                if not random and self.color / self.overlay_color < self.overlay_contrast:
+                    raise RuntimeError(
+                        f"Contrast of {self.color} and {self.overlay_color} is lower than "
+                        f"{self.overlay_contrast} ({self.color / self.overlay_color})"
+                    )
+
+                while self.color / self.overlay_color < self.overlay_contrast:
+                    self.color = Color.random()
+
+            if inverted:
+                try:
+                    self.color2 = self.color.inverted(self.min_contrast)
+                except RuntimeError:
+                    if random:
+                        self.color = Color.random()
+                    else:
+                        raise
+                else:
+                    break
+            else:
+                self.color2 = Color.from_str(self.color2)
+                break
 
     @classmethod
-    def __split_word(cls, word: str) -> List[str]:
+    def _split_word(cls, word: str) -> List[str]:
         head = ""
         word_length = 0
         word = list(word)
@@ -65,7 +112,7 @@ class Wallpaper:
         return [head, "".join(word)]
 
     @classmethod
-    def __arrange_text(cls, text: str) -> Tuple[List[str], int]:
+    def _arrange_text(cls, text: str) -> Tuple[List[str], int]:
         """Wraps the text
 
         :param text: Text to wrap
@@ -84,7 +131,7 @@ class Wallpaper:
             next_word_length = sum(len(font(char)[0]) for char in f" {next_word}")
 
             if next_word_length - 4 > cls.USABLE_SIZE:
-                words = cls.__split_word(next_word) + words
+                words = cls._split_word(next_word) + words
                 continue
 
             if next_word == "\n":
@@ -100,13 +147,13 @@ class Wallpaper:
 
         return [" ".join(text) for text in texts], max_text_length
 
-    def __generate_text(self, text: str) -> Image.Image:
+    def _generate_text(self, text: str) -> Image.Image:
         """Renders text into image
 
         :param text: text to render
         :return: Image with the rendered text
         """
-        texts, max_text_length = self.__arrange_text(text)
+        texts, max_text_length = self._arrange_text(text)
 
         x = 0
         x_offset = 0
@@ -131,7 +178,7 @@ class Wallpaper:
 
         return img
 
-    def __generate_decoration(self) -> Image.Image:
+    def _generate_decoration(self) -> Image.Image:
         """Generates the highlight from :param self:
 
         :return: Image of the highlight
@@ -143,7 +190,7 @@ class Wallpaper:
         y = -4
         if self.display != "":
             name = self.color.name if self.display is None else self.display
-            img_name = self.__generate_text(name)
+            img_name = self._generate_text(name)
             x, y = img_name.size
 
             img.alpha_composite(img_name, (8, 8))
@@ -173,37 +220,42 @@ class Wallpaper:
                 break
 
             y += 12
-            img_label = self.__generate_text(rows[key][0])
+            img_label = self._generate_text(rows[key][0])
             img.alpha_composite(img_label, (8, y))
-            img.alpha_composite(self.__generate_text(rows[key][1]), (3 + 5 + img_label.size[0], y))
+            img.alpha_composite(self._generate_text(rows[key][1]), (3 + 5 + img_label.size[0], y))
 
         return img
 
-    def generate_image(self):
+    def generate_image(self):  # ToDo Add an option to just return the image without saving to disk
         """Generates a wallpaper from :param self:"""
         img = Image.new("RGBA", self.resolution, self.color.rgb)
 
         smaller = min(self.resolution)
-        decor_size = 128 * max(round(smaller / self.scale / 128), 1)
+        decor_size = 128 * max(round(smaller / self.scale / 128), 1)  # ToDo make the scale inversen't
 
-        decoration = self.__generate_decoration()
+        decoration = self._generate_decoration()
         decoration = decoration.resize((decor_size, decor_size), resample=Image.NEAREST)
 
         img.alpha_composite(
             decoration, ((self.resolution[0] - decor_size) // 2, (self.resolution[1] - decor_size) // 2)
         )
 
+        generate = True
+
         if not self.output.exists():
             self.output.parent.mkdir(parents=True, exist_ok=True)
             img.save(str(self.output))
         elif self.output.is_file():
-            if self.yes or input(f'File "{self.output}" exists.\n' f"Overwrite? [y/n] ").lower().startswith("y"):
+            generate = self.yes or input(f'File "{self.output}" exists.\n' f"Overwrite? [y/n] ").lower().startswith("y")
+
+            if generate:
                 img.save(str(self.output))
         else:
             raise IOError(f'The "{self.output}" exists and is not a file')
 
-        print(f'Image "{self.output}" successfully generated')
+        if generate:
+            print(f'Image "{self.output}" successfully generated')
 
 
 if __name__ == "__main__":
-    Wallpaper(get_options()).generate_image()
+    Wallpaper().generate_image()

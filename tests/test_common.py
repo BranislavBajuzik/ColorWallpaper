@@ -47,6 +47,7 @@ class IntTuple(TestBase):
         )
 
         for expected, source in args:
+            self.assertEqual(expected, int_tuple(source))
             self.assertEqual(expected, int_tuple(*source))
 
 

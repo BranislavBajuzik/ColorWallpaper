@@ -215,39 +215,4 @@ def get_options(args: Sequence[str] = None) -> argparse.Namespace:
         "{empty, hex, #hex, HEX, #HEX, rgb, hsv, hsl, cmyk}",
     )
 
-    ret = ret.parse_args(args)
-
-    random = normalized(ret.color) == "random"
-    inverted = normalized(ret.color2) == "inverted"
-
-    if random:
-        ret.color = Color.random()
-    else:
-        ret.color = Color.from_str(ret.color)
-
-    while True:
-        if ret.overlay_color is not None:
-            if not random and ret.color / ret.overlay_color < ret.overlay_contrast:
-                raise RuntimeError(
-                    f"Contrast of {ret.color} and {ret.overlay_color} is lower than "
-                    f"{ret.overlay_contrast} ({ret.color / ret.overlay_color})"
-                )
-
-            while ret.color / ret.overlay_color < ret.overlay_contrast:
-                ret.color = Color.random()
-
-        if inverted:
-            try:
-                ret.color2 = ret.color.inverted(ret.min_contrast)
-            except RuntimeError:
-                if random:
-                    ret.color = Color.random()
-                else:
-                    raise
-            else:
-                break
-        else:
-            ret.color2 = Color.from_str(ret.color2)
-            break
-
-    return ret
+    return ret.parse_args(args)

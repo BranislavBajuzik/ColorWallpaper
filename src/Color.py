@@ -80,7 +80,7 @@ class Color:
 
         c, m, y = ((component - k) / (1.0 - k) for component in (c, m, y))
 
-        return int_tuple(*(component * 100 for component in (c, m, y, k)))
+        return int_tuple(component * 100 for component in (c, m, y, k))
 
     @property
     def luminance(self) -> float:
@@ -157,7 +157,7 @@ class Color:
 
         rgb = hls_to_rgb(*(component / bound for bound, component, name in components))
 
-        return Color(int_tuple(*(component * 255 for component in rgb)))
+        return Color(int_tuple(component * 255 for component in rgb))
 
     @staticmethod
     def from_str(arg: str) -> "Color":

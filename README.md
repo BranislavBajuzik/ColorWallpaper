@@ -7,7 +7,7 @@
 
 A Minimalist wallpaper generator
 
-[**Get latest release**](https://github.com/BranislavBajuzik/ColorWallpaper/releases/latest "Download")
+### [**Get the latest release**](https://github.com/BranislavBajuzik/ColorWallpaper/releases/latest "Download")
 
 Generates wallpapers such as:
 ![Example](example.png "Example")
@@ -74,3 +74,13 @@ Direct generation: `python ColorWallpaper.py --option[s]`
   - `empty`: Empty row.
   - `#hex`: `hex`, but starting with `#`
   - `#HEX`, `HEX`: Like `hex`, but uppercase
+  
+## Contribute
+
+### Setup environment
+Run:
+```Shell
+pip install -r requirements.txt
+pip install -r requirements-dev.txt
+pre-commit install
+```
