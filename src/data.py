@@ -1519,7 +1519,7 @@ def load_font() -> Dict[str, List[List[bool]]]:
 
     :return: Loaded fontmap
     """
-    img = Image.open(Path(__file__).absolute().parent / "font.png")
+    img = Image.open(Path(__file__).absolute().parent / "font.png")  # ToDo make this CLI accessible
     letters = {}
 
     for i, ch in enumerate(font_chars):
