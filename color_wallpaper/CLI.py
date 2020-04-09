@@ -6,8 +6,8 @@ import argparse
 from pathlib import Path
 from typing import Tuple, Sequence, Type
 
-from common import *
-from Color import *
+from .common import *
+from .Color import *
 
 
 __all__ = ["get_options"]

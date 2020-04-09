@@ -1,7 +1,7 @@
 from io import StringIO
 from unittest.mock import patch
 
-from src.Color import *
+from color_wallpaper.Color import *
 from tests.TestBase import TestBase
 
 
@@ -182,7 +182,7 @@ class Inverted(TestBase):
 class Random(TestBase):
     def test(self):
         color = Color.random()
-        from data import hex_to_color
+        from color_wallpaper.data import hex_to_color
 
         self.assertIn(color.hex(), hex_to_color)
         self.assertEqual(color.name, hex_to_color[color.hex()])

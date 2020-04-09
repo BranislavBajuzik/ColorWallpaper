@@ -6,8 +6,8 @@ from typing import Tuple
 from random import choice
 from colorsys import rgb_to_hsv, rgb_to_hls, hls_to_rgb
 
-from data import *
-from common import *
+from .data import *
+from .common import *
 
 __all__ = ["Color"]
 

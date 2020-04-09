@@ -4,7 +4,7 @@ from PIL import Image
 from typing import Dict, List
 from pathlib import Path
 
-from common import *
+from .common import *
 
 __all__ = ["hex_to_color", "color_hexes", "color_to_hex", "font"]
 

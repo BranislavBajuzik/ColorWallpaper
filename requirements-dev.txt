@@ -1,2 +1,5 @@
 Black
 pre-commit
+setuptools
+twine
+wheel

@@ -1,7 +1,7 @@
 from io import StringIO
 from unittest.mock import patch
 
-from src.common import *
+from color_wallpaper.common import *
 from tests.TestBase import TestBase
 
 

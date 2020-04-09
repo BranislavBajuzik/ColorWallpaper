@@ -1,10 +1,15 @@
+import sys
+
+from pathlib import Path
 from functools import wraps
 from unittest import TestCase
 from argparse import ArgumentParser
 from contextlib import contextmanager
 from typing import Any, Callable, Dict, List, Sequence, Tuple, Type, Union
 
-from src.CLI import Color
+sys.path.append(str(Path(__file__).parent.parent / "color_wallpaper"))
+
+from color_wallpaper.Color import Color
 
 
 __all__ = ["TestBase", "override_color_random", "override_cli"]
