@@ -1554,12 +1554,7 @@ def font(char) -> List[List[bool]]:
     return chars.get(char, default_char)
 
 
-# fmt: off
-font_chars = ("0123456789"
-              "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-              "abcdefghijklmnopqrstuvwxyz"
-              "#'/()-.,")
-# fmt: on
+font_chars = r"!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~"
 chars = load_font()
 chars[" "] = [[False] * 4] * 8
 default_char = [[*[True] * 7, False]] * 8

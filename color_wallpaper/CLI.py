@@ -145,9 +145,10 @@ def get_options(args: Sequence[str] = None) -> argparse.Namespace:
     :return: Object with options as attributes
     """
     ret = argparse.ArgumentParser(
+        prog="color_wallpaper",
         allow_abbrev=False,
         description="Minimalist wallpaper generator",
-        usage=f"python %(prog)s ...",
+        usage=f"Try --help for more information",
         formatter_class=ArgumentDefaultsHelpFormatter,
     )
 
