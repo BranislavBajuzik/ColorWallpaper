@@ -4,6 +4,7 @@
 [![Codecov](https://codecov.io/gh/BranislavBajuzik/ColorWallpaper/branch/master/graph/badge.svg)](https://codecov.io/gh/BranislavBajuzik/ColorWallpaper)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/af954c94432a446a95e004079d089f6a)](https://www.codacy.com/app/BranislavBajuzik/ColorWallpaper?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=BranislavBajuzik/ColorWallpaper&amp;utm_campaign=Badge_Grade)
 [![Code style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![PyPI version](https://badge.fury.io/py/color-wallpaper.svg)](https://badge.fury.io/py/color-wallpaper)
 
 A Minimalist wallpaper generator
 
@@ -11,7 +12,8 @@ A Minimalist wallpaper generator
 
 Generates wallpapers such as:
 ![Example](example.png "Example")
-Generated with `python ColorWallpaper.py --color black --output example.png --formats empty HEX rgb --resolution 960x540 --scale 2`
+Generated with:\
+`python -m color_wallpaper --color black --output example.png --formats empty HEX rgb --resolution 960x540 --scale 2`
 
 ## Requirements
 - [Python 3.6+](https://www.python.org/downloads/ "Download Python")
@@ -77,10 +79,12 @@ Direct generation: `python ColorWallpaper.py --option[s]`
   
 ## Contribute
 
-### Setup environment
-Run:
+#### Setup environment
 ```Shell
-pip install -r requirements.txt
-pip install -r requirements-dev.txt
+python -m pip install -r requirements.txt
+python -m pip install -r requirements-dev.txt
 pre-commit install
 ```
+
+#### Run tests
+`python -m unittest discover`

@@ -1,3 +1,6 @@
+build/
+color_wallpaper.egg-info/
+dist/
 .idea/
 venv/
 out.png

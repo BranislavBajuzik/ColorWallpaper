@@ -2,7 +2,7 @@ from io import StringIO
 from pathlib import Path
 from unittest.mock import patch
 
-from src.CLI import *
+from color_wallpaper.CLI import *
 from tests.TestBase import *
 
 

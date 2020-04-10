@@ -12,10 +12,10 @@ except ImportError:
     print(f'Unable to import PIL. Install it by running "{sys.executable} -m pip install Pillow".')
     exit(-1)
 
-from common import *
-from data import *
-from Color import *
-from CLI import *
+from .common import *
+from .data import *
+from .Color import *
+from .CLI import *
 
 
 __all__ = ["Wallpaper"]
@@ -262,7 +262,3 @@ class Wallpaper:
             print(f'Image "{self.output}" successfully generated')
 
         return img
-
-
-if __name__ == "__main__":
-    Wallpaper().generate_image()
