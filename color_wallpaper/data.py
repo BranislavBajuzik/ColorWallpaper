@@ -1,7 +1,7 @@
 """Data backend. Declarations, file loading"""
 
 from PIL import Image
-from typing import Dict, List
+from typing import Dict, Tuple
 from pathlib import Path
 
 from .common import *
@@ -1514,36 +1514,41 @@ color_hexes = tuple(hex_to_color)
 color_to_hex = {normalized(v): k for k, v in hex_to_color.items()}
 
 
-def load_font() -> Dict[str, List[List[bool]]]:
+def load_font() -> Dict[str, Tuple[Tuple[bool, ...]]]:
     """Loads a font into memory
 
     :return: Loaded fontmap
     """
-    img = Image.open(Path(__file__).absolute().parent / "font.png")  # ToDo make this CLI accessible
     letters = {}
+    img = Image.open(Path(__file__).absolute().parent / "font.png")  # ToDo make this CLI accessible
 
-    for i, ch in enumerate(font_chars):
-        col = 0
-        empty_col = False
+    if img.width != len(font_chars) * 8 and img.height != 8:
+        raise AssertionError(f"Expected the font image to have size of ({len(font_chars) * 8}, 8), but got {img.size}")
+
+    for char_index, char in enumerate(font_chars):
         letter = [[] for _ in range(8)]
 
-        while not empty_col:
-            empty_col = True
+        first, last = 8, -1
 
-            for row in range(8):
-                color, *_ = img.getpixel((8 * i + col, row))
-                empty = bool(color)
-                empty_col &= empty
-                letter[row].append(not empty)
+        for row in range(8):
+            for col in range(8):
+                color = sum(img.getpixel((8 * char_index + col, row))) == 0
 
-            col += 1
+                letter[row].append(color)
 
-        letters[ch] = letter
+                if color:
+                    first = min(first, col)
+                    last = max(last, col)
+
+        for row_index, row in enumerate(letter):
+            letter[row_index] = (*row[max(first, 0) : min(last + 1, 8)], False)
+
+        letters[char] = tuple(letter)
 
     return letters
 
 
-def font(char) -> List[List[bool]]:
+def font(char) -> Tuple[Tuple[bool]]:
     """Helper function to enforce default char
 
     :param char: Character to load
@@ -1556,5 +1561,5 @@ def font(char) -> List[List[bool]]:
 
 font_chars = r"!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~"
 chars = load_font()
-chars[" "] = [[False] * 4] * 8
-default_char = [[*[True] * 7, False]] * 8
+chars[" "] = ((False,) * 4,) * 8
+default_char = ((*(True,) * 7, False),) * 8
