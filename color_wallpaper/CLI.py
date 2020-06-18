@@ -156,10 +156,14 @@ def get_options(args: Sequence[str] = None) -> argparse.Namespace:
         "-o", "--output", metavar="PATH", type=Path, default=Path("out.png"), help="Image output path"
     )
 
+    general_g.add_argument(
+        "-dir", "--outputDir", metavar="PATH", type=Path, default=Path("./"), help="Images output directory path"
+    )
+
     general_g.add_argument("-y", "--yes", action="store_true", help="Force overwrite of --output")
 
     color_g = ret.add_argument_group("Color options")
-    color_g.add_argument("-c", "--color", default="random", help="Background color. #Hex / R,G,B / random / NAME")
+    color_g.add_argument("-c", "--color", default="random", help="Background color. #Hex / R,G,B / random / NAME / All")
 
     color_g.add_argument(
         "-c2", "--color2", metavar="COLOR", default="inverted", help="Highlight color. #Hex / R,G,B / inverted / NAME"

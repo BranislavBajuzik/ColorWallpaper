@@ -30,12 +30,15 @@ Direct generation: `python ColorWallpaper.py --option[s]`
 - `-o`/`--output` `PATH`
   - Used to specify image output path.
   - Default: `out.png`
+- `-dir`/`--outputDir` `PATH`
+  - Used to specify folder to store multiple generated wallpapers (with `--color all`).
+  - Default: `./` (current directory)
 - `-y`/`--yes`
   - Forces overwrite of `--output`
 
 #### Color options
 - `-c`/`--color` `COLOR`
-  - Used to specify Background color. Also accepts `random` which picks random named color.
+  - Used to specify Background color. Also accepts `random` which picks random named color, and `all` to get for all colors.
   - Default: `random`
 - `-c2`/`--color2` `COLOR`
   - Used to specify text color. Also accepts `inverted` which is the inverse of `--color`.
@@ -67,6 +70,7 @@ Direct generation: `python ColorWallpaper.py --option[s]`
   - `#Hex`: Three or six hexadecimal digits optionally starting with `#`.
   - `R,G,B`: Three comma separated numbers in range 0-255.
   - Valid name of a color.
+  - `all`.
 - `CONTRAST`
   - A float in range 1-21.
 - `RESOLUTION`
@@ -81,6 +85,15 @@ Direct generation: `python ColorWallpaper.py --option[s]`
 
 #### Setup environment
 ```Shell
+python -m pip install -r requirements.txt
+python -m pip install -r requirements-dev.txt
+pre-commit install
+```
+
+##### With virtual environment
+```sh
+python3 -m venv venv
+source venv/bin/activate
 python -m pip install -r requirements.txt
 python -m pip install -r requirements-dev.txt
 pre-commit install

@@ -31,6 +31,7 @@ class Wallpaper:
 
     # File options
     output: Union[str, Path]
+    outputDir: Union[str, Path]
     yes: bool
 
     # Color options
@@ -53,20 +54,27 @@ class Wallpaper:
             setattr(self, arg, kwargs.get(arg, getattr(options, arg)))
 
         self.output = Path(self.output).absolute()
+        self.outputDir = Path(self.outputDir).absolute()
 
         random = False
+        is_all_colors = False
 
         if type(self.color) is str:
             random = normalized(self.color) == "random"
+            is_all_colors = normalized(self.color) == "all"
 
             if random:
                 self.color = Color.random()
+            # We don't want to modify this value
+            elif is_all_colors:
+                self.color = self.color
             else:
                 self.color = Color.from_str(self.color)
 
         inverted = type(self.color2) is str and normalized(self.color2) == "inverted"
 
-        while True:
+        # We want to bypass this loop if we want to generate wallpapers for all colors
+        while True and not is_all_colors:
             if self.overlay_color is not None:
                 if not random and self.color / self.overlay_color < self.overlay_contrast:
                     raise RuntimeError(
@@ -262,3 +270,24 @@ class Wallpaper:
             print(f'Image "{self.output}" successfully generated')
 
         return img
+
+    # It's easier to do like this than rewrite tested functions
+    def generate_images(self, save: bool = True) -> List[Image.Image]:
+        """Determines whether multiple images need to be generated
+        or not and generates them from :param self:
+
+        :param save: Whether to save the image to `self.output`
+        :return: The generated images
+        """
+
+        is_all_colors = normalized(self.color) == "all"
+
+        if not is_all_colors:
+            self.generate_image()
+        else:
+            colors = Color.all_colors()
+            for color in colors:
+                self.color = color
+                self.color2 = color.inverted(self.min_contrast)
+                self.output = Path(self.outputDir, color.name + ".png")
+                self.generate_image()

@@ -1,3 +1,3 @@
 from . import Wallpaper
 
-Wallpaper().generate_image()
+Wallpaper().generate_images()

@@ -2,7 +2,7 @@
 
 import re
 
-from typing import Tuple
+from typing import Tuple, List
 from random import choice
 from colorsys import rgb_to_hsv, rgb_to_hls, hls_to_rgb
 
@@ -184,3 +184,11 @@ class Color:
             rgb = parse_hex(color_to_hex[name])
 
         return Color(rgb)
+
+    @staticmethod
+    def all_colors() -> List["Color"]:
+        """Return a list of Color objects for each color name in data"""
+        colors_list = []
+        for rgb, name in hex_to_color.items():
+            colors_list.append(Color(parse_hex(rgb), name))
+        return colors_list
