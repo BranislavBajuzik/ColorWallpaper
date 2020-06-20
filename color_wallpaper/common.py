@@ -39,4 +39,4 @@ def normalized(s: str) -> str:
     :param s: String to normalize
     :return: Lowered string without whitespace
     """
-    return "".join(s.split()).lower()
+    return "".join(s.split()).casefold()
