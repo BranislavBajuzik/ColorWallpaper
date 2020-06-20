@@ -87,4 +87,6 @@ pre-commit install
 ```
 
 #### Run tests
-`python -m unittest discover`
+```Shell
+python -m unittest discover
+```
