@@ -1522,7 +1522,7 @@ def load_font() -> Dict[str, Tuple[Tuple[bool, ...]]]:
     letters = {}
     img = Image.open(Path(__file__).absolute().parent / "font.png")  # ToDo make this CLI accessible
 
-    if img.width != len(font_chars) * 8 and img.height != 8:
+    if img.width != len(font_chars) * 8 or img.height != 8:
         raise AssertionError(f"Expected the font image to have size of ({len(font_chars) * 8}, 8), but got {img.size}")
 
     for char_index, char in enumerate(font_chars):

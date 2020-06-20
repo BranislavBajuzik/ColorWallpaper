@@ -1,7 +1,9 @@
+import PIL
+
 from io import StringIO
 from unittest.mock import patch
 
-from color_wallpaper.data import *
+from color_wallpaper.data import font, hex_to_color, color_hexes, load_font, font_chars
 from tests.TestBase import TestBase
 
 
@@ -91,3 +93,10 @@ class Font(TestBase):
         with patch("sys.stderr", new=StringIO()):
             self.assertRaises(AssertionError, font, "")
             self.assertRaises(AssertionError, font, "12")
+
+    @patch("sys.stderr", new=StringIO())
+    def test_invalid_font_file(self):
+        for size in ((8, 8), (len(font_chars), 7)):
+            with patch("PIL.Image.open", new=lambda *_, **__: PIL.Image.new("RGBA", size)):
+                self.assertRaises(AssertionError, load_font)
+                self.assertRaises(AssertionError, load_font)
