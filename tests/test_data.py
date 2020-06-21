@@ -1,5 +1,4 @@
 import pytest
-from PIL import Image
 
 from color_wallpaper.data import font, hex_to_color, color_hexes, load_font, font_chars
 
@@ -79,6 +78,8 @@ def test_font_invalid(string):
 
 @pytest.mark.parametrize("size", ((8, 8), (len(font_chars), 7), (8, len(font_chars))))
 def test_font_invalid_file(monkeypatch, size):
+    from PIL import Image
+
     monkeypatch.setattr(Image, "open", lambda *_, **__: Image.new("RGBA", size))
 
     with pytest.raises(AssertionError):
