@@ -1,5 +1,6 @@
 Black
 pre-commit
+pytest
 setuptools
 twine
 wheel

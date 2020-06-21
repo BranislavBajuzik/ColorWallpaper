@@ -1,3 +1,5 @@
+import pytest
+
 from io import StringIO
 from pathlib import Path
 from unittest.mock import patch
@@ -6,99 +8,88 @@ from color_wallpaper.CLI import *
 from tests.TestBase import *
 
 
-class Help(TestBase):
-    def test(self):
-        args = (["-h"], ["--help"])
+class TestHelp:
+    @pytest.mark.parametrize("cli", (["-h"], ["--help"]))
+    def test(self, monkeypatch, cli):
+        monkeypatch.setattr("sys.stdout", StringIO())
 
-        with patch("sys.stdout", new=StringIO()):
-            for cli in args:
-                self.assertRaises(SystemExit, get_options, cli)
+        with pytest.raises(SystemExit):
+            get_options(cli)
 
 
 # General Options
-class Output(TestBase):
+class TestOutput:
     def test_default(self):
-        options = get_options([])
+        assert Path("out.png") == get_options([]).output
 
-        self.assertEqual(Path("out.png"), options.output)
+    @pytest.mark.parametrize(
+        "cli,result",
+        (
+            (["-o", "picture"], Path("picture")),
+            (["-o", "picture.png"], Path("picture.png")),
+            (["--output", "picture"], Path("picture")),
+            (["--output", "picture.png"], Path("picture.png")),
+        ),
+    )
+    def test_valid(self, cli, result):
+        assert result == get_options(cli).output
 
-    def test_ok(self):
-        args = (
-            (Path("picture"), ["-o", "picture"]),
-            (Path("picture.png"), ["-o", "picture.png"]),
-            (Path("picture"), ["--output", "picture"]),
-            (Path("picture.png"), ["--output", "picture.png"]),
-        )
 
-        for result, cli in args:
-            self.assertEqual(result, get_options(cli).output)
-
-
-class Yes(TestBase):
+class TestYes:
     def test_default(self):
-        options = get_options([])
+        assert not get_options([]).yes
 
-        self.assertEqual(False, options.yes)
-
-    def test_ok(self):
-        args = ((True, ["-y"]), (True, ["--yes"]))
-
-        for result, cli in args:
-            self.assertEqual(result, get_options(cli).yes)
+    @pytest.mark.parametrize("cli", (["-y"], ["--yes"]))
+    def test_valid(self, cli):
+        assert get_options(cli).yes
 
 
 # Color Options
-class Color(TestBase):
+class TestColor:
     def test_default(self):
-        options = get_options([])
+        assert "random", get_options([]).color
 
-        self.assertEqual(options.color, "random")
-
-    def test_ok(self):
-        args = (
+    @pytest.mark.parametrize(
+        "cli",
+        (
             ["-c", "  Black"],
             ["--color", "255  ,   216,0"],
             ["-c", " F00"],
             ["--color", "#F00 "],
             ["-c", "  FF0000"],
             ["--color", "#FF0000  "],
-        )
+        ),
+    )
+    def test_valid(self, cli):
+        assert cli[-1] == get_options(cli).color
 
-        for cli in args:
-            self.assertEqual(get_options(cli).color, cli[-1])
 
-
-class Color2(TestBase):
+class TestColor2:
     def test_default(self):
-        options = get_options([])
+        assert "inverted" == get_options([]).color2
 
-        self.assertEqual(options.color2, "inverted")
-
-    def test_ok(self):
-        args = (
+    @pytest.mark.parametrize(
+        "cli",
+        (
             ["-c2", "  Black"],
             ["--color2", "255  ,   216,0"],
             ["-c2", " F00"],
             ["--color2", "#F00 "],
             ["-c2", "  FF0000"],
             ["--color2", "#FF0000  "],
-        )
+        ),
+    )
+    def test_valid(self, cli):
+        assert cli[-1] == get_options(cli).color2
 
-        for cli in args:
-            self.assertEqual(get_options(cli).color2, cli[-1])
 
-
-class Display(TestBase):
+class TestDisplay:
     def test_default(self):
-        options = get_options([])
+        assert get_options([]).display is None
 
-        self.assertEqual(None, options.display)
-
-    def test(self):
-        args = (("", ["-d", ""]), ("Custom", ["-d", "Custom"]), ("Custom", ["--display", "Custom"]))
-
-        for result, cli in args:
-            self.assertEqual(result, get_options(cli).display)
+    @pytest.mark.parametrize("cli", (["-d", ""], ["-d", "Custom"], ["--display", "Custom"]))
+    def test(self, cli):
+        assert cli[-1] == get_options(cli).display
 
 
 class MinContrast(TestBase):
@@ -107,7 +98,7 @@ class MinContrast(TestBase):
 
         self.assertEqual(1, options.min_contrast)
 
-    def test_ok(self):
+    def test_valid(self):
         args = (
             (1, ["-c", "black", "--min-contrast", "1"]),
             (21, ["-c", "black", "--min-contrast", "21"]),
@@ -117,7 +108,7 @@ class MinContrast(TestBase):
         for result, cli in args:
             self.assertEqual(result, get_options(cli).min_contrast)
 
-    def test_nok(self):
+    def test_invalid(self):
         args = (["--min-contrast", "0.9"], ["--min-contrast", "21.1"], ["--min-contrast", "a"], ["--min-contrast", ""])
 
         with patch("sys.stderr", new=StringIO()):
@@ -131,7 +122,7 @@ class OverlayColor(TestBase):
 
         self.assertEqual(None, options.overlay_color)
 
-    def test_ok(self):
+    def test_valid(self):
         args = (
             (["--overlay-color", "  Black"], (0x00, 0x00, 0x00), "Black"),
             (["--overlay-color", "255  ,   216,0"], (0xFF, 0xD8, 0x00), "School Bus Yellow"),
@@ -144,7 +135,7 @@ class OverlayColor(TestBase):
         for cli, rgb, name in args:
             self.assertColorEqual(get_options(cli).overlay_color, rgb, name)
 
-    def test_nok(self):
+    def test_invalid(self):
         args = (
             ["--overlay-color", "Custom"],
             ["--overlay-color", ""],
@@ -163,7 +154,7 @@ class OverlayContrast(TestBase):
 
         self.assertEqual(1, options.overlay_contrast)
 
-    def test_ok(self):
+    def test_valid(self):
         args = (
             (1, ["--overlay-contrast", "1"]),
             (21, ["--overlay-contrast", "21"]),
@@ -173,7 +164,7 @@ class OverlayContrast(TestBase):
         for result, cli in args:
             self.assertEqual(result, get_options(cli).overlay_contrast)
 
-    def test_nok(self):
+    def test_invalid(self):
         args = (
             ["--overlay-contrast", "0.9"],
             ["--overlay-contrast", "21.1"],
@@ -193,7 +184,7 @@ class Resolution(TestBase):
 
         self.assertEqual((1920, 1080), options.resolution)
 
-    def test_ok(self):
+    def test_valid(self):
         args = (
             ((690, 420), ["-r", "690x420"]),
             ((690, 420), ["-r", "690:420"]),
@@ -205,7 +196,7 @@ class Resolution(TestBase):
         for result, cli in args:
             self.assertEqual(result, get_options(cli).resolution)
 
-    def test_nok(self):
+    def test_invalid(self):
         args = (
             ["-r", "149:420"],
             ["-r", "690:149"],
@@ -231,7 +222,7 @@ class Scale(TestBase):
 
         self.assertEqual(3, options.scale)
 
-    def test_ok(self):
+    def test_valid(self):
         args = (
             (1, ["-s", "1"]),
             (420, ["-s", "420"]),
@@ -245,7 +236,7 @@ class Scale(TestBase):
         for result, cli in args:
             self.assertEqual(result, get_options(cli).scale)
 
-    def test_nok(self):
+    def test_invalid(self):
         args = (["-s", "a"], ["-s", "nan"], ["-s", ""])
 
         with patch("sys.stderr", new=StringIO()):
@@ -259,7 +250,7 @@ class Formats(TestBase):
 
         self.assertEqual(["empty", "HEX", "rgb"], options.formats)
 
-    def test_ok(self):
+    def test_valid(self):
         args = (
             ([], ["-f"]),
             (["empty"], ["-f", "empty"]),
@@ -286,7 +277,7 @@ class Formats(TestBase):
         for result, cli in args:
             self.assertEqual(sorted(result), sorted(get_options(cli).formats))
 
-    def test_nok(self):
+    def test_invalid(self):
         args = (["-f", "r g b"], ["-f", "heX"], ["-f", "#Hex"], ["-f", "a"], ["-f", ""])
 
         with patch("sys.stderr", new=StringIO()):
