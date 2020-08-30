@@ -1,139 +1,146 @@
-from io import StringIO
-from unittest.mock import patch
+import pytest
 
 from color_wallpaper.ColorWallpaper import *
 from color_wallpaper.Color import Color
-from tests.TestBase import *
 
 
-class InitColor(TestBase):
-    def test_default(self):
-        with override_cli():
-            self.assertIsColorInstance(Wallpaper().color)
-            self.assertNotEqual(Wallpaper().color, Wallpaper().color)
+class TestInitColor:
+    def test_default(self, set_cli):
+        set_cli()
 
-    def test_ok(self):
-        args = (
+        assert isinstance(Wallpaper().color, Color)
+        assert Wallpaper().color != Wallpaper().color
+
+    @pytest.mark.parametrize(
+        "cli, rgb, name",
+        (
             (["-c", "  Black"], (0x00, 0x00, 0x00), "Black"),
             (["--color", "255  ,   216,0"], (0xFF, 0xD8, 0x00), "School Bus Yellow"),
             (["-c", " F00"], (0xFF, 0x00, 0x00), "Red"),
             (["--color", "#F00 "], (0xFF, 0x00, 0x00), "Red"),
             (["-c", "  FF0000"], (0xFF, 0x00, 0x00), "Red"),
             (["--color", "#FF0000  "], (0xFF, 0x00, 0x00), "Red"),
-        )
+        ),
+    )
+    def test_ok(self, set_cli, color_equal, cli, rgb, name):
+        set_cli(cli)
 
-        for cli, rgb, name in args:
-            with override_cli(cli):
-                self.assertColorEqual(Wallpaper().color, rgb, name)
+        assert color_equal(Wallpaper().color, rgb, name)
 
-    @override_color_random([(0x7F, 0x7F, 0x7F), (0x00, 0x00, 0x00)])
-    def test_ok_random(self):
-        args = (["-c", "RandOm"], ["--color", "RandOm"])
-        colors = (((0x7F, 0x7F, 0x7F),), ((0x00, 0x00, 0x00), "Black"))
+    @pytest.mark.parametrize(
+        "cli, color",
+        ((["-c", "RandOm"], ((0x7F, 0x7F, 0x7F),)), (["--color", "RandOm"], ((0x00, 0x00, 0x00), "Black"))),
+    )
+    def test_ok_random(self, set_color_random, set_cli, color_equal, cli, color):
+        set_color_random(color[0])
+        set_cli(cli)
 
-        for cli, color in zip(args, colors):
-            with override_cli(cli):
-                pape = Wallpaper()
+        pape = Wallpaper()
 
-                self.assertIsColorInstance(pape.color)
-                self.assertColorEqual(pape.color, *color)
+        assert isinstance(pape.color, Color)
+        assert color_equal(pape.color, *color)
 
-    def test_nok(self):
-        args = (
-            ["-c", "Custom"],
-            ["--color", "Custom"],
-            ["-c", ""],
-            ["--color", ""],
-            ["-c", "1234"],
-            ["--color", "#12"],
-        )
+    @pytest.mark.parametrize(
+        "cli",
+        (["-c", "Custom"], ["--color", "Custom"], ["-c", ""], ["--color", ""], ["-c", "1234"], ["--color", "#12"]),
+    )
+    def test_nok(self, set_cli, cli):
+        set_cli(cli)
 
-        with patch("sys.stderr", new=StringIO()):
-            for cli in args:
-                with override_cli(cli):
-                    self.assertRaises(ValueError, Wallpaper)
+        with pytest.raises(ValueError):
+            Wallpaper()
 
 
-class InitColor2(TestBase):
-    def test_default(self):
-        with override_cli():
-            pape = Wallpaper()
+class TestInitColor2:
+    def test_default(self, set_cli, color_equal):
+        set_cli()
+        pape = Wallpaper()
 
-            self.assertEqual(pape.color2, pape.color.inverted(pape.min_contrast))
+        assert pape.color2 == pape.color.inverted(pape.min_contrast)
 
-        with override_cli(["--color", "black"]):
-            self.assertColorEqual(Wallpaper().color2, (0xFF, 0xFF, 0xFF), "White")
+        set_cli(["--color", "black"])
+        assert color_equal(Wallpaper().color2, (0xFF, 0xFF, 0xFF), "White")
 
-    def test_ok(self):
-        args = (
+    @pytest.mark.parametrize(
+        "cli, rgb, name",
+        (
             (["-c2", "  Black"], (0x00, 0x00, 0x00), "Black"),
             (["--color2", "255  ,   216,0"], (0xFF, 0xD8, 0x00), "School Bus Yellow"),
             (["-c2", " F00"], (0xFF, 0x00, 0x00), "Red"),
             (["--color2", "#F00 "], (0xFF, 0x00, 0x00), "Red"),
             (["-c2", "  FF0000"], (0xFF, 0x00, 0x00), "Red"),
             (["--color2", "#FF0000  "], (0xFF, 0x00, 0x00), "Red"),
-        )
+        ),
+    )
+    def test_ok(self, set_cli, color_equal, cli, rgb, name):
+        set_cli(cli)
 
-        for cli, rgb, name in args:
-            with override_cli(cli):
-                self.assertColorEqual(Wallpaper().color2, rgb, name)
+        assert color_equal(Wallpaper().color2, rgb, name)
 
-    def test_nok(self):
-        args = (
+    @pytest.mark.parametrize(
+        "cli",
+        (
             ["-c2", "Custom"],
             ["--color2", "Custom"],
             ["-c2", ""],
             ["--color2", ""],
             ["-c2", "1234"],
             ["--color2", "#12"],
-        )
+        ),
+    )
+    def test_nok(self, set_cli, cli):
+        set_cli(cli)
 
-        with patch("sys.stderr", new=StringIO()):
-            for cli in args:
-                with override_cli(cli):
-                    self.assertRaises(ValueError, Wallpaper)
+        with pytest.raises(ValueError):
+            Wallpaper()
 
-    def test_ok_inverted(self):
-        args = (
+    @pytest.mark.parametrize(
+        "cli, rgb, name",
+        (
             (["-c", "white", "-c2", "inverted"], (0x00, 0x00, 0x00), "Black"),
             (["-c", "black", "-c2", "inverted"], (0xFF, 0xFF, 0xFF), "White"),
             (["-c", "red", "-c2", "inverted"], (0x00, 0xFF, 0xFF), "Cyan"),
             (["-c", "cyan", "-c2", "inverted"], (0xFF, 0x00, 0x00), "Red"),
-        )
+        ),
+    )
+    def test_ok_inverted(self, set_cli, color_equal, cli, rgb, name):
+        set_cli(cli)
 
-        for cli, rgb, name in args:
-            with override_cli(cli):
-                self.assertColorEqual(Wallpaper().color2, rgb, name)
+        assert color_equal(Wallpaper().color2, rgb, name)
 
-    def test_impossible_inverted(self):
-        with patch("sys.stderr", new=StringIO()), override_cli(
-            ["-c", "7F7F7F", "-c2", "inverted", "--min-contrast", "21"]
-        ):
-            self.assertRaises(RuntimeError, Wallpaper)
+    def test_impossible_inverted(self, set_cli):
+        set_cli(["-c", "7F7F7F", "-c2", "inverted", "--min-contrast", "21"])
 
-    @override_color_random([(0x7F, 0x7F, 0x7F), (0x00, 0x00, 0x00)])
-    def test_random_inverted(self):
-        with override_cli(["-c2", "inverted", "--min-contrast", "21"]):
-            self.assertColorEqual(Wallpaper().color2, (0xFF, 0xFF, 0xFF), "White")
+        with pytest.raises(RuntimeError):
+            Wallpaper()
+
+    def test_random_inverted(self, set_color_random, set_cli, color_equal):
+        set_color_random((0x7F, 0x7F, 0x7F), (0x00, 0x00, 0x00))
+        set_cli(["-c2", "inverted", "--min-contrast", "21"])
+
+        assert color_equal(Wallpaper().color2, (0xFF, 0xFF, 0xFF), "White")
 
 
-class InitOverlayColor(TestBase):
-    def test_nok_contrast(self):
-        args = (
+class TestInitOverlayColor:
+    @pytest.mark.parametrize(
+        "cli",
+        (
             ["-c", "7F7F7F", "--overlay-color", "7F7F7F", "--overlay-contrast", "6"],
             ["-c", "000001", "--overlay-color", "white", "--overlay-contrast", "21"],
-        )
+        ),
+    )
+    def test_nok_contrast(self, set_cli, cli):
+        set_cli(cli)
 
-        with patch("sys.stderr", new=StringIO()):
-            for cli in args:
-                with override_cli(cli):
-                    self.assertRaises(RuntimeError, Wallpaper)
+        with pytest.raises(RuntimeError):
+            Wallpaper()
 
-    @override_color_random([(0x7F, 0x7F, 0x7F), (0x00, 0x00, 0x00)])
-    def test_random_regenerate(self):
-        with override_cli(["--overlay-color", "7F7F7F", "--overlay-contrast", "3"]):
-            pape = Wallpaper()
+    def test_random_regenerate(self, set_color_random, set_cli, color_equal):
+        set_color_random((0x7F, 0x7F, 0x7F), (0x00, 0x00, 0x00))
+        set_cli(["--overlay-color", "7F7F7F", "--overlay-contrast", "3"])
 
-            self.assertColorEqual(pape.color, (0x00, 0x00, 0x00), "Black")
-            self.assertColorEqual(pape.color2, (0xFF, 0xFF, 0xFF), "White")
-            self.assertColorEqual(pape.overlay_color, (0x7F, 0x7F, 0x7F))
+        pape = Wallpaper()
+
+        assert color_equal(pape.color, (0x00, 0x00, 0x00), "Black")
+        assert color_equal(pape.color2, (0xFF, 0xFF, 0xFF), "White")
+        assert color_equal(pape.overlay_color, (0x7F, 0x7F, 0x7F))

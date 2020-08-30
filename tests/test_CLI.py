@@ -18,7 +18,7 @@ class TestOutput:
         assert Path("out.png") == get_options([]).output
 
     @pytest.mark.parametrize(
-        "cli,result",
+        "cli, result",
         (
             (["-o", "picture"], Path("picture")),
             (["-o", "picture.png"], Path("picture.png")),
@@ -92,7 +92,7 @@ class TestMinContrast:
         assert 1 == get_options([]).min_contrast
 
     @pytest.mark.parametrize(
-        "cli,result",
+        "cli, result",
         (
             (["-c", "black", "--min-contrast", "1"], 1),
             (["-c", "black", "--min-contrast", "21"], 21),
@@ -122,7 +122,7 @@ class TestOverlayColor:
         assert get_options([]).overlay_color is None
 
     @pytest.mark.parametrize(
-        "cli,rgb,name",
+        "cli, rgb, name",
         (
             (["--overlay-color", "  Black"], (0x00, 0x00, 0x00), "Black"),
             (["--overlay-color", "255  ,   216,0"], (0xFF, 0xD8, 0x00), "School Bus Yellow"),
@@ -132,8 +132,8 @@ class TestOverlayColor:
             (["--overlay-color", "#FF0000  "], (0xFF, 0x00, 0x00), "Red"),
         ),
     )
-    def test_valid(self, assert_color_equal, cli, rgb, name):
-        assert_color_equal(get_options(cli).overlay_color, rgb, name)
+    def test_valid(self, color_equal, cli, rgb, name):
+        assert color_equal(get_options(cli).overlay_color, rgb, name)
 
     @pytest.mark.parametrize(
         "cli",
@@ -154,7 +154,7 @@ class TestOverlayContrast:
         assert 1 == get_options([]).overlay_contrast
 
     @pytest.mark.parametrize(
-        "cli,result",
+        "cli, result",
         (
             (["--overlay-contrast", "1"], 1),
             (["--overlay-contrast", "1."], 1),
@@ -186,7 +186,7 @@ class TestResolution:
         assert (1920, 1080) == get_options([]).resolution
 
     @pytest.mark.parametrize(
-        "cli,result",
+        "cli, result",
         (
             (["-r", "690x420"], (690, 420)),
             (["-r", "690:420"], (690, 420)),
@@ -224,7 +224,7 @@ class TestScale:
         assert 3 == get_options([]).scale
 
     @pytest.mark.parametrize(
-        "cli,result",
+        "cli, result",
         (
             (["-s", "1"], 1),
             (["-s", "420"], 420),
@@ -251,7 +251,7 @@ class TestFormats:
         assert ["empty", "HEX", "rgb"] == get_options([]).formats
 
     @pytest.mark.parametrize(
-        "cli,result",
+        "cli, result",
         (
             (["-f"], []),
             (["-f", "empty"], ["empty"]),

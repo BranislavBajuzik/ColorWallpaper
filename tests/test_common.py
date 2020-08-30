@@ -4,7 +4,7 @@ from color_wallpaper.common import *
 
 
 @pytest.mark.parametrize(
-    "expected,source",
+    "expected, source",
     (
         ((0x00, 0x00, 0x00), "000000"),
         ((0xFF, 0x00, 0x00), "Ff0000"),
@@ -35,7 +35,7 @@ def test_parse_hex_invalid(source):
 
 
 @pytest.mark.parametrize(
-    "expected,source",
+    "expected, source",
     (
         ((1, 2), {1: None, 2: None}),
         ((1, 2, 3), [1, 2, 3]),
@@ -49,7 +49,7 @@ def test_int_tuple(expected, source):
 
 
 @pytest.mark.parametrize(
-    "expected,source",
+    "expected, source",
     (
         ("normalized", "NoRmAliZeD"),
         ("normalized", " n o r m a l i z e d "),
