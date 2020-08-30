@@ -2,20 +2,19 @@
 
 import re
 import sys
-
 from pathlib import Path
-from typing import Tuple, Union, List
+from typing import Any, List, Optional, Tuple
+
+from .cli import get_options
+from .color import Color
+from .common import normalized
+from .data import font
 
 try:
     from PIL import Image, ImageDraw
 except ImportError:
     print(f'Unable to import PIL. Install it by running "{sys.executable} -m pip install Pillow".')
     exit(-1)
-
-from .common import *
-from .data import *
-from .Color import *
-from .CLI import *
 
 
 __all__ = ["Wallpaper"]
@@ -30,13 +29,13 @@ class Wallpaper:
     USABLE_SIZE = 112
 
     # File options
-    output: Union[str, Path]
+    output: Path
     yes: bool
 
     # Color options
     color: Color
     color2: Color
-    display: str
+    display: Optional[str]
     min_contrast: float
     overlay_color: Color
     overlay_contrast: float
@@ -46,7 +45,7 @@ class Wallpaper:
     scale: int
     formats: List[str]
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any):
         options = get_options()
 
         for arg in self.__class__.__annotations__:
@@ -56,15 +55,15 @@ class Wallpaper:
 
         random = False
 
-        if type(self.color) is str:
-            random = normalized(self.color) == "random"
+        if type(self.color) is str:  # type: ignore
+            random = normalized(self.color) == "random"  # type: ignore
 
             if random:
                 self.color = Color.random()
             else:
-                self.color = Color.from_str(self.color)
+                self.color = Color.from_str(self.color)  # type: ignore
 
-        inverted = type(self.color2) is str and normalized(self.color2) == "inverted"
+        inverted = type(self.color2) is str and normalized(self.color2) == "inverted"  # type: ignore
 
         while True:
             if self.overlay_color is not None:
@@ -88,7 +87,7 @@ class Wallpaper:
                 else:
                     break
             else:
-                self.color2 = Color.from_str(self.color2)
+                self.color2 = Color.from_str(self.color2)  # type: ignore
                 break
 
     @classmethod
@@ -120,7 +119,7 @@ class Wallpaper:
         """
         first_glyph_whitespace = len(font(" ")[0]) + 1
 
-        texts = [[]]
+        texts: List[List[str]] = [[]]
         max_text_length = 0
         text_length = -first_glyph_whitespace
         words = newline_re.sub(r" \n ", text).split(" ")

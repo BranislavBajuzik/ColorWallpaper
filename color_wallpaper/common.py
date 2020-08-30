@@ -1,7 +1,6 @@
 """Common functions"""
 
-from typing import Tuple, Any
-
+from typing import Any, Tuple
 
 __all__ = ["parse_hex", "int_tuple", "normalized"]
 
@@ -14,9 +13,9 @@ def parse_hex(arg: str) -> Tuple[int, int, int]:
     """
     length = len(arg)
     if length == 3:
-        return tuple(int(arg[i : i + 1] * 2, 16) for i in range(3))
+        return tuple(int(arg[i : i + 1] * 2, 16) for i in range(3))  # type: ignore
     if length == 6:
-        return tuple(int(arg[2 * i : 2 * (i + 1)], 16) for i in range(3))
+        return tuple(int(arg[2 * i : 2 * (i + 1)], 16) for i in range(3))  # type: ignore
 
     raise ValueError(f"Length of input has to be either 3 or 6 not {length}")
 

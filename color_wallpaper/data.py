@@ -1,10 +1,22 @@
 """Data backend. Declarations, file loading"""
 
-from PIL import Image
-from typing import Dict, Tuple
 from pathlib import Path
+from typing import Dict, List, Tuple
 
-from .common import *
+from PIL import Image
+
+from .common import normalized
+
+Letter = Tuple[
+    Tuple[bool, ...],
+    Tuple[bool, ...],
+    Tuple[bool, ...],
+    Tuple[bool, ...],
+    Tuple[bool, ...],
+    Tuple[bool, ...],
+    Tuple[bool, ...],
+    Tuple[bool, ...],
+]
 
 __all__ = ["hex_to_color", "color_hexes", "color_to_hex", "font"]
 
@@ -1514,19 +1526,19 @@ color_hexes = tuple(hex_to_color)
 color_to_hex = {normalized(v): k for k, v in hex_to_color.items()}
 
 
-def load_font() -> Dict[str, Tuple[Tuple[bool, ...]]]:
+def load_font() -> Dict[str, Letter]:
     """Loads a font into memory
 
     :return: Loaded fontmap
     """
-    letters = {}
+    letters: Dict[str, Letter] = {}
     img = Image.open(Path(__file__).absolute().parent / "font.png")  # ToDo make this CLI accessible
 
     if img.width != len(font_chars) * 8 or img.height != 8:
         raise AssertionError(f"Expected the font image to have size of ({len(font_chars) * 8}, 8), but got {img.size}")
 
     for char_index, char in enumerate(font_chars):
-        letter = [[] for _ in range(8)]
+        letter: List[List[bool]] = [[] for _ in range(8)]
 
         first, last = 8, -1
 
@@ -1540,15 +1552,12 @@ def load_font() -> Dict[str, Tuple[Tuple[bool, ...]]]:
                     first = min(first, col)
                     last = max(last, col)
 
-        for row_index, row in enumerate(letter):
-            letter[row_index] = (*row[max(first, 0) : min(last + 1, 8)], False)
-
-        letters[char] = tuple(letter)
+        letters[char] = tuple((*row[max(first, 0) : min(last + 1, 8)], False) for row in letter)  # type: ignore
 
     return letters
 
 
-def font(char) -> Tuple[Tuple[bool]]:
+def font(char: str) -> Letter:
     """Helper function to enforce default char
 
     :param char: Character to load
@@ -1560,6 +1569,6 @@ def font(char) -> Tuple[Tuple[bool]]:
 
 
 font_chars = r"!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~"
-chars = load_font()
-chars[" "] = ((False,) * 4,) * 8
-default_char = ((*(True,) * 7, False),) * 8
+chars: Dict[str, Letter] = load_font()
+chars[" "] = ((False,) * 4,) * 8  # type: ignore
+default_char: Letter = ((*(True,) * 7, False),) * 8  # type: ignore

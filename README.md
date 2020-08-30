@@ -70,7 +70,7 @@ Direct generation: `python ColorWallpaper.py --option[s]`
 - `RESOLUTION`
   - Two positive integers greater or equal to 150, separated by `x` or `:`.
 - `FORMAT`
-  - Self explanatory: `hex`, `rgb`, `hsv`, `hsl`, `cmyk` 
+  - Self explanatory: `hex`, `rgb`, `hsv`, `hsl`, `cmyk`
   - `empty`: Empty row.
   - `#hex`: `hex`, but starting with `#`
   - `#HEX`, `HEX`: Like `hex`, but uppercase
@@ -121,7 +121,7 @@ In Tasker:
 Edit `~/.termux/tasker/generate-wallpaper.sh` to change arguments (e.g. your screen resolution) of the program.
 
 Run `cd ~/ColorWallpaper && git pull` to update the program.
-  
+
 ## Contribute
 
 #### Setup environment

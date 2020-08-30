@@ -1,8 +1,9 @@
+from argparse import ArgumentParser
+from typing import Sequence, Tuple
+
 import pytest
 
-from argparse import ArgumentParser
-from color_wallpaper.Color import Color
-from typing import Tuple, Sequence
+from color_wallpaper.color import Color
 
 
 @pytest.fixture

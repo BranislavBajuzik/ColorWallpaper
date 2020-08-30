@@ -1,6 +1,6 @@
 import pytest
 
-from color_wallpaper.Color import *
+from color_wallpaper.color import *
 
 
 class TestCreate:

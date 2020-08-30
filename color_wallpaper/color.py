@@ -1,13 +1,12 @@
 """Handles color calculation"""
 
 import re
-
-from typing import Tuple
+from colorsys import hls_to_rgb, rgb_to_hls, rgb_to_hsv
 from random import choice
-from colorsys import rgb_to_hsv, rgb_to_hls, hls_to_rgb
+from typing import Tuple
 
-from .data import *
-from .common import *
+from .common import int_tuple, normalized, parse_hex
+from .data import color_hexes, color_to_hex, hex_to_color
 
 __all__ = ["Color"]
 
@@ -47,9 +46,9 @@ class Color:
     @staticmethod
     def __normalize(components: Tuple[float, float, float]) -> Tuple[float, float, float]:
         """Helper function for converting int RGB to float RGB"""
-        return tuple(component / 255 for component in components)
+        return tuple(component / 255 for component in components)  # type: ignore
 
-    @property
+    @property  # noqa: A003
     def hex(self) -> str:
         """Returns lowercase HEX representation of :param self:"""
         return "".join(f"{c:02x}" for c in self.rgb)
@@ -85,7 +84,7 @@ class Color:
 
         c, m, y = ((component - k) / (1.0 - k) for component in (c, m, y))
 
-        return int_tuple(component * 100 for component in (c, m, y, k))
+        return int_tuple(component * 100 for component in (c, m, y, k))  # type: ignore
 
     @property
     def luminance(self) -> float:
@@ -120,9 +119,9 @@ class Color:
 
         :param min_contrast: Minimum contrast. Must be in range (1-21)
         """
-        ret = Color(tuple(255 - x for x in self.rgb))
+        ret = Color(tuple(255 - x for x in self.rgb))  # type: ignore
 
-        if min_contrast in (1, None):
+        if min_contrast is None or min_contrast == 1:
             return ret
 
         if not 1 <= min_contrast <= 21:
@@ -131,25 +130,25 @@ class Color:
         if self / ret >= min_contrast:
             return ret
 
-        h, s, l = ret.hsl
-        l_down, l_up = l - 1, l + 1
+        hue, saturation, lightness = ret.hsl
+        lightness_down, lightness_up = lightness - 1, lightness + 1
 
-        while l_down >= 0 and l_up <= 100:
-            if l_down >= 0:
-                ret = self.from_hsl(h, s, l_down)
-
-                if self / ret >= min_contrast:
-                    return ret
-
-                l_down -= 1
-
-            if l_up <= 100:
-                ret = self.from_hsl(h, s, l_up)
+        while lightness_down >= 0 and lightness_up <= 100:
+            if lightness_down >= 0:
+                ret = self.from_hsl(hue, saturation, lightness_down)
 
                 if self / ret >= min_contrast:
                     return ret
 
-                l_up += 1
+                lightness_down -= 1
+
+            if lightness_up <= 100:
+                ret = self.from_hsl(hue, saturation, lightness_up)
+
+                if self / ret >= min_contrast:
+                    return ret
+
+                lightness_up += 1
 
         raise RuntimeError(f"Unable to to find a color that has contrast of at least {min_contrast} with {self}")
 
@@ -159,15 +158,15 @@ class Color:
         return Color(parse_hex(choice(color_hexes)))
 
     @staticmethod
-    def from_hsl(h: int, s: int, l: int) -> "Color":
+    def from_hsl(hue: int, saturation: int, lightness: int) -> "Color":
         """Creates a Color object from hue, saturation and luminance
 
-        :param h: Hue
-        :param s: Saturation
-        :param l: Luminance
+        :param hue: Hue
+        :param saturation: Saturation
+        :param lightness: Lightness
         :return: New Color object
         """
-        components = (360, h, "h"), (100, l, "l"), (100, s, "s")
+        components = (360, hue, "h"), (100, lightness, "l"), (100, saturation, "s")
 
         for bound, component, name in components:
             if not 0 <= component <= bound:
@@ -175,7 +174,7 @@ class Color:
 
         rgb = hls_to_rgb(*(component / bound for bound, component, name in components))
 
-        return Color(int_tuple(component * 255 for component in rgb))
+        return Color(int_tuple(component * 255 for component in rgb))  # type: ignore
 
     @staticmethod
     def from_str(arg: str) -> "Color":
@@ -190,7 +189,7 @@ class Color:
         if hex_groups is not None:
             rgb = parse_hex(hex_groups.group(1))
         elif rgb_groups is not None:
-            rgb = int_tuple(rgb_groups.group(1), rgb_groups.group(2), rgb_groups.group(3))
+            rgb = int_tuple(rgb_groups.group(1), rgb_groups.group(2), rgb_groups.group(3))  # type: ignore
             if not all(0 <= c <= 255 for c in rgb):
                 raise ValueError("Invalid RGB values")
         else:
