@@ -52,7 +52,7 @@ def set_color_random(monkeypatch):
 
         :param colors: "Random" colors
         """
-        colors_it = reversed(colors)
+        colors_it = iter(colors)
         monkeypatch.setattr(Color, "random", lambda: Color(next(colors_it)))
 
     return override_random
