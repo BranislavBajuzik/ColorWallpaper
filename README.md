@@ -12,8 +12,6 @@ A Minimalist wallpaper generator
 
 Generates wallpapers such as:
 ![Example](example.png "Example")
-Generated with:\
-`python -m color_wallpaper --color black --output example.png --formats empty HEX rgb --resolution 960x540 --scale 2`
 
 ## Requirements
 - [Python 3.6+](https://www.python.org/downloads/ "Download Python")
@@ -76,6 +74,53 @@ Direct generation: `python ColorWallpaper.py --option[s]`
   - `empty`: Empty row.
   - `#hex`: `hex`, but starting with `#`
   - `#HEX`, `HEX`: Like `hex`, but uppercase
+
+## Examples
+
+#### The [above image](example.png)
+`python -m color_wallpaper --color black --output example.png --formats empty HEX rgb --resolution 960x540 --scale 2`
+
+#### Dynamic Android wallpaper
+Changes the wallpaper to a new color every time the screen is turned on. Tested on OnePlus 6T.
+
+Install [Tasker](https://play.google.com/store/apps/details?id=net.dinglisch.android.taskerm), [Termux](https://play.google.com/store/apps/details?id=com.termux), and [Termux:Tasker](https://play.google.com/store/apps/details?id=com.termux.tasker)
+
+In Termux run:
+```Shell
+# Give Termux access to internal storage
+termux-setup-storage
+
+# Get Python
+pkg upgrade
+pkg install python python-dev libjpeg-turbo git
+
+# Get Python libraries
+pip install --upgrade pip
+pip install --upgrade setuptools
+LIBRARY_PATH="/system/lib" CPATH="$PREFIX/include" pip install pillow
+
+# Pull the project
+git clone https://github.com/BranislavBajuzik/ColorWallpaper.git
+
+# Setup triggers for Termux:Tasker
+mkdir -p ~/.termux/tasker/
+echo $'cd ~/ColorWallpaper\npython -m color_wallpaper -y -o /sdcard/Pictures/Excluded/paper.png -c random --min-contrast 2.5 --overlay-color white --overlay-contrast 1.5 -r 1080x2340 -s 4 -f empty \#HEX rgb hsv cmyk' > ~/.termux/tasker/generate-wallpaper.sh
+chmod u+x ~/.termux/tasker/generate-wallpaper.sh
+
+# Setup the output folder
+mkdir -p /sdcard/Pictures/Excluded
+touch /sdcard/Pictures/Excluded/.nomedia
+```
+
+In Tasker:
+- Create a new Task
+  - Add Termux Action with Configuration set to `generate-wallpaper.sh`
+  - Add Set Wallpaper Action with Image set to `Pictures/Excluded/paper.png`
+- Create a new Event Profile for Display Off event, give it Highest priority, and set it's Task to the one you just created.
+
+Edit `~/.termux/tasker/generate-wallpaper.sh` to change arguments (e.g. your screen resolution) of the program.
+
+Run `cd ~/ColorWallpaper && git pull` to update the program.
   
 ## Contribute
 
