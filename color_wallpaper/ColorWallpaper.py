@@ -1,4 +1,4 @@
-"""Main file"""
+"""Main file."""
 
 import re
 import sys
@@ -24,7 +24,7 @@ newline_re = re.compile(r"(?:\n|\\n)")
 
 
 class Wallpaper:
-    """Main class"""
+    """Main class."""
 
     USABLE_SIZE = 112
 
@@ -46,6 +46,10 @@ class Wallpaper:
     formats: List[str]
 
     def __init__(self, **kwargs: Any):
+        """Wallpaper object constructor.
+
+        :param kwargs: Used to override the default values of the class arguments.
+        """
         options = get_options()
 
         for arg in self.__class__.__annotations__:
@@ -112,7 +116,7 @@ class Wallpaper:
 
     @classmethod
     def _arrange_text(cls, text: str) -> Tuple[List[str], int]:
-        """Wraps the text
+        """Wrap the text.
 
         :param text: Text to wrap
         :return: Tuple of Wrapped text and max pixel width
@@ -147,7 +151,7 @@ class Wallpaper:
         return [" ".join(text) for text in texts], max_text_length
 
     def _generate_text(self, text: str) -> Image.Image:
-        """Renders text into image
+        """Render text into image.
 
         :param text: text to render
         :return: Image with the rendered text
@@ -178,7 +182,7 @@ class Wallpaper:
         return img
 
     def _generate_decoration(self) -> Image.Image:
-        """Generates the highlight from :param self:
+        """Generate the highlight from :param self:.
 
         :return: Image of the highlight
         """
@@ -227,7 +231,7 @@ class Wallpaper:
         return img
 
     def generate_image(self, save: bool = True) -> Image.Image:
-        """Generates a wallpaper from :param self:
+        """Generate a wallpaper from :param self:.
 
         :param save: Whether to save the image to `self.output`
         :return: The generated image

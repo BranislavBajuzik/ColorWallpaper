@@ -1,4 +1,4 @@
-"""Handles color calculation"""
+"""Handles color calculations."""
 
 import re
 from colorsys import hls_to_rgb, rgb_to_hls, rgb_to_hsv
@@ -17,10 +17,10 @@ rgb_re = re.compile(r"\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\s*")
 
 
 class Color:
-    """Class for color handling"""
+    """Class for color handling."""
 
     def __init__(self, rgb: Tuple[int, int, int], name: str = None):
-        """Color constructor
+        """Color constructor.
 
         :param rgb: (R,G,B) of the color
         :param name: Overrides the color name lookup
@@ -35,46 +35,49 @@ class Color:
             self.name = name
 
     def __str__(self):
+        """Return str(self)."""
         return f"Color(rgb={self.rgb}, name='{self.name}')"
 
     def __repr__(self):
+        """Return repr(self)."""
         return str(self)
 
     def __eq__(self, other):
+        """Return self==other."""
         return self.rgb == other.rgb and self.name == other.name
 
     @staticmethod
     def __normalize(components: Tuple[float, float, float]) -> Tuple[float, float, float]:
-        """Helper function for converting int RGB to float RGB"""
+        """Convert int RGB to float RGB."""
         return tuple(component / 255 for component in components)  # type: ignore
 
     @property  # noqa: A003
     def hex(self) -> str:
-        """Returns lowercase HEX representation of :param self:"""
+        """Return lowercase HEX representation of :param self:."""
         return "".join(f"{c:02x}" for c in self.rgb)
 
     @property
     def HEX(self) -> str:
-        """Returns uppercase HEX representation of :param self:"""
+        """Return uppercase HEX representation of :param self:."""
         return "".join(f"{c:02X}" for c in self.rgb)
 
     @property
     def hsv(self) -> Tuple[int, int, int]:
-        """Returns HSV representation of :param self:"""
+        """Return HSV representation of :param self:."""
         h, s, v = rgb_to_hsv(*self.__normalize(self.rgb))
 
         return int(h * 360), int(s * 100), int(v * 100)
 
     @property
     def hsl(self) -> Tuple[int, int, int]:
-        """Returns HSL representation of :param self:"""
+        """Return HSL representation of :param self:."""
         h, l, s = rgb_to_hls(*self.__normalize(self.rgb))
 
         return int(h * 360), int(s * 100), int(l * 100)
 
     @property
     def cmyk(self) -> Tuple[int, int, int, int]:
-        """Returns CMYK representation of :param self:"""
+        """Return CMYK representation of :param self:."""
         c, m, y = (1 - component / 255 for component in self.rgb)
 
         k = min(c, m, y, 1)
@@ -88,7 +91,7 @@ class Color:
 
     @property
     def luminance(self) -> float:
-        """Returns relative luminance of :param:`self` as defined by WCAG 2.1 (as of July 2019)
+        """Return relative luminance of :ref:`self` as defined by WCAG 2.1 (as of August 2020).
 
         https://www.w3.org/TR/2008/REC-WCAG20-20081211/Overview.html#relativeluminancedef
 
@@ -99,7 +102,7 @@ class Color:
         return r * 0.2126 + g * 0.7152 + b * 0.0722
 
     def __truediv__(self, other: "Color") -> float:
-        """Returns contrast ratio of :param:`self` and :param:`other` as defined by WCAG 2.1 (as of July 2019)
+        """Return contrast ratio of :ref:`self` and :ref:`other` as defined by WCAG 2.1 (as of August 2020).
 
         https://www.w3.org/TR/2008/REC-WCAG20-20081211/Overview.html#contrast-ratiodef
 
@@ -111,13 +114,13 @@ class Color:
         return (lighter + 0.05) / (darker + 0.05)
 
     def __floordiv__(self, other: "Color") -> int:
-        """Floor version of :method:`__truediv__`"""
+        """Floor version of :method:`__truediv__`."""
         return int(self / other)
 
     def inverted(self, min_contrast: float = None) -> "Color":
-        """Returns a new Color that is in contrast with :param self:
+        """Return a new Color that is in contrast with :param self:.
 
-        :param min_contrast: Minimum contrast. Must be in range (1-21)
+        :param min_contrastt: Minimum contrast. Must be in range (1-21)
         """
         ret = Color(tuple(255 - x for x in self.rgb))  # type: ignore
 
@@ -154,12 +157,12 @@ class Color:
 
     @staticmethod
     def random() -> "Color":
-        """Returns random named color"""
+        """Return random named color."""
         return Color(parse_hex(choice(color_hexes)))
 
     @staticmethod
     def from_hsl(hue: int, saturation: int, lightness: int) -> "Color":
-        """Creates a Color object from hue, saturation and luminance
+        """Create a Color object from hue, saturation and luminance.
 
         :param hue: Hue
         :param saturation: Saturation
@@ -178,7 +181,7 @@ class Color:
 
     @staticmethod
     def from_str(arg: str) -> "Color":
-        """Creates a Color object from string
+        """Create a Color object from string.
 
         :param arg: Input string. Must be either Color name, (R,G,B), #HEX or HEX
         :return: New Color object

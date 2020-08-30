@@ -1,4 +1,4 @@
-"""Common functions"""
+"""Common functions."""
 
 from typing import Any, Tuple
 
@@ -6,7 +6,7 @@ __all__ = ["parse_hex", "int_tuple", "normalized"]
 
 
 def parse_hex(arg: str) -> Tuple[int, int, int]:
-    """Parses hex string into (R, G, B)
+    """Parse hex string into (R, G, B).
 
     :param arg: 3 or 6 hexadecimal chars
     :return: (R, G, B)
@@ -21,7 +21,7 @@ def parse_hex(arg: str) -> Tuple[int, int, int]:
 
 
 def int_tuple(*source: Any) -> Tuple[int, ...]:
-    """Maps int over input params and returns them as int
+    """Map int over input params and returns them as int.
 
     :param source: Iterable to iterate over
     :return: Tuple of ints
@@ -33,7 +33,7 @@ def int_tuple(*source: Any) -> Tuple[int, ...]:
 
 
 def normalized(s: str) -> str:
-    """Normalizes string for easier comparison
+    """Normalize string for easier comparison.
 
     :param s: String to normalize
     :return: Lowered string without whitespace

@@ -1,4 +1,4 @@
-"""Data backend. Declarations, file loading"""
+"""Data backend. Declarations, file loading."""
 
 from pathlib import Path
 from typing import Dict, List, Tuple
@@ -1527,7 +1527,7 @@ color_to_hex = {normalized(v): k for k, v in hex_to_color.items()}
 
 
 def load_font() -> Dict[str, Letter]:
-    """Loads a font into memory
+    """Load a font into memory.
 
     :return: Loaded fontmap
     """
@@ -1558,7 +1558,7 @@ def load_font() -> Dict[str, Letter]:
 
 
 def font(char: str) -> Letter:
-    """Helper function to enforce default char
+    """Font map getter.
 
     :param char: Character to load
     :return: Fontmap of :param char:. if unknown, full block will be returned
