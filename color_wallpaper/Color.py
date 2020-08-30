@@ -31,7 +31,7 @@ class Color:
         self.rgb = rgb
 
         if name is None:
-            self.name = hex_to_color.get(self.hex(), "Anonymous")
+            self.name = hex_to_color.get(self.hex, "Anonymous")
         else:
             self.name = name
 
@@ -49,10 +49,15 @@ class Color:
         """Helper function for converting int RGB to float RGB"""
         return tuple(component / 255 for component in components)
 
-    def hex(self, lowercase: bool = True) -> str:
-        """Returns HEX representation of :param self:"""
-        format_string = f'{{0:02{"x" if lowercase else "X"}}}'
-        return "".join(format_string.format(c) for c in self.rgb)
+    @property
+    def hex(self) -> str:
+        """Returns lowercase HEX representation of :param self:"""
+        return "".join(f"{c:02x}" for c in self.rgb)
+
+    @property
+    def HEX(self) -> str:
+        """Returns uppercase HEX representation of :param self:"""
+        return "".join(f"{c:02X}" for c in self.rgb)
 
     @property
     def hsv(self) -> Tuple[int, int, int]:
@@ -84,17 +89,30 @@ class Color:
 
     @property
     def luminance(self) -> float:
-        """Returns relative luminance of :param self:"""
+        """Returns relative luminance of :param:`self` as defined by WCAG 2.1 (as of July 2019)
+
+        https://www.w3.org/TR/2008/REC-WCAG20-20081211/Overview.html#relativeluminancedef
+
+        :return: Relative luminance
+        """
         r, g, b = (c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4 for c in self.__normalize(self.rgb))
 
         return r * 0.2126 + g * 0.7152 + b * 0.0722
 
-    def __truediv__(self, other) -> float:
-        contrasts = sorted((self.luminance, other.luminance), reverse=True)
+    def __truediv__(self, other: "Color") -> float:
+        """Returns contrast ratio of :param:`self` and :param:`other` as defined by WCAG 2.1 (as of July 2019)
 
-        return (contrasts[0] + 0.05) / (contrasts[1] + 0.05)
+        https://www.w3.org/TR/2008/REC-WCAG20-20081211/Overview.html#contrast-ratiodef
 
-    def __floordiv__(self, other) -> int:
+        :param other: The second Color object to compare against
+        :return: Contrast ratio
+        """
+        lighter, darker = sorted((self.luminance, other.luminance), reverse=True)
+
+        return (lighter + 0.05) / (darker + 0.05)
+
+    def __floordiv__(self, other: "Color") -> int:
+        """Floor version of :method:`__truediv__`"""
         return int(self / other)
 
     def inverted(self, min_contrast: float = None) -> "Color":

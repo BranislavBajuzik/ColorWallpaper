@@ -6,9 +6,9 @@ matrix:
     - python: 3.8
 install:
   - pip install -r requirements.txt
-  - pip install black codecov
+  - pip install black codecov pytest
 script:
   - python -m black -l 120 --check color_wallpaper/
-  - coverage run --include=color_wallpaper/*.py -m unittest tests/test_*.py
+  - coverage run --include=color_wallpaper/*.py -m pytest tests/test_*.py
 after_success:
   - codecov

@@ -199,11 +199,12 @@ class Wallpaper:
                 print("Display text is too long and will be cut off", file=sys.stderr)
 
         rows = {
-            "hex": ("HEX ", self.color.hex(True)),
-            "#hex": ("HEX ", "#" + self.color.hex(True)),
-            "HEX": ("HEX ", self.color.hex(False)),
-            "#HEX": ("HEX ", "#" + self.color.hex(False)),
-            **{k: (f"{k.upper()} ", " ".join(map(str, getattr(self.color, k)))) for k in ("rgb", "hsv", "hsl", "cmyk")},
+            "#hex": ("HEX ", "#" + self.color.hex),
+            "#HEX": ("HEX ", "#" + self.color.HEX),
+            **{
+                variant: (f"{variant.upper()} ", " ".join(map(str, getattr(self.color, variant))))
+                for variant in ("rgb", "hex", "HEX", "hsv", "hsl", "cmyk")
+            },
             "empty": (" ", " "),
         }
 
