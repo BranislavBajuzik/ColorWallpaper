@@ -1,0 +1,4 @@
+[run]
+omit =
+    color_wallpaper/__init__.py
+    color_wallpaper/__main__.py
