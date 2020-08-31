@@ -1,8 +1,8 @@
-import pytest
-
 from pathlib import Path
 
-from color_wallpaper.CLI import *
+import pytest
+
+from color_wallpaper.cli import *
 
 
 class TestHelp:

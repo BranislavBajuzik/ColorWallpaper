@@ -1,0 +1,14 @@
+name: Lint
+
+on:
+  push:
+
+jobs:
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - uses: actions/setup-python@master
+      with:
+        python-version: '3.6'
+    - uses: pre-commit/action@v2.0.0

@@ -1,23 +1,23 @@
-"""Handles CLI parsing"""
+"""Handles CLI parsing."""
 
-import re
 import argparse
-
+import re
 from pathlib import Path
-from typing import Tuple, Sequence, Type
+from typing import Callable, Sequence, Tuple, Type, TypeVar
 
-from .common import *
-from .Color import *
-
+from .color import Color
+from .common import int_tuple
 
 __all__ = ["get_options"]
 
+Number = TypeVar("Number", float, int)
+T = TypeVar("T")
 
 resolution_re = re.compile(r"\s*(\d+)\s*[x:]\s*(\d+)\s*")
 
 
 def resolution(arg: str) -> Tuple[int, int]:
-    """Parses resolution CLI argument"""
+    """Parse resolution CLI argument."""
     groups = resolution_re.fullmatch(arg)
 
     if groups is None:
@@ -28,25 +28,25 @@ def resolution(arg: str) -> Tuple[int, int]:
     if any(dimension < 150 for dimension in res):
         raise argparse.ArgumentTypeError("Minimal resolution is 150x150")
 
-    return res
+    return res  # type: ignore
 
 
-def positive(typ: Type):
-    """Binds a type to the inner function
+def positive(typ: Type[Number]) -> Callable[[str], Number]:
+    """Bind a type to the inner function.
 
     :param typ: Type to be bound
     :return: A function that returns a number of max(:param typ:, 1)
     """
 
-    def typed_positive(arg: str):
-        """Parses a number from :param arg:. The smallest number returned is 1"""
-        return max(1, typ(float(arg)))
+    def typed_positive(arg: str) -> Number:
+        """Parse a number from :param arg:. The smallest number returned is 1."""
+        return max(typ(1), typ(float(arg)))
 
     return typed_positive
 
 
-def in_range(typ: Type, low: float, high: float):
-    """Binds a range and type to the inner function
+def in_range(typ: Type[Number], low: float, high: float) -> Callable[[str], Number]:
+    """Bind a range and type to the inner function.
 
     :param typ: Type to be bound
     :param low: Lower bound
@@ -55,8 +55,9 @@ def in_range(typ: Type, low: float, high: float):
     """
     low, high = sorted((low, high))
 
-    def is_in_range(arg: str):
-        """Parses a number from :param arg:
+    def is_in_range(arg: str) -> Number:
+        """Parse a number from :param arg:.
+
         :raises AssertionError: If not in the bound range
         """
         arg = typ(float(arg))
@@ -68,29 +69,38 @@ def in_range(typ: Type, low: float, high: float):
     return is_in_range
 
 
-def fix_casing(names: Sequence[str]):
-    """Binds :param names: to the inner function
-       fix_casing(('One', 'Two', 'Three'))('tHreE') ~> 'Three'\n
-       fix_casing(('aaa', 'Aaa', 'bbb'))('BbB') ~> 'bbb'\n
-       fix_casing(('aaa', 'Aaa', 'bbb'))('aaa') ~> 'aaa'\n
-       fix_casing(('aaa', 'Aaa', 'bbb'))('aAa') ~> argparse.ArgumentTypeError  # Ambiguous choice
+def fix_casing(names: Sequence[str]) -> Callable[[str], str]:
+    """Binds :param names: to the inner function.
 
     :param names: Templates for the fixing, non-empty
     :return: A function that fixes casing
+
+    Usage:
+        >>> fix_casing(('One', 'Two', 'Three'))('tHreE')
+        'Three'
+        >>> fix_casing(('aaa', 'Aaa', 'bbb'))('BbB')
+        'bbb'
+        >>> fix_casing(('aaa', 'Aaa', 'bbb'))('aaa')
+        'aaa'
+        >>> fix_casing(('aaa', 'Aaa', 'bbb'))('aAa')
+        Traceback (most recent call last):
+          File "<stdin>", line 1, in ?
+          File "<stdin>", line 36, in cased
+        argparse.ArgumentTypeError: Ambiguous choice: aAa. Unable to decide between ['aaa', 'Aaa']
     """
 
     def cased(arg: str) -> str:
-        """Fixes the casing of :param arg: using the bound :param names: as template
+        """Fix the casing of :param arg: using the bound :param names: as template.
 
         :param arg: Argument that needs to be fixed
         :return: Correctly cased :param arg:
         """
         low_names = tuple(name.lower() for name in names)
 
-        if not isinstance(arg, str) or arg.lower() not in low_names:
+        if not isinstance(arg, str) or arg.lower() not in low_names:  # type: ignore
             raise argparse.ArgumentTypeError(f'Invalid choice: "{arg}". Chose from {names}')
 
-        duplicate_names = set(name for name in low_names if low_names.count(name) > 1)
+        duplicate_names = {name for name in low_names if low_names.count(name) > 1}
 
         if arg in names:
             arg = names[names.index(arg)]
@@ -139,7 +149,7 @@ class ArgumentDefaultsHelpFormatter(argparse.HelpFormatter):
 
 
 def get_options(args: Sequence[str] = None) -> argparse.Namespace:
-    """Parses CLI options
+    """Parse CLI options.
 
     :param args: None for `sys.argv`
     :return: Object with options as attributes
@@ -148,7 +158,7 @@ def get_options(args: Sequence[str] = None) -> argparse.Namespace:
         prog="color_wallpaper",
         allow_abbrev=False,
         description="Minimalist wallpaper generator",
-        usage=f"Try --help for more information",
+        usage="Try --help for more information",
         formatter_class=ArgumentDefaultsHelpFormatter,
     )
 

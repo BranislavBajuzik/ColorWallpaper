@@ -1,7 +1,6 @@
 import pytest
 
-from color_wallpaper.data import font, hex_to_color, color_hexes, load_font, font_chars
-
+from color_wallpaper.data import color_hexes, font, font_chars, hex_to_color, load_font
 
 f = False
 t = True

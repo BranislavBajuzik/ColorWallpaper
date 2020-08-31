@@ -1,8 +1,8 @@
 # ColorWallpaper
 
-[![Build Status](https://travis-ci.com/BranislavBajuzik/ColorWallpaper.svg?branch=master)](https://travis-ci.com/BranislavBajuzik/ColorWallpaper)
+![Lint Status](https://github.com/BranislavBajuzik/ColorWallpaper/workflows/Lint/badge.svg?branch=master)
+![Tests Status](https://github.com/BranislavBajuzik/ColorWallpaper/workflows/Tests/badge.svg?branch=master)
 [![Codecov](https://codecov.io/gh/BranislavBajuzik/ColorWallpaper/branch/master/graph/badge.svg)](https://codecov.io/gh/BranislavBajuzik/ColorWallpaper)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/af954c94432a446a95e004079d089f6a)](https://www.codacy.com/app/BranislavBajuzik/ColorWallpaper?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=BranislavBajuzik/ColorWallpaper&amp;utm_campaign=Badge_Grade)
 [![Code style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![PyPI version](https://badge.fury.io/py/color-wallpaper.svg)](https://badge.fury.io/py/color-wallpaper)
 
@@ -70,7 +70,7 @@ Direct generation: `python ColorWallpaper.py --option[s]`
 - `RESOLUTION`
   - Two positive integers greater or equal to 150, separated by `x` or `:`.
 - `FORMAT`
-  - Self explanatory: `hex`, `rgb`, `hsv`, `hsl`, `cmyk` 
+  - Self explanatory: `hex`, `rgb`, `hsv`, `hsl`, `cmyk`
   - `empty`: Empty row.
   - `#hex`: `hex`, but starting with `#`
   - `#HEX`, `HEX`: Like `hex`, but uppercase
@@ -121,7 +121,7 @@ In Tasker:
 Edit `~/.termux/tasker/generate-wallpaper.sh` to change arguments (e.g. your screen resolution) of the program.
 
 Run `cd ~/ColorWallpaper && git pull` to update the program.
-  
+
 ## Contribute
 
 #### Setup environment

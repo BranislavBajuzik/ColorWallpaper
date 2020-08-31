@@ -1,7 +1,7 @@
 import pytest
 
+from color_wallpaper.color import Color
 from color_wallpaper.ColorWallpaper import *
-from color_wallpaper.Color import Color
 
 
 class TestInitColor:

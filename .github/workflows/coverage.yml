@@ -1,0 +1,22 @@
+name: Coverage
+
+on:
+  - push
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - uses: actions/setup-python@master
+      with:
+        python-version: 3.6
+    - name: pytest-cov
+      run: |
+        pip install -r requirements.txt
+        pip install pytest pytest-cov
+        pytest --cov=color_wallpaper/ --cov-report=xml tests/
+    - uses: codecov/codecov-action@master
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        fail_ci_if_error: true

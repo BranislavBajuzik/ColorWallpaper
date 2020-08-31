@@ -1,13 +1,12 @@
-"""Handles color calculation"""
+"""Handles color calculations."""
 
 import re
-
-from typing import Tuple
+from colorsys import hls_to_rgb, rgb_to_hls, rgb_to_hsv
 from random import choice
-from colorsys import rgb_to_hsv, rgb_to_hls, hls_to_rgb
+from typing import Tuple
 
-from .data import *
-from .common import *
+from .common import int_tuple, normalized, parse_hex
+from .data import color_hexes, color_to_hex, hex_to_color
 
 __all__ = ["Color"]
 
@@ -18,10 +17,10 @@ rgb_re = re.compile(r"\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\s*")
 
 
 class Color:
-    """Class for color handling"""
+    """Class for color handling."""
 
     def __init__(self, rgb: Tuple[int, int, int], name: str = None):
-        """Color constructor
+        """Color constructor.
 
         :param rgb: (R,G,B) of the color
         :param name: Overrides the color name lookup
@@ -36,46 +35,49 @@ class Color:
             self.name = name
 
     def __str__(self):
+        """Return str(self)."""
         return f"Color(rgb={self.rgb}, name='{self.name}')"
 
     def __repr__(self):
+        """Return repr(self)."""
         return str(self)
 
     def __eq__(self, other):
+        """Return self==other."""
         return self.rgb == other.rgb and self.name == other.name
 
     @staticmethod
     def __normalize(components: Tuple[float, float, float]) -> Tuple[float, float, float]:
-        """Helper function for converting int RGB to float RGB"""
-        return tuple(component / 255 for component in components)
+        """Convert int RGB to float RGB."""
+        return tuple(component / 255 for component in components)  # type: ignore
 
-    @property
+    @property  # noqa: A003
     def hex(self) -> str:
-        """Returns lowercase HEX representation of :param self:"""
+        """Return lowercase HEX representation of :param self:."""
         return "".join(f"{c:02x}" for c in self.rgb)
 
     @property
     def HEX(self) -> str:
-        """Returns uppercase HEX representation of :param self:"""
+        """Return uppercase HEX representation of :param self:."""
         return "".join(f"{c:02X}" for c in self.rgb)
 
     @property
     def hsv(self) -> Tuple[int, int, int]:
-        """Returns HSV representation of :param self:"""
+        """Return HSV representation of :param self:."""
         h, s, v = rgb_to_hsv(*self.__normalize(self.rgb))
 
         return int(h * 360), int(s * 100), int(v * 100)
 
     @property
     def hsl(self) -> Tuple[int, int, int]:
-        """Returns HSL representation of :param self:"""
+        """Return HSL representation of :param self:."""
         h, l, s = rgb_to_hls(*self.__normalize(self.rgb))
 
         return int(h * 360), int(s * 100), int(l * 100)
 
     @property
     def cmyk(self) -> Tuple[int, int, int, int]:
-        """Returns CMYK representation of :param self:"""
+        """Return CMYK representation of :param self:."""
         c, m, y = (1 - component / 255 for component in self.rgb)
 
         k = min(c, m, y, 1)
@@ -85,11 +87,11 @@ class Color:
 
         c, m, y = ((component - k) / (1.0 - k) for component in (c, m, y))
 
-        return int_tuple(component * 100 for component in (c, m, y, k))
+        return int_tuple(component * 100 for component in (c, m, y, k))  # type: ignore
 
     @property
     def luminance(self) -> float:
-        """Returns relative luminance of :param:`self` as defined by WCAG 2.1 (as of July 2019)
+        """Return relative luminance of :ref:`self` as defined by WCAG 2.1 (as of August 2020).
 
         https://www.w3.org/TR/2008/REC-WCAG20-20081211/Overview.html#relativeluminancedef
 
@@ -100,7 +102,7 @@ class Color:
         return r * 0.2126 + g * 0.7152 + b * 0.0722
 
     def __truediv__(self, other: "Color") -> float:
-        """Returns contrast ratio of :param:`self` and :param:`other` as defined by WCAG 2.1 (as of July 2019)
+        """Return contrast ratio of :ref:`self` and :ref:`other` as defined by WCAG 2.1 (as of August 2020).
 
         https://www.w3.org/TR/2008/REC-WCAG20-20081211/Overview.html#contrast-ratiodef
 
@@ -112,17 +114,17 @@ class Color:
         return (lighter + 0.05) / (darker + 0.05)
 
     def __floordiv__(self, other: "Color") -> int:
-        """Floor version of :method:`__truediv__`"""
+        """Floor version of :method:`__truediv__`."""
         return int(self / other)
 
     def inverted(self, min_contrast: float = None) -> "Color":
-        """Returns a new Color that is in contrast with :param self:
+        """Return a new Color that is in contrast with :param self:.
 
-        :param min_contrast: Minimum contrast. Must be in range (1-21)
+        :param min_contrastt: Minimum contrast. Must be in range (1-21)
         """
-        ret = Color(tuple(255 - x for x in self.rgb))
+        ret = Color(tuple(255 - x for x in self.rgb))  # type: ignore
 
-        if min_contrast in (1, None):
+        if min_contrast is None or min_contrast == 1:
             return ret
 
         if not 1 <= min_contrast <= 21:
@@ -131,43 +133,43 @@ class Color:
         if self / ret >= min_contrast:
             return ret
 
-        h, s, l = ret.hsl
-        l_down, l_up = l - 1, l + 1
+        hue, saturation, lightness = ret.hsl
+        lightness_down, lightness_up = lightness - 1, lightness + 1
 
-        while l_down >= 0 and l_up <= 100:
-            if l_down >= 0:
-                ret = self.from_hsl(h, s, l_down)
-
-                if self / ret >= min_contrast:
-                    return ret
-
-                l_down -= 1
-
-            if l_up <= 100:
-                ret = self.from_hsl(h, s, l_up)
+        while lightness_down >= 0 and lightness_up <= 100:
+            if lightness_down >= 0:
+                ret = self.from_hsl(hue, saturation, lightness_down)
 
                 if self / ret >= min_contrast:
                     return ret
 
-                l_up += 1
+                lightness_down -= 1
+
+            if lightness_up <= 100:
+                ret = self.from_hsl(hue, saturation, lightness_up)
+
+                if self / ret >= min_contrast:
+                    return ret
+
+                lightness_up += 1
 
         raise RuntimeError(f"Unable to to find a color that has contrast of at least {min_contrast} with {self}")
 
     @staticmethod
     def random() -> "Color":
-        """Returns random named color"""
+        """Return random named color."""
         return Color(parse_hex(choice(color_hexes)))
 
     @staticmethod
-    def from_hsl(h: int, s: int, l: int) -> "Color":
-        """Creates a Color object from hue, saturation and luminance
+    def from_hsl(hue: int, saturation: int, lightness: int) -> "Color":
+        """Create a Color object from hue, saturation and luminance.
 
-        :param h: Hue
-        :param s: Saturation
-        :param l: Luminance
+        :param hue: Hue
+        :param saturation: Saturation
+        :param lightness: Lightness
         :return: New Color object
         """
-        components = (360, h, "h"), (100, l, "l"), (100, s, "s")
+        components = (360, hue, "h"), (100, lightness, "l"), (100, saturation, "s")
 
         for bound, component, name in components:
             if not 0 <= component <= bound:
@@ -175,11 +177,11 @@ class Color:
 
         rgb = hls_to_rgb(*(component / bound for bound, component, name in components))
 
-        return Color(int_tuple(component * 255 for component in rgb))
+        return Color(int_tuple(component * 255 for component in rgb))  # type: ignore
 
     @staticmethod
     def from_str(arg: str) -> "Color":
-        """Creates a Color object from string
+        """Create a Color object from string.
 
         :param arg: Input string. Must be either Color name, (R,G,B), #HEX or HEX
         :return: New Color object
@@ -190,7 +192,7 @@ class Color:
         if hex_groups is not None:
             rgb = parse_hex(hex_groups.group(1))
         elif rgb_groups is not None:
-            rgb = int_tuple(rgb_groups.group(1), rgb_groups.group(2), rgb_groups.group(3))
+            rgb = int_tuple(rgb_groups.group(1), rgb_groups.group(2), rgb_groups.group(3))  # type: ignore
             if not all(0 <= c <= 255 for c in rgb):
                 raise ValueError("Invalid RGB values")
         else:

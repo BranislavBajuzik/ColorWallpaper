@@ -1,6 +1,11 @@
+# Build files
 build/
 color_wallpaper.egg-info/
 dist/
+
+# Development files
 .idea/
 venv/
+.mypy_cache/
+.pytest_cache/
 out.png

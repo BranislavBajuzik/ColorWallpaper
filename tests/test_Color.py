@@ -1,6 +1,6 @@
 import pytest
 
-from color_wallpaper.Color import *
+from color_wallpaper.color import *
 
 
 class TestCreate:
@@ -91,9 +91,9 @@ class TestCMYK:
     @pytest.mark.parametrize(
         "rgb, result",
         (
+            ((0xFF, 0xFF, 0xFF), (0, 0, 0, 0)),
             ((0x00, 0x00, 0x00), (0, 0, 0, 100)),
             ((0xFF, 0x00, 0x00), (0, 100, 100, 0)),
-            ((0xAB, 0xCD, 0xEF), (28, 14, 0, 6)),
             ((0xAB, 0xCD, 0xEF), (28, 14, 0, 6)),
         ),
     )
