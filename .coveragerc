@@ -2,3 +2,11 @@
 omit =
     color_wallpaper/__init__.py
     color_wallpaper/__main__.py
+
+[report]
+exclude_lines =
+    # Ignore defensive checks
+    except ImportError:
+
+    # Re-enable the standard pragma
+    pragma: no cover

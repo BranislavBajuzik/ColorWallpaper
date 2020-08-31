@@ -133,5 +133,5 @@ pre-commit install
 
 #### Run tests
 ```Shell
-python -m unittest discover
+pytest
 ```

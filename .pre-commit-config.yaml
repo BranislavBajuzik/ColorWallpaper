@@ -12,7 +12,6 @@ repos:
         exclude: "__init__.py"
         args:
           - "--line-length=120"
-          - "--filter-files"
 
   - repo: https://github.com/psf/black
     rev: 20.8b1
@@ -80,5 +79,4 @@ repos:
       - id: check-symlinks
       - id: debug-statements
       - id: end-of-file-fixer
-      - id: no-commit-to-branch
       - id: trailing-whitespace
