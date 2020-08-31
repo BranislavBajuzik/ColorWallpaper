@@ -1,0 +1,24 @@
+name: tests
+
+on:
+  push:
+
+jobs:
+  pytest:
+    strategy:
+      matrix:
+        python:
+          - 3.6
+          - 3.7
+          - 3.8
+          - 3.9
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - uses: actions/setup-python@master
+      with:
+        python-version: ${{ matrix.python }}
+    - run: |
+        pip install -r requirements.txt
+        pip install pytest
+        pytest tests/
