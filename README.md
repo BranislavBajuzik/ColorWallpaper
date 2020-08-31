@@ -1,7 +1,7 @@
 # ColorWallpaper
 
-![Lint Status](https://github.com/BranislavBajuzik/ColorWallpaper/workflows/lint/badge.svg?branch=master)
-
+![Lint Status](https://github.com/BranislavBajuzik/ColorWallpaper/workflows/Lint/badge.svg?branch=master)
+![Tests Status](https://github.com/BranislavBajuzik/ColorWallpaper/workflows/Tests/badge.svg?branch=master)
 [![Build Status](https://travis-ci.com/BranislavBajuzik/ColorWallpaper.svg?branch=master)](https://travis-ci.com/BranislavBajuzik/ColorWallpaper)
 [![Codecov](https://codecov.io/gh/BranislavBajuzik/ColorWallpaper/branch/master/graph/badge.svg)](https://codecov.io/gh/BranislavBajuzik/ColorWallpaper)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/af954c94432a446a95e004079d089f6a)](https://www.codacy.com/app/BranislavBajuzik/ColorWallpaper?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=BranislavBajuzik/ColorWallpaper&amp;utm_campaign=Badge_Grade)
