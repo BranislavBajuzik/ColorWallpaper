@@ -1,8 +1,8 @@
 """Common functions."""
+import logging
+from typing import Any, Optional, Tuple
 
-from typing import Any, Tuple
-
-__all__ = ["parse_hex", "int_tuple", "normalized"]
+__all__ = ["parse_hex", "int_tuple", "normalized", "init_logging"]
 
 
 def parse_hex(arg: str) -> Tuple[int, int, int]:
@@ -39,3 +39,32 @@ def normalized(s: str) -> str:
     :return: Lowered string without whitespace
     """
     return "".join(s.split()).casefold()
+
+
+class Logging:
+    logger: Optional[logging.Logger] = None
+
+    @classmethod
+    def init_logging(cls, logging_level: int) -> None:
+        """Initialize logging for this module.
+
+        :param logging_level: Requested log level.
+        """
+        if cls.logger is not None:
+            return
+
+        cls.logger = logging.getLogger(__package__ or "color_wallpaper")
+        cls.logger.setLevel(logging_level)
+
+        # Disable logging
+        if logging_level == logging.NOTSET:
+            cls.logger.setLevel(logging.CRITICAL)
+
+        # Logging format
+        handler = logging.StreamHandler()
+        handler.setLevel(logging_level)
+        handler.setFormatter(logging.Formatter("[%(levelname)s] %(name)s: %(message)s"))
+        cls.logger.addHandler(handler)
+
+
+init_logging = Logging.init_logging
