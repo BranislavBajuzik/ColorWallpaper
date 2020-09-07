@@ -1,4 +1,3 @@
-"""Main file."""
 import logging
 import re
 import sys

@@ -1,4 +1,5 @@
 """Common functions."""
+
 import logging
 from typing import Any, Optional, Tuple
 
