@@ -6,7 +6,7 @@ from typing import Any, List, Optional, Tuple
 
 from .cli import get_options
 from .color import Color
-from .common import init_logging, normalized
+from .common import normalized
 from .data import font
 
 try:
@@ -18,7 +18,6 @@ except ImportError:
 
 __all__ = ["Wallpaper"]
 
-log = logging.getLogger(__name__)
 newline_re = re.compile(r"(?:\n|\\n)")
 
 
@@ -58,11 +57,10 @@ class Wallpaper:
 
         options = get_options(args)
 
-        init_logging(options.log_level)
-
         for arg in self.__class__.__annotations__:
             setattr(self, arg, kwargs.get(arg, getattr(options, arg)))
 
+        self.logger = self.init_logging()
         self.output = Path(self.output).absolute()
 
         random = False
@@ -101,6 +99,23 @@ class Wallpaper:
             else:
                 self.color2 = Color.from_str(self.color2)  # type: ignore
                 break
+
+    def init_logging(self) -> logging.Logger:
+        """Initialize logging for this module."""
+        logger = logging.getLogger("color-wallpaper")
+        logger.setLevel(self.log_level)
+
+        # Disable logging
+        if self.log_level == logging.NOTSET:
+            logger.setLevel(logging.CRITICAL)
+
+        # Logging format
+        handler = logging.StreamHandler()
+        handler.setLevel(self.log_level)
+        handler.setFormatter(logging.Formatter("[%(levelname)s] %(name)s: %(message)s"))
+        logger.addHandler(handler)
+
+        return logger
 
     @classmethod
     def _split_word(cls, word: str) -> List[str]:
@@ -169,7 +184,7 @@ class Wallpaper:
         :param text: text to render
         :return: Image with the rendered text
         """
-        log.debug("Rendering text `%s`", text)
+        self.logger.debug("Rendering text `%s`", text)
 
         texts, max_text_length = self._arrange_text(text)
 
@@ -201,7 +216,7 @@ class Wallpaper:
 
         :return: Image of the highlight
         """
-        log.debug("Generating the decoration")
+        self.logger.debug("Generating the decoration")
 
         img = Image.new("RGBA", (128, 128), (0, 0, 0, 0))
 
@@ -209,7 +224,7 @@ class Wallpaper:
 
         y = -4
         if self.display != "":
-            log.debug("Adding color name")
+            self.logger.debug("Adding color name")
 
             name = self.color.name if self.display is None else self.display
             img_name = self._generate_text(name)
@@ -218,7 +233,7 @@ class Wallpaper:
             img.alpha_composite(img_name, (8, 8))
 
             if y > self.USABLE_SIZE:
-                log.warning("Display text is too long (tall) and will be cut off")
+                self.logger.warning("Display text is too long (tall) and will be cut off")
 
         rows = {
             "hex": ("HEX ", self.color.hex),
@@ -233,12 +248,12 @@ class Wallpaper:
         }
 
         for i, key in enumerate(self.formats):
-            log.debug("Adding `%s` format", key)
+            self.logger.debug("Adding `%s` format", key)
 
             if y > self.USABLE_SIZE:
                 ignored = len(self.formats) - i
                 if ignored:
-                    log.warning(
+                    self.logger.warning(
                         "Unable to display %s format%s: %s",
                         ignored,
                         "" if ignored == 1 else "s",
@@ -288,6 +303,6 @@ class Wallpaper:
                 raise FileExistsError(f'The "{self.output}" exists and is not a file')
 
         if generate:
-            log.info('Image "%s" successfully generated', self.output)
+            self.logger.info('Image "%s" successfully generated', self.output)
 
         return img
