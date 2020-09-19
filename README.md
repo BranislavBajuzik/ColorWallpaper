@@ -68,7 +68,7 @@ Direct generation: `python ColorWallpaper.py --option[s]`
 - `CONTRAST`
   - A float in range 1-21.
 - `RESOLUTION`
-  - Two positive integers greater or equal to 150, separated by `x` or `:`.
+  - Two integers greater or equal to 150, separated by `x` or `:`.
 - `FORMAT`
   - Self explanatory: `hex`, `rgb`, `hsv`, `hsl`, `cmyk`
   - `empty`: Empty row.
