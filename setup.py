@@ -8,7 +8,7 @@ with open("README.md") as f:
 
 setuptools.setup(
     name="color-wallpaper",
-    version="1.1.7",
+    version="1.1.8",
     author="TheAl_T",
     author_email="branislav.bajuzik@gmail.com",
     description="A Minimalist wallpaper generator",
