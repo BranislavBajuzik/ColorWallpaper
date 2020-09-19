@@ -35,6 +35,7 @@ repos:
           - flake8-bugbear
           - flake8-builtins
           - flake8-comprehensions
+          - flake8-logging-format
           - flake8-printf-formatting
           - flake8-pytest-style
           - flake8-use-fstring
@@ -47,11 +48,10 @@ repos:
         exclude: "(tests|setup.py|__init__.py)"
         args:
           - "--max-line-length=120"
-          - "--extend-ignore=E203"
-          - "--rst-roles=method,ref"
+          - "--select=D"
+          - "--ignore=D100"
         additional_dependencies:
           - flake8-docstrings
-          - flake8-rst-docstrings
 
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v0.782

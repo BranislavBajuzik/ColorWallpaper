@@ -1,3 +1,5 @@
+import logging
+
 import pytest
 
 from color_wallpaper.color import Color
@@ -144,3 +146,15 @@ class TestInitOverlayColor:
         assert color_equal(pape.color, (0x00, 0x00, 0x00), "Black")
         assert color_equal(pape.color2, (0xFF, 0xFF, 0xFF), "White")
         assert color_equal(pape.overlay_color, (0x7F, 0x7F, 0x7F))
+
+
+class TestLogging:
+    def test_default(self, set_cli):
+        set_cli()
+
+        assert Wallpaper().logger.level == logging.INFO
+
+    def test_disabled(self, set_cli):
+        set_cli(["--log-level", "NOTSET"])
+
+        assert Wallpaper().logger.level == logging.CRITICAL

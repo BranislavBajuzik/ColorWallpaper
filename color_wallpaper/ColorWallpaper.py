@@ -1,5 +1,4 @@
-"""Main file."""
-
+import logging
 import re
 import sys
 from pathlib import Path
@@ -18,7 +17,6 @@ except ImportError:
 
 
 __all__ = ["Wallpaper"]
-
 
 newline_re = re.compile(r"(?:\n|\\n)")
 
@@ -45,16 +43,24 @@ class Wallpaper:
     scale: int
     formats: List[str]
 
-    def __init__(self, **kwargs: Any):
+    # Misc options
+    log_level: int
+
+    def __init__(self, args: List[str] = None, **kwargs: Any):
         """Wallpaper object constructor.
 
+        :param args: Will override :ref:`sys.argv`
         :param kwargs: Used to override the default values of the class arguments.
         """
-        options = get_options()
+        if args is None:
+            args = sys.argv[1:]
+
+        options = get_options(args)
 
         for arg in self.__class__.__annotations__:
             setattr(self, arg, kwargs.get(arg, getattr(options, arg)))
 
+        self.logger = self.init_logging()
         self.output = Path(self.output).absolute()
 
         random = False
@@ -94,8 +100,30 @@ class Wallpaper:
                 self.color2 = Color.from_str(self.color2)  # type: ignore
                 break
 
+    def init_logging(self) -> logging.Logger:
+        """Initialize logging for this module."""
+        logger = logging.getLogger("color-wallpaper")
+        logger.setLevel(self.log_level)
+
+        # Disable logging
+        if self.log_level == logging.NOTSET:
+            logger.setLevel(logging.CRITICAL)
+
+        # Logging format
+        handler = logging.StreamHandler()
+        handler.setLevel(self.log_level)
+        handler.setFormatter(logging.Formatter("[%(levelname)s] %(name)s: %(message)s"))
+        logger.addHandler(handler)
+
+        return logger
+
     @classmethod
     def _split_word(cls, word: str) -> List[str]:
+        """Split the word so it fits.
+
+        :param word: Word to split
+        :return: List of head and rest of the word
+        """
         head = ""
         word_length = 0
         word = list(word)
@@ -156,6 +184,8 @@ class Wallpaper:
         :param text: text to render
         :return: Image with the rendered text
         """
+        self.logger.debug("Rendering text `%s`", text)
+
         texts, max_text_length = self._arrange_text(text)
 
         x = 0
@@ -186,12 +216,16 @@ class Wallpaper:
 
         :return: Image of the highlight
         """
+        self.logger.debug("Generating the decoration")
+
         img = Image.new("RGBA", (128, 128), (0, 0, 0, 0))
 
         ImageDraw.Draw(img).rectangle((0, 0, 127, 127), outline=self.color2.rgb, width=3)
 
         y = -4
         if self.display != "":
+            self.logger.debug("Adding color name")
+
             name = self.color.name if self.display is None else self.display
             img_name = self._generate_text(name)
             x, y = img_name.size
@@ -199,34 +233,40 @@ class Wallpaper:
             img.alpha_composite(img_name, (8, 8))
 
             if y > self.USABLE_SIZE:
-                print("Display text is too long and will be cut off", file=sys.stderr)
+                self.logger.warning("Display text is too long (tall) and will be cut off")
 
         rows = {
+            "hex": ("HEX ", self.color.hex),
+            "HEX": ("HEX ", self.color.HEX),
             "#hex": ("HEX ", "#" + self.color.hex),
             "#HEX": ("HEX ", "#" + self.color.HEX),
             **{
                 variant: (f"{variant.upper()} ", " ".join(map(str, getattr(self.color, variant))))
-                for variant in ("rgb", "hex", "HEX", "hsv", "hsl", "cmyk")
+                for variant in ("rgb", "hsv", "hsl", "cmyk")
             },
             "empty": (" ", " "),
         }
 
         for i, key in enumerate(self.formats):
+            self.logger.debug("Adding `%s` format", key)
+
             if y > self.USABLE_SIZE:
                 ignored = len(self.formats) - i
                 if ignored:
-                    print(
-                        f"Unable to display {ignored} format{'' if ignored == 1 else 's'}: "
-                        f"{', '.join(self.formats[i:])}",
-                        file=sys.stderr,
+                    self.logger.warning(
+                        "Unable to display %s format%s: %s",
+                        ignored,
+                        "" if ignored == 1 else "s",
+                        ", ".join(self.formats[i:]),
                     )
 
                 break
 
             y += 12
-            img_label = self._generate_text(rows[key][0])
+            label, value = rows[key]
+            img_label = self._generate_text(label)
             img.alpha_composite(img_label, (8, y))
-            img.alpha_composite(self._generate_text(rows[key][1]), (3 + 5 + img_label.size[0], y))
+            img.alpha_composite(self._generate_text(value), (3 + 5 + img_label.size[0], y))
 
         return img
 
@@ -260,9 +300,9 @@ class Wallpaper:
                 if generate:
                     img.save(str(self.output))
             else:
-                raise IOError(f'The "{self.output}" exists and is not a file')
+                raise FileExistsError(f'The "{self.output}" exists and is not a file')
 
         if generate:
-            print(f'Image "{self.output}" successfully generated')
+            self.logger.info('Image "%s" successfully generated', self.output)
 
         return img

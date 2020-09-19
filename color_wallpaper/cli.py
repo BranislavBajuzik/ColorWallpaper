@@ -1,9 +1,10 @@
 """Handles CLI parsing."""
 
 import argparse
+import logging
 import re
 from pathlib import Path
-from typing import Callable, Sequence, Tuple, Type, TypeVar
+from typing import Callable, List, Sequence, Tuple, Type, TypeVar
 
 from .color import Color
 from .common import int_tuple
@@ -14,6 +15,15 @@ Number = TypeVar("Number", float, int)
 T = TypeVar("T")
 
 resolution_re = re.compile(r"\s*(\d+)\s*[x:]\s*(\d+)\s*")
+
+
+def log_level(arg: str) -> int:
+    level = logging._nameToLevel.get(arg.upper())
+
+    if level is None:
+        raise argparse.ArgumentTypeError(f"Invalid choice '{arg}', pick from {tuple(logging._nameToLevel)}")
+
+    return level
 
 
 def resolution(arg: str) -> Tuple[int, int]:
@@ -123,6 +133,7 @@ class ArgumentDefaultsHelpFormatter(argparse.HelpFormatter):
         "yes": lambda _: None,
         "resolution": lambda s: "x".join(map(str, s)),
         "formats": lambda s: " ".join(map(str, s)),
+        "log_level": lambda _: "NOTSET",
     }
 
     def __init__(self, prog):
@@ -139,7 +150,7 @@ class ArgumentDefaultsHelpFormatter(argparse.HelpFormatter):
 
         return action.help
 
-    def _split_lines(self, text, width):
+    def _split_lines(self, text: str, width: int) -> List[str]:
         lines = super()._split_lines(text, width)
 
         if self.default is not None:
@@ -161,6 +172,8 @@ def get_options(args: Sequence[str] = None) -> argparse.Namespace:
         usage="Try --help for more information",
         formatter_class=ArgumentDefaultsHelpFormatter,
     )
+
+    ret.add_argument("--log-level", type=log_level, default=logging.INFO, help="Sets logging level")
 
     general_g = ret.add_argument_group("File options")
     general_g.add_argument(

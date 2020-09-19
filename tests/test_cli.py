@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 
 import pytest
@@ -7,7 +8,41 @@ from color_wallpaper.cli import *
 
 class TestHelp:
     @pytest.mark.parametrize("cli", (["-h"], ["--help"]))
-    def test(self, monkeypatch, cli):
+    def test(self, cli):
+        with pytest.raises(SystemExit):
+            get_options(cli)
+
+
+class TestLogLevel:
+    def test_default(self):
+        assert logging.INFO == get_options([]).log_level
+
+    @pytest.mark.parametrize(
+        "cli, level",
+        (
+            (["--log-level", "CriTiCAl"], logging.CRITICAL),
+            (["--log-level", "fatal"], logging.FATAL),
+            (["--log-level", "ERROR"], logging.ERROR),
+            (["--log-level", "WARN"], logging.WARN),
+            (["--log-level", "WARNING"], logging.WARNING),
+            (["--log-level", "InFO"], logging.INFO),
+            (["--log-level", "DeBUG"], logging.DEBUG),
+            (["--log-level", "NOTSET"], logging.NOTSET),
+        ),
+    )
+    def test_vlaid(self, cli, level):
+        assert level == get_options(cli).log_level
+
+    @pytest.mark.parametrize(
+        "cli",
+        (
+            ["--log-level", ""],
+            ["--log-level", "random"],
+            ["--log-level", "123"],
+            ["--log-level", "10"],
+        ),
+    )
+    def test_invalid(self, cli):
         with pytest.raises(SystemExit):
             get_options(cli)
 
