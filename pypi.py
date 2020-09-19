@@ -7,7 +7,8 @@ from subprocess import check_call
 version_re = re.compile(r'version="[\d.]+",')
 
 
-def main(new_version: str) -> None:
+def upload(new_version: str) -> None:
+    """Upload new version to pypi."""
     # Set new version
     setup = Path(__file__).parent / "setup.py"
 
@@ -25,7 +26,7 @@ def main(new_version: str) -> None:
 
 if __name__ == "__main__":
     try:
-        main(sys.argv[1])
+        upload(sys.argv[1])
     finally:
         # Cleanup
         for folder in ("build", "color_wallpaper.egg-info", "dist"):
