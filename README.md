@@ -18,7 +18,7 @@ Generates wallpapers such as:
 - [PIL](https://pypi.org/project/Pillow/ "Download PIL")
 
 ## Usage
-Direct generation: `python ColorWallpaper.py --option[s]`
+Direct generation: `python -m color_wallpaper --option[s]`
 
 ### Options:
 - `-h`/`--help`
