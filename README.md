@@ -8,14 +8,14 @@
 
 A Minimalist wallpaper generator
 
-### [**Get the latest release**](https://github.com/BranislavBajuzik/ColorWallpaper/releases/latest "Download")
-
 Generates wallpapers such as:
 ![Example](example.png "Example")
 
 ## Requirements
 - [Python 3.6+](https://www.python.org/downloads/ "Download Python")
-- [PIL](https://pypi.org/project/Pillow/ "Download PIL")
+
+## Installation
+Run: `pip install color_wallpaper`
 
 ## Usage
 Direct generation: `python -m color_wallpaper --option[s]`
@@ -117,10 +117,8 @@ In Tasker:
   - Add Termux Action with Configuration set to `generate-wallpaper.sh`
   - Add Set Wallpaper Action with Image set to `Pictures/Excluded/paper.png`
 - Create a new Event Profile for Display Off event, give it Highest priority, and set it's Task to the one you just created.
-
-Edit `~/.termux/tasker/generate-wallpaper.sh` to change arguments (e.g. your screen resolution) of the program.
-
-Run `cd ~/ColorWallpaper && git pull` to update the program.
+- Edit `~/.termux/tasker/generate-wallpaper.sh` to change arguments (e.g. your screen resolution) of the program.
+- Run `cd ~/ColorWallpaper && git pull` to update the program.
 
 ## Contribute
 
