@@ -107,7 +107,7 @@ def fix_casing(names: Sequence[str]) -> Callable[[str], str]:
         """
         low_names = tuple(name.lower() for name in names)
 
-        if not isinstance(arg, str) or arg.lower() not in low_names:  # type: ignore
+        if not isinstance(arg, str) or arg.lower() not in low_names:
             raise argparse.ArgumentTypeError(f'Invalid choice: "{arg}". Chose from {names}')
 
         duplicate_names = {name for name in low_names if low_names.count(name) > 1}
