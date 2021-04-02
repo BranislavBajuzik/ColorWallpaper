@@ -6,7 +6,7 @@ default_language_version:
 
 repos:
   - repo: https://github.com/timothycrosley/isort
-    rev: 5.4.2
+    rev: 5.8.0
     hooks:
       - id: isort
         exclude: "__init__.py"
@@ -21,16 +21,19 @@ repos:
           - "--line-length=120"
 
   - repo: https://gitlab.com/pycqa/flake8
-    rev: 3.8.3
+    rev: 3.9.0
     hooks:
       - id: flake8
         exclude: "__init__.py"
         args:
           - "--max-line-length=120"
-          - "--extend-ignore=E203,F403,F405,PT011"
+          - "--extend-ignore=E203,F403,F405,PT011,U101"
           - "--pytest-parametrize-names-type=csv"
           - "--pytest-fixture-no-parentheses"
           - "--pytest-parametrize-values-type=tuple"
+          - "--unused-arguments-ignore-abstract-functions"
+          - "--unused-arguments-ignore-stub-functions"
+          - "--unused-arguments-ignore-variadic-names"
         additional_dependencies:
           - flake8-bugbear
           - flake8-builtins
@@ -38,10 +41,11 @@ repos:
           - flake8-logging-format
           - flake8-printf-formatting
           - flake8-pytest-style
+          - flake8-unused-arguments
           - flake8-use-fstring
 
   - repo: https://gitlab.com/pycqa/flake8
-    rev: 3.8.3
+    rev: 3.9.0
     hooks:
       - id: flake8
         name: flake8-docstrings
@@ -54,7 +58,7 @@ repos:
           - flake8-docstrings
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.782
+    rev: v0.812
     hooks:
       - id: mypy
         exclude: "tests"
@@ -69,7 +73,7 @@ repos:
           - "--strict-equality"
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.2.0
+    rev: v3.4.0
     hooks:
       - id: check-byte-order-marker
       - id: check-case-conflict
