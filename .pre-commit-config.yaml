@@ -6,7 +6,7 @@ default_language_version:
 
 repos:
   - repo: https://github.com/timothycrosley/isort
-    rev: 5.7.0
+    rev: 5.8.0
     hooks:
       - id: isort
         exclude: "__init__.py"
@@ -21,7 +21,7 @@ repos:
           - "--line-length=120"
 
   - repo: https://gitlab.com/pycqa/flake8
-    rev: 3.8.4
+    rev: 3.9.0
     hooks:
       - id: flake8
         exclude: "__init__.py"
@@ -45,7 +45,7 @@ repos:
           - flake8-use-fstring
 
   - repo: https://gitlab.com/pycqa/flake8
-    rev: 3.8.4
+    rev: 3.9.0
     hooks:
       - id: flake8
         name: flake8-docstrings
