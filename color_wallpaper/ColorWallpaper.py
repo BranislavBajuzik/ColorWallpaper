@@ -2,12 +2,13 @@ import logging
 import re
 import sys
 from pathlib import Path
-from typing import Any, List, Optional, Tuple
+from random import sample
+from typing import Any, Generator, Iterable, List, Optional, Tuple
 
 from .cli import get_options
 from .color import Color
-from .common import normalized
-from .data import font
+from .common import normalized, safe_path_name
+from .data import color_hexes, font, hex_to_color
 
 try:
     from PIL import Image, ImageDraw
@@ -60,7 +61,12 @@ class Wallpaper:
         for arg in self.__class__.__annotations__:
             setattr(self, arg, kwargs.get(arg, getattr(options, arg)))
 
+        self._process_args()
+
         self.logger = self.init_logging()
+
+    def _process_args(self) -> None:
+        """Process the arguments passed to this object."""
         self.output = Path(self.output).absolute()
 
         random = False
@@ -103,6 +109,10 @@ class Wallpaper:
     def init_logging(self) -> logging.Logger:
         """Initialize logging for this module."""
         logger = logging.getLogger("color-wallpaper")
+
+        if logger.handlers:
+            return logger
+
         logger.setLevel(self.log_level)
 
         # Disable logging
@@ -270,7 +280,7 @@ class Wallpaper:
 
         return img
 
-    def generate_image(self, save: bool = True) -> Image.Image:
+    def generate_image(self, save: bool = False) -> Image.Image:
         """Generate a wallpaper from :param self:.
 
         :param save: Whether to save the image to `self.output`
@@ -292,12 +302,19 @@ class Wallpaper:
 
         if save:
             if not self.output.exists():
-                self.output.parent.mkdir(parents=True, exist_ok=True)
+                try:
+                    self.output.parent.mkdir(parents=True, exist_ok=True)
+                except Exception as ex:
+                    raise OSError(f"Unable to create output directory: {ex}") from None
+
                 img.save(str(self.output))
             elif self.output.is_file():
                 generate = self.yes or input(f'File "{self.output}" exists.\nOverwrite? [y/n] ').lower().startswith("y")
 
                 if generate:
+                    if not self.output.suffix:
+                        self.output.with_suffix(".png")
+
                     img.save(str(self.output))
             else:
                 raise FileExistsError(f'The "{self.output}" exists and is not a file')
@@ -306,3 +323,41 @@ class Wallpaper:
             self.logger.info('Image "%s" successfully generated', self.output)
 
         return img
+
+    @staticmethod
+    def generate_all_images(
+        output_dir: str = None, count: int = -1, extension: str = "png", **kwargs: Any
+    ) -> Generator[Image.Image, None, None]:
+        """Generate a wallpaper from :param self:.
+
+        :param output_dir: Where to generate the wallpapers to
+        :param count: How many wallpapers to generate. Negative values will generate all the wallpapers.
+        :param extension: File extension (and format) of the generated wallpapers.
+        :param kwargs: Will be passed to the Wallpaper constructor.
+        :return: Generator of the generated images.
+        """
+        kwargs.pop("color", None)
+        kwargs.pop("output", None)
+
+        if output_dir is not None:
+            save = True
+            output = Path(output_dir)
+        else:
+            save = False
+            output = Path()
+
+        hexes: Iterable[str] = color_hexes
+        if count >= 0:
+            hexes = sample(color_hexes, count)
+
+        for hex_code in hexes:
+            try:
+                yield Wallpaper(
+                    output=output.joinpath(
+                        safe_path_name(f"#{hex_code}_{hex_to_color[hex_code]}.{extension.lstrip('.')}")
+                    ),
+                    color=hex_code,
+                    **kwargs,
+                ).generate_image(save=save)
+            except RuntimeError:
+                pass

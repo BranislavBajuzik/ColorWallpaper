@@ -60,6 +60,14 @@ Direct generation: `python -m color_wallpaper --option[s]`
   - Declares the order and formats to display
   - Default: `empty HEX rgb`
 
+#### Multiple generation options:
+- `--multiple-count` `MULTIPLE_COUNT`
+  - Generate all colors, that pass other options filtering. negative numbers will produce all colors
+  - Default: `-1`
+- `--multiple-extension` `MULTIPLE_EXTENSION`
+  - The extension/format of the wallpapers
+  - Default: `png`
+
 #### Argument formats
 - `COLOR`
   - `#Hex`: Three or six hexadecimal digits optionally starting with `#`.

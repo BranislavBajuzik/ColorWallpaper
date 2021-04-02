@@ -9,7 +9,9 @@ from typing import Callable, List, Sequence, Tuple, Type, TypeVar
 from .color import Color
 from .common import int_tuple
 
-__all__ = ["get_options"]
+__all__ = ["get_options", "DEFAULT_OUTPUT"]
+
+DEFAULT_OUTPUT = Path("out.png")
 
 Number = TypeVar("Number", float, int)
 T = TypeVar("T")
@@ -177,7 +179,7 @@ def get_options(args: Sequence[str] = None) -> argparse.Namespace:
 
     general_g = ret.add_argument_group("File options")
     general_g.add_argument(
-        "-o", "--output", metavar="PATH", type=Path, default=Path("out.png"), help="Image output path"
+        "-o", "--output", metavar="PATH", type=Path, default=DEFAULT_OUTPUT, help="Image output path"
     )
 
     general_g.add_argument("-y", "--yes", action="store_true", help="Force overwrite of --output")
@@ -237,6 +239,18 @@ def get_options(args: Sequence[str] = None) -> argparse.Namespace:
         nargs="*",
         help="Declares the order and formats to display. Available choices: "
         "{empty, hex, #hex, HEX, #HEX, rgb, hsv, hsl, cmyk}",
+    )
+
+    display_g = ret.add_argument_group("Multiple generation options")
+    display_g.add_argument(
+        "--multiple-count",
+        type=int,
+        default=1,
+        help="Generate all colors, that pass other options filtering. negative numbers will produce all colors",
+    )
+
+    display_g.add_argument(
+        "--multiple-extension", type=str, default="png", help="The extension/format of the wallpapers"
     )
 
     return ret.parse_args(args)
