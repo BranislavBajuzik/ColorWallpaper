@@ -175,7 +175,7 @@ def get_options(args: Sequence[str] = None) -> argparse.Namespace:
         formatter_class=ArgumentDefaultsHelpFormatter,
     )
 
-    ret.add_argument("--log-level", type=log_level, default=logging.INFO, help="Sets logging level")
+    ret.add_argument("--log-level", type=log_level, default=logging.CRITICAL, help="Sets logging level")
 
     general_g = ret.add_argument_group("File options")
     general_g.add_argument(

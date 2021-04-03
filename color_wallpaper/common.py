@@ -6,11 +6,9 @@ from typing import Any, Tuple
 __all__ = ["parse_hex", "int_tuple", "normalized", "safe_path_name"]
 
 
-windows_path_sub_re = re.compile('[<>:"/\\|?*\0-\37]')
-windows_forbidden_path_re = re.compile(r"^(?:con|prn|aux|nul|com[1-9]|lpt[1-9])[ .]*$", re.I)
+windows_path_sub_re = re.compile('[<>:"/\\\\|?*\0-\37]')
+windows_forbidden_path_re = re.compile(r"^(?:con|prn|aux|nul|com[1-9]|lpt[1-9])$", re.I)
 unix_path_sub_re = re.compile("[\0:/]")
-
-sub_re = windows_path_sub_re if os.name == "nt" else unix_path_sub_re
 
 
 def parse_hex(arg: str) -> Tuple[int, int, int]:
@@ -55,9 +53,11 @@ def safe_path_name(filename: str) -> str:
     :param filename: Filename to sanitize.
     :return: The sanitized filename.
     """
-    filename = sub_re.sub("_", filename.strip())
+    sub_re = windows_path_sub_re if os.name == "nt" else unix_path_sub_re
+
+    filename = sub_re.sub("_", filename)
 
     if os.name == "nt":
-        filename = windows_forbidden_path_re.sub("", filename)
+        filename = windows_forbidden_path_re.sub("", filename.rstrip(". "))
 
     return filename or "unnamed"

@@ -1,3 +1,5 @@
+from unittest import mock
+
 import pytest
 
 from color_wallpaper.common import *
@@ -25,7 +27,7 @@ from color_wallpaper.common import *
     ),
 )
 def test_parse_hex_valid(expected, source):
-    assert expected == parse_hex(source)
+    assert parse_hex(source) == expected
 
 
 @pytest.mark.parametrize("source", ("12", "12h", "1234", "12345", "12345h", "1234567"))
@@ -44,8 +46,8 @@ def test_parse_hex_invalid(source):
     ),
 )
 def test_int_tuple(expected, source):
-    assert expected == int_tuple(source)
-    assert expected == int_tuple(*source)
+    assert int_tuple(source) == expected
+    assert int_tuple(*source) == expected
 
 
 @pytest.mark.parametrize(
@@ -58,4 +60,32 @@ def test_int_tuple(expected, source):
     ),
 )
 def test_normalized(expected, source):
-    assert expected == normalized(source)
+    assert normalized(source) == expected
+
+
+@pytest.mark.parametrize(
+    "name,windows,linux",
+    (
+        ("file.txt", "file.txt", "file.txt"),
+        ('a\0file<>:"/\\|?*\37of\40hell . ', "a_file__________of\40hell", 'a_file<>_"_\\|?*\37of\40hell . '),
+        ("con", "unnamed", "con"),
+        ("prn", "unnamed", "prn"),
+        ("aux", "unnamed", "aux"),
+        ("nul", "unnamed", "nul"),
+        ("com0", "com0", "com0"),
+        ("com1", "unnamed", "com1"),
+        ("com9", "unnamed", "com9"),
+        ("lpt0", "lpt0", "lpt0"),
+        ("lpt1", "unnamed", "lpt1"),
+        ("lpt9", "unnamed", "lpt9"),
+        ("", "unnamed", "unnamed"),
+        (" ", "unnamed", " "),
+        ("...", "unnamed", "..."),
+    ),
+)
+def test_safe_path_name(name, windows, linux):
+    with mock.patch("os.name", new="nt"):
+        assert safe_path_name(name) == windows
+
+    with mock.patch("os.name", new="posix"):
+        assert safe_path_name(name) == linux

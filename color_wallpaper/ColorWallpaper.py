@@ -47,12 +47,19 @@ class Wallpaper:
     # Misc options
     log_level: int
 
-    def __init__(self, args: List[str] = None, **kwargs: Any):
+    def __init__(self, args: List[str] = None, logger: logging.Logger = None, **kwargs: Any):
         """Wallpaper object constructor.
 
         :param args: Will override :ref:`sys.argv`
+        :param logger: Logger to use.
         :param kwargs: Used to override the default values of the class arguments.
         """
+        if logger is not None:
+            self.logger = logger
+        else:
+            self.logger = logging.getLogger("color-wallpaper")
+            self.logger.setLevel(logging.CRITICAL)
+
         if args is None:
             args = sys.argv[1:]
 
@@ -62,8 +69,6 @@ class Wallpaper:
             setattr(self, arg, kwargs.get(arg, getattr(options, arg)))
 
         self._process_args()
-
-        self.logger = self.init_logging()
 
     def _process_args(self) -> None:
         """Process the arguments passed to this object."""
@@ -105,27 +110,6 @@ class Wallpaper:
             else:
                 self.color2 = Color.from_str(self.color2)  # type: ignore
                 break
-
-    def init_logging(self) -> logging.Logger:
-        """Initialize logging for this module."""
-        logger = logging.getLogger("color-wallpaper")
-
-        if logger.handlers:
-            return logger
-
-        logger.setLevel(self.log_level)
-
-        # Disable logging
-        if self.log_level == logging.NOTSET:
-            logger.setLevel(logging.CRITICAL)
-
-        # Logging format
-        handler = logging.StreamHandler()
-        handler.setLevel(self.log_level)
-        handler.setFormatter(logging.Formatter("[%(levelname)s] %(name)s: %(message)s"))
-        logger.addHandler(handler)
-
-        return logger
 
     @classmethod
     def _split_word(cls, word: str) -> List[str]:
@@ -326,13 +310,14 @@ class Wallpaper:
 
     @staticmethod
     def generate_all_images(
-        output_dir: str = None, count: int = -1, extension: str = "png", **kwargs: Any
+        output_dir: str = None, count: int = -1, extension: str = "png", logger: logging.Logger = None, **kwargs: Any
     ) -> Generator[Image.Image, None, None]:
         """Generate a wallpaper from :param self:.
 
         :param output_dir: Where to generate the wallpapers to
         :param count: How many wallpapers to generate. Negative values will generate all the wallpapers.
         :param extension: File extension (and format) of the generated wallpapers.
+        :param logger: Logger to use.
         :param kwargs: Will be passed to the Wallpaper constructor.
         :return: Generator of the generated images.
         """
@@ -354,9 +339,10 @@ class Wallpaper:
             try:
                 yield Wallpaper(
                     output=output.joinpath(
-                        safe_path_name(f"#{hex_code}_{hex_to_color[hex_code]}.{extension.lstrip('.')}")
+                        safe_path_name(f"{hex_to_color[hex_code]}_#{hex_code}.{extension.lstrip('.')}")
                     ),
                     color=hex_code,
+                    logger=logger,
                     **kwargs,
                 ).generate_image(save=save)
             except RuntimeError:
