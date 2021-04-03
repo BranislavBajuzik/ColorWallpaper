@@ -152,9 +152,22 @@ class TestLogging:
     def test_default(self, set_cli):
         set_cli()
 
-        assert Wallpaper().logger.level == logging.INFO
+        assert Wallpaper().logger.level == logging.CRITICAL
 
-    def test_disabled(self, set_cli):
-        set_cli(["--log-level", "NOTSET"])
+    @pytest.mark.parametrize("level", tuple(logging._nameToLevel))
+    def test_set_no_logger(self, set_cli, level):
+        set_cli(["--log-level", level])
 
         assert Wallpaper().logger.level == logging.CRITICAL
+
+    @pytest.mark.parametrize("level", tuple(logging._nameToLevel))
+    def test_set_with_logger(self, set_cli, level):
+        set_cli(["--log-level", level])
+
+        logger = logging.getLogger("test-logger")
+        logger.setLevel(level)
+
+        pape_logger = Wallpaper(logger=logger).logger
+
+        assert pape_logger is logger
+        assert pape_logger.level == logging._nameToLevel[level]

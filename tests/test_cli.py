@@ -15,7 +15,7 @@ class TestHelp:
 
 class TestLogLevel:
     def test_default(self):
-        assert logging.INFO == get_options([]).log_level
+        assert logging.CRITICAL == get_options([]).log_level
 
     @pytest.mark.parametrize(
         "cli, level",
