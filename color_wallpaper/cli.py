@@ -241,7 +241,7 @@ def get_options(args: Sequence[str] = None) -> argparse.Namespace:
         "{empty, hex, #hex, HEX, #HEX, rgb, hsv, hsl, cmyk}",
     )
 
-    display_g = ret.add_argument_group("Multiple generation options")
+    display_g = ret.add_argument_group("Multiple wallpapers generation options")
     display_g.add_argument(
         "--multiple-count",
         type=int,

@@ -72,6 +72,8 @@ def test_normalized(expected, source):
         ("prn", "unnamed", "prn"),
         ("aux", "unnamed", "aux"),
         ("nul", "unnamed", "nul"),
+        ("NUL", "unnamed", "NUL"),
+        ("NuL", "unnamed", "NuL"),
         ("com0", "com0", "com0"),
         ("com1", "unnamed", "com1"),
         ("com9", "unnamed", "com9"),
