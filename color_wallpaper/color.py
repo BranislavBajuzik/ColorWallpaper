@@ -120,7 +120,7 @@ class Color:
     def inverted(self, min_contrast: float = None) -> "Color":
         """Return a new Color that is in contrast with :param self:.
 
-        :param min_contrastt: Minimum contrast. Must be in range (1-21)
+        :param min_contrast: Minimum contrast. Must be in range (1-21)
         """
         ret = Color(tuple(255 - x for x in self.rgb))  # type: ignore
 
@@ -153,7 +153,15 @@ class Color:
 
                 lightness_up += 1
 
-        raise RuntimeError(f"Unable to to find a color that has contrast of at least {min_contrast} with {self}")
+        highest_contrast = max(
+            self / self.from_hsl(hue, saturation, lightness_down + 1),
+            self / self.from_hsl(hue, saturation, lightness_up - 1),
+        )
+
+        raise RuntimeError(
+            f"Unable to to find a color that has contrast of at least {min_contrast} with {self}. "
+            f"Best possible: {int(highest_contrast * 100) / 100}"
+        )
 
     @staticmethod
     def random() -> "Color":

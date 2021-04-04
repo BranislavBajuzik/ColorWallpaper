@@ -29,6 +29,7 @@ class Wallpaper:
 
     # File options
     output: Path
+    extension: str
     yes: bool
 
     # Color options
@@ -73,6 +74,9 @@ class Wallpaper:
     def _process_args(self) -> None:
         """Process the arguments passed to this object."""
         self.output = Path(self.output).absolute()
+
+        if self.output.suffix.lower() not in Image.EXTENSION:
+            self.output = self.output.with_suffix("." + self.extension.lstrip("."))
 
         random = False
 
@@ -296,9 +300,6 @@ class Wallpaper:
                 generate = self.yes or input(f'File "{self.output}" exists.\nOverwrite? [y/n] ').lower().startswith("y")
 
                 if generate:
-                    if not self.output.suffix:
-                        self.output.with_suffix(".png")
-
                     img.save(str(self.output))
             else:
                 raise FileExistsError(f'The "{self.output}" exists and is not a file')
@@ -310,13 +311,12 @@ class Wallpaper:
 
     @staticmethod
     def generate_all_images(
-        output_dir: str = None, count: int = -1, extension: str = "png", logger: logging.Logger = None, **kwargs: Any
+        output_dir: str = None, count: int = -1, logger: logging.Logger = None, **kwargs: Any
     ) -> Generator[Image.Image, None, None]:
         """Generate a wallpaper from :param self:.
 
         :param output_dir: Where to generate the wallpapers to
         :param count: How many wallpapers to generate. Negative values will generate all the wallpapers.
-        :param extension: File extension (and format) of the generated wallpapers.
         :param logger: Logger to use.
         :param kwargs: Will be passed to the Wallpaper constructor.
         :return: Generator of the generated images.
@@ -338,9 +338,7 @@ class Wallpaper:
         for hex_code in hexes:
             try:
                 yield Wallpaper(
-                    output=output.joinpath(
-                        safe_path_name(f"{hex_to_color[hex_code]}_#{hex_code}.{extension.lstrip('.')}")
-                    ),
+                    output=output.joinpath(safe_path_name(f"{hex_to_color[hex_code]} #{hex_code}")),
                     color=hex_code,
                     logger=logger,
                     **kwargs,

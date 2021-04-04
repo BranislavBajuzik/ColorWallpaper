@@ -27,7 +27,10 @@ Direct generation: `python -m color_wallpaper --option[s]`
 #### File options
 - `-o`/`--output` `PATH`
   - Used to specify image output path.
-  - Default: `out.png`
+  - Default: `out`
+- `-e`/`--extension` `EXTENSION`
+  - The extension/format of the wallpaper
+  - Default: `png`
 - `-y`/`--yes`
   - Forces overwrite of `--output`
 
@@ -62,11 +65,8 @@ Direct generation: `python -m color_wallpaper --option[s]`
 
 #### Multiple wallpapers generation options:
 - `--multiple-count` `MULTIPLE_COUNT`
-  - Generate all colors, that pass other options filtering. negative numbers will produce all colors
+  - Generate all colors, that pass other options filtering. Negative numbers will produce all colors
   - Default: `1`
-- `--multiple-extension` `MULTIPLE_EXTENSION`
-  - The extension/format of the wallpapers
-  - Default: `png`
 
 #### Argument formats
 - `COLOR`
