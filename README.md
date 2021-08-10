@@ -124,7 +124,7 @@ In Tasker:
 - Create a new Task
   - Add Termux Action with Configuration set to `generate-wallpaper.sh`
   - Add Set Wallpaper Action with Image set to `Pictures/Excluded/paper.png`
-- Create a new Event Profile for Display Off event, give it Highest priority, and set it's Task to the one you just created.
+- Create a new Event Profile for Display Off event, give it `Highest` priority, and set its Task to the one you just created.
 - Edit `~/.termux/tasker/generate-wallpaper.sh` to change arguments (e.g. your screen resolution) of the program.
 - Run `cd ~/ColorWallpaper && git pull` to update the program.
 
@@ -132,7 +132,6 @@ In Tasker:
 
 #### Setup environment
 ```Shell
-python -m pip install -r requirements.txt
 python -m pip install -r requirements-dev.txt
 pre-commit install
 ```
