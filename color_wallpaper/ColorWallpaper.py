@@ -19,7 +19,7 @@ except ImportError:
 
 __all__ = ["Wallpaper"]
 
-newline_re = re.compile(r"(?:\n|\\n)")
+newline_re = re.compile(r"\n|\\n")
 
 
 class Wallpaper:
