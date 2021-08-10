@@ -75,7 +75,10 @@ Direct generation: `python -m color_wallpaper --option[s]`
   - Valid name of a color.
 - `CONTRAST`
   - A float in range 1-21.
+  - Higher number means greater contrast
+  - Full definition in the [WCAG 2.1](https://www.w3.org/TR/WCAG21/#dfn-contrast-ratio)
 - `RESOLUTION`
+  - Pixels
   - Two integers greater or equal to 150, separated by `x` or `:`.
 - `FORMAT`
   - Self explanatory: `hex`, `rgb`, `hsv`, `hsl`, `cmyk`
