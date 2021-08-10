@@ -1,4 +1,5 @@
-Black
+-r requirements.txt
+black
 pre-commit
 pytest
 setuptools

@@ -1,7 +1,7 @@
 import logging
 
 from . import Wallpaper
-from .cli import DEFAULT_OUTPUT, get_options
+from .cli import get_options
 
 
 def make_logger(log_level: int) -> logging.Logger:
@@ -29,10 +29,5 @@ pape_logger = make_logger(options.log_level)
 if options.multiple_count == 1:
     Wallpaper(logger=pape_logger).generate_image(save=True)
 else:
-    if options.output is DEFAULT_OUTPUT:
-        options.output = "generated"
-
-    for _ in Wallpaper.generate_all_images(
-        options.output, options.multiple_count, options.multiple_extension, pape_logger
-    ):
+    for _ in Wallpaper.generate_all_images(options.output, options.multiple_count, pape_logger):
         pass

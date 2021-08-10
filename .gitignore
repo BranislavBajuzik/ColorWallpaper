@@ -9,4 +9,4 @@ venv/
 .mypy_cache/
 .pytest_cache/
 out.png
-generated/
+out/

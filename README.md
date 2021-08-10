@@ -27,7 +27,10 @@ Direct generation: `python -m color_wallpaper --option[s]`
 #### File options
 - `-o`/`--output` `PATH`
   - Used to specify image output path.
-  - Default: `out.png`
+  - Default: `out`
+- `-e`/`--extension` `EXTENSION`
+  - The extension/format of the wallpaper
+  - Default: `png`
 - `-y`/`--yes`
   - Forces overwrite of `--output`
 
@@ -62,11 +65,8 @@ Direct generation: `python -m color_wallpaper --option[s]`
 
 #### Multiple wallpapers generation options:
 - `--multiple-count` `MULTIPLE_COUNT`
-  - Generate all colors, that pass other options filtering. negative numbers will produce all colors
+  - Generate all colors, that pass other options filtering. Negative numbers will produce all colors
   - Default: `1`
-- `--multiple-extension` `MULTIPLE_EXTENSION`
-  - The extension/format of the wallpapers
-  - Default: `png`
 
 #### Argument formats
 - `COLOR`
@@ -75,7 +75,10 @@ Direct generation: `python -m color_wallpaper --option[s]`
   - Valid name of a color.
 - `CONTRAST`
   - A float in range 1-21.
+  - Higher number means greater contrast
+  - Full definition in the [WCAG 2.1](https://www.w3.org/TR/WCAG21/#dfn-contrast-ratio)
 - `RESOLUTION`
+  - Pixels
   - Two integers greater or equal to 150, separated by `x` or `:`.
 - `FORMAT`
   - Self explanatory: `hex`, `rgb`, `hsv`, `hsl`, `cmyk`
@@ -124,7 +127,7 @@ In Tasker:
 - Create a new Task
   - Add Termux Action with Configuration set to `generate-wallpaper.sh`
   - Add Set Wallpaper Action with Image set to `Pictures/Excluded/paper.png`
-- Create a new Event Profile for Display Off event, give it Highest priority, and set it's Task to the one you just created.
+- Create a new Event Profile for Display Off event, give it `Highest` priority, and set its Task to the one you just created.
 - Edit `~/.termux/tasker/generate-wallpaper.sh` to change arguments (e.g. your screen resolution) of the program.
 - Run `cd ~/ColorWallpaper && git pull` to update the program.
 
@@ -132,7 +135,6 @@ In Tasker:
 
 #### Setup environment
 ```Shell
-python -m pip install -r requirements.txt
 python -m pip install -r requirements-dev.txt
 pre-commit install
 ```

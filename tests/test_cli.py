@@ -50,7 +50,7 @@ class TestLogLevel:
 # General Options
 class TestOutput:
     def test_default(self):
-        assert Path("out.png") == get_options([]).output
+        assert Path("out") == get_options([]).output
 
     @pytest.mark.parametrize(
         "cli, result",
@@ -63,6 +63,23 @@ class TestOutput:
     )
     def test_valid(self, cli, result):
         assert result == get_options(cli).output
+
+
+class TestExtension:
+    def test_default(self):
+        assert "png" == get_options([]).extension
+
+    @pytest.mark.parametrize(
+        "cli, result",
+        (
+            (["-e", "jpg"], "jpg"),
+            (["-e", ".jpg"], ".jpg"),
+            (["--extension", "jpg"], "jpg"),
+            (["--extension", ".jpg"], ".jpg"),
+        ),
+    )
+    def test_valid(self, cli, result):
+        assert result == get_options(cli).extension
 
 
 class TestYes:
@@ -314,6 +331,37 @@ class TestFormats:
         assert sorted(result) == sorted(get_options(cli).formats)
 
     @pytest.mark.parametrize("cli", (["-f", "r g b"], ["-f", "heX"], ["-f", "#Hex"], ["-f", "a"], ["-f", ""]))
+    def test_invalid(self, cli):
+        with pytest.raises(SystemExit):
+            get_options(cli)
+
+
+class TestMultipleCount:
+    def test_default(self):
+        assert 1 == get_options([]).multiple_count
+
+    @pytest.mark.parametrize(
+        "cli, result",
+        (
+            (["--multiple-count", "1"], 1),
+            (["--multiple-count", "420"], 420),
+            (["--multiple-count", "0"], 0),
+            (["--multiple-count", "-1"], -1),
+        ),
+    )
+    def test_valid(self, cli, result):
+        assert result == get_options(cli).multiple_count
+
+    @pytest.mark.parametrize(
+        "cli",
+        (
+            ["--multiple-count", "a"],
+            ["--multiple-count", "nan"],
+            ["--multiple-count", ""],
+            ["--multiple-count", "-0.1"],
+            ["--multiple-count", "1.5"],
+        ),
+    )
     def test_invalid(self, cli):
         with pytest.raises(SystemExit):
             get_options(cli)
